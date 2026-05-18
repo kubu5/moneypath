@@ -1,11 +1,13 @@
 <?php
 /**
  * Plugin Name:  MoneyPath Game
- * Plugin URI:   https://github.com/your-repo/moneypath
+ * Plugin URI:   https://github.com/kubu5/moneypath
  * Description:  Embeds the MoneyPath educational financial board game on any page or post using a shortcode.
  * Version:      1.0.0
- * Author:       Your Name
+ * Author:       Jakub Krawczyk / Little Explorers sp. z o.o.
+ * Author URI:   https://github.com/kubu5
  * License:      MIT
+ * Copyright:    (c) 2025 Little Explorers sp. z o.o. — Jakub Krawczyk
  *
  * ─────────────────────────────────────────────────────────────
  * USAGE

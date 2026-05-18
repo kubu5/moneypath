@@ -11,7 +11,7 @@ moneypath/
 ├── package.json                   ← zależności npm
 ├── Procfile                       ← dla Railway / Heroku
 ├── .gitignore
-├── online_viewer_net.html         ← cała gra (frontend, ~150 KB)
+├── money_path.html         ← cała gra (frontend, ~150 KB)
 └── wordpress-plugin/
     └── moneypath-game/
         ├── moneypath-game.php     ← wtyczka WordPress
@@ -28,7 +28,7 @@ moneypath/
 
 ```bash
 git init
-git add server.js package.json online_viewer_net.html Procfile .gitignore
+git add server.js package.json money_path.html Procfile .gitignore
 git commit -m "MoneyPath v1"
 git branch -M main
 git remote add origin https://github.com/TWOJE-KONTO/moneypath.git
@@ -119,7 +119,7 @@ Gra jest dostępna pod adresem np.: `twoja-strona.pl/zagraj`
 
 ## Granie lokalnie (bez internetu)
 
-Otwórz plik `online_viewer_net.html` bezpośrednio w przeglądarce.
+Otwórz plik `money_path.html` bezpośrednio w przeglądarce.
 Wybierz **Play Local** — wszyscy grają na jednym ekranie.
 
 > Tryb lokalny nie wymaga serwera ani internetu.

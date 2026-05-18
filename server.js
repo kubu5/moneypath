@@ -1,5 +1,8 @@
 // server.js — MoneyPath multiplayer backend
 // Run: node server.js  (requires: npm install ws)
+//
+// Copyright (c) 2025 Little Explorers sp. z o.o. — Jakub Krawczyk
+// All rights reserved.
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
@@ -7,7 +10,7 @@ const { WebSocketServer } = require('ws');
 
 const PORT        = process.env.PORT        || 3000;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*'; // set to your WP domain in production
-const HTML        = path.join(__dirname, 'online_viewer_net.html');
+const HTML        = path.join(__dirname, 'money_path.html');
 
 // ── In-memory state ───────────────────────────────────────────
 // games: Map<gameId, { id, name, hostWs, maxPlayers, players[], started, state }>

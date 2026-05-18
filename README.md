@@ -16,7 +16,7 @@ An educational multiplayer financial board game playable in the browser — loca
 
 ### Play locally (no server needed)
 
-Open `online_viewer_net.html` directly in your browser and choose **Play Local**.
+Open `money_path.html` directly in your browser and choose **Play Local**.
 
 ### Play online (multiplayer)
 
@@ -69,7 +69,7 @@ Then open `http://localhost:3000` in the browser.
 
 ```
 moneypath/
-├── online_viewer_net.html     # Full game (single-file frontend)
+├── money_path.html     # Full game (single-file frontend)
 ├── server.js                  # Node.js multiplayer backend (WebSocket + HTTP)
 ├── package.json
 ├── Procfile                   # Railway / Heroku deployment
@@ -104,3 +104,12 @@ moneypath/
 ## License
 
 MIT
+
+---
+
+## Copyright
+
+Copyright (c) 2025 **Little Explorers sp. z o.o.** — Jakub Krawczyk
+
+MoneyPath is an original educational board game inspired by passive income and financial literacy principles.
+Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.

@@ -3,7 +3,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MoneyPath — Financial Freedom</title>
-<!-- Educational financial board game — original work, inspired by passive income concepts -->
+<!--
+  MoneyPath — Educational Financial Board Game
+  Copyright (c) 2025 Little Explorers sp. z o.o. — Jakub Krawczyk
+  All rights reserved.
+  Original work inspired by passive income and financial literacy principles.
+  Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+-->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap');
 
@@ -1048,6 +1054,39 @@ input:focus, select:focus {
 [data-theme="dark"] .breakout-badge.down { background: rgba(251,63,95,0.15); border-color: rgba(251,63,95,0.4); color: #fb7185; }
 
 [data-theme="dark"] .breakout-badge.normal { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.25); color: #7dd3fc; }
+
+/* ══════════════════════════════════════════
+   DARK THEME — LOBBY / ONLINE SCREENS
+   ══════════════════════════════════════════ */
+[data-theme="dark"] .lobby-game-card {
+  background: rgba(8,20,40,0.8);
+  border-color: rgba(56,189,248,0.15);
+}
+[data-theme="dark"] .lobby-game-card:hover {
+  background: rgba(15,35,70,0.95);
+  border-color: rgba(56,189,248,0.4);
+}
+[data-theme="dark"] .room-player-chip {
+  background: rgba(56,189,248,0.1);
+  border-color: rgba(56,189,248,0.2);
+  color: #e6f6ff;
+}
+[data-theme="dark"] .room-code-box {
+  background: rgba(56,189,248,0.08);
+  border-color: rgba(56,189,248,0.3);
+}
+[data-theme="dark"] #online-waiting-bar {
+  background: rgba(56,189,248,0.07);
+  border-color: rgba(56,189,248,0.2);
+  color: #7dd3fc;
+}
+[data-theme="dark"] .setup-card .subtitle { color: #7ab0d2; }
+[data-theme="dark"] .setup-card label { color: #7ab0d2 !important; }
+[data-theme="dark"] .setup-card > div[style*="rgba(176,145,210"] {
+  background: rgba(56,189,248,0.06) !important;
+  border-color: rgba(56,189,248,0.15) !important;
+  color: #7ab0d2 !important;
+}
 
 /* ══════════════════════════════════════════
    ONLINE MULTIPLAYER UI
