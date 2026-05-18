@@ -1208,12 +1208,10 @@ input:focus, select:focus {
   #turn-who { font-size: 17px !important; }
   #turn-count { font-size: 20px !important; }
 
-  #theme-toggle {
-    position: fixed !important;
+  #global-theme-toggle {
     top: 6px !important; right: 8px !important;
     font-size: 10px !important;
     padding: 5px 10px !important;
-    z-index: 9999 !important;
   }
 
   .modal { width: 95vw !important; max-width: 95vw !important; max-height: 90dvh; overflow-y: auto; }
@@ -1221,9 +1219,51 @@ input:focus, select:focus {
   .ac div[style*="grid-template-columns"] { grid-template-columns: 1fr 1fr !important; }
   .btn { font-size: 13px !important; padding: 11px 14px !important; }
 }
+
+/* ══════════════════════════════════════════
+   GLOBAL THEME TOGGLE + SCREEN FOOTER
+   ══════════════════════════════════════════ */
+#global-theme-toggle {
+  position: fixed; top: 14px; right: 16px; z-index: 99999;
+  padding: 7px 14px; border-radius: 20px;
+  border: 1.5px solid rgba(176,145,210,0.4);
+  background: rgba(255,255,255,0.88);
+  color: #9570b8; font-weight: 700; font-size: 12px;
+  cursor: pointer; backdrop-filter: blur(8px);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+[data-theme="dark"] #global-theme-toggle {
+  background: rgba(8,20,40,0.88);
+  border-color: rgba(56,189,248,0.35);
+  color: #7dd3fc;
+}
+
+.screen-footer-copy {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+  padding: 0 4px;
+}
+.screen-footer-copy strong { font-weight: 800; }
+
+.disclaimer-box {
+  margin-top: 22px; padding: 12px 14px; border-radius: 10px;
+  background: rgba(150,112,184,0.08);
+  border: 1px solid rgba(150,112,184,0.2);
+  font-size: 11px; color: var(--muted); line-height: 1.6; text-align: center;
+}
+[data-theme="dark"] .disclaimer-box {
+  background: rgba(56,189,248,0.06);
+  border-color: rgba(56,189,248,0.15);
+}
 </style>
 </head>
 <body>
+
+<!-- Global theme toggle — visible on all screens -->
+<button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
 
 <!-- SETUP SCREEN -->
 <!-- ══════════════════════════════════════════
@@ -1248,10 +1288,14 @@ input:focus, select:focus {
           <span><strong>Play Online</strong><br><span style="font-size:12px; opacity:0.8;">Each player on their own device</span></span>
         </button>
       </div>
-      <div style="margin-top:22px; padding:12px 14px; border-radius:10px; background:rgba(176,145,210,0.08); border:1px solid rgba(176,145,210,0.2); font-size:11px; color:var(--muted); line-height:1.6; text-align:center;">
+      <div class="disclaimer-box">
         📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
-        Created for educational use only. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+        Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
       </div>
+    </div>
+    <div class="screen-footer-copy">
+      © 2025 <strong>Little Explorers sp. z o.o.</strong> — Jakub Krawczyk<br>
+      Dozwolone do użytku niezarobkowego i edukacyjnego.
     </div>
   </div>
 </div>
@@ -1291,6 +1335,10 @@ input:focus, select:focus {
 
       <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:18px;" onclick="goScreen('menu')">← Back</button>
     </div>
+    <div class="screen-footer-copy">
+      © 2025 <strong>Little Explorers sp. z o.o.</strong> — Jakub Krawczyk<br>
+      Dozwolone do użytku niezarobkowego i edukacyjnego.
+    </div>
   </div>
 </div>
 
@@ -1324,6 +1372,10 @@ input:focus, select:focus {
 
       <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:10px;" onclick="leaveRoom()">← Leave Room</button>
     </div>
+    <div class="screen-footer-copy">
+      © 2025 <strong>Little Explorers sp. z o.o.</strong> — Jakub Krawczyk<br>
+      Dozwolone do użytku niezarobkowego i edukacyjnego.
+    </div>
   </div>
 </div>
 
@@ -1351,10 +1403,14 @@ input:focus, select:focus {
       </div>
       <button class="btn btn-secondary" style="width:100%; padding:10px; margin-top:10px; font-size:13px;" onclick="goScreen('menu')">← Back to Menu</button>
 
-      <div style="margin-top:22px; padding:12px 14px; border-radius:10px; background:rgba(176,145,210,0.08); border:1px solid rgba(176,145,210,0.2); font-size:11px; color:var(--muted); line-height:1.6; text-align:center;">
+      <div class="disclaimer-box">
         📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
-        Created for educational use only. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+        Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
       </div>
+    </div>
+    <div class="screen-footer-copy">
+      © 2025 <strong>Little Explorers sp. z o.o.</strong> — Jakub Krawczyk<br>
+      Dozwolone do użytku niezarobkowego i edukacyjnego.
     </div>
   </div>
 </div>
@@ -1384,8 +1440,6 @@ input:focus, select:focus {
         <div id="turn-count" style="font-size:28px; font-weight:900; color:var(--accent);">1</div>
       </div>
     </div>
-
-    <button id="theme-toggle" onclick="toggleTheme()" style="position:fixed;top:12px;right:16px;z-index:9999;padding:7px 14px;border-radius:20px;border:1.5px solid rgba(176,145,210,0.4);background:rgba(255,255,255,0.85);color:#9570b8;font-weight:700;font-size:12px;cursor:pointer;backdrop-filter:blur(8px);">🌙 Dark</button>
 
     <canvas id="boardCanvas" width="900" height="620"></canvas>
 
@@ -3637,7 +3691,7 @@ function initPanelsMobile() {
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
-  const btn = document.getElementById('theme-toggle');
+  const btn = document.getElementById('global-theme-toggle');
   if (btn) btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
   localStorage.setItem('moneypath-theme', theme);
   drawBoard();
