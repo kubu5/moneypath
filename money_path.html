@@ -1523,11 +1523,11 @@ const PROFESSIONS = [
 
 // Rat Race: NO market spaces — deals only on Deal spaces
 const RAT_RACE_SPACES = [
-  {type:"payday"}, {type:"deal"}, {type:"deal"},  {type:"deal"},   {type:"doodad"},
-  {type:"doodad"}, {type:"payday"},{type:"baby"},  {type:"deal"},   {type:"charity"},
-  {type:"deal"},   {type:"payday"},{type:"charity"},{type:"deal"},   {type:"doodad"},
-  {type:"payday"}, {type:"deal"},  {type:"layoff"},{type:"deal"},   {type:"doodad"},
-  {type:"deal"},   {type:"payday"},{type:"deal"},   {type:"doodad"}
+  {type:"payday"}, {type:"deal"}, {type:"deal"},  {type:"deal"},   {type:"splurge"},
+  {type:"splurge"}, {type:"payday"},{type:"baby"},  {type:"deal"},   {type:"charity"},
+  {type:"deal"},   {type:"payday"},{type:"charity"},{type:"deal"},   {type:"splurge"},
+  {type:"payday"}, {type:"deal"},  {type:"layoff"},{type:"deal"},   {type:"splurge"},
+  {type:"deal"},   {type:"payday"},{type:"deal"},   {type:"splurge"}
 ];
 
 const SMALL_DEAL_LIMIT = 6000;
@@ -1588,11 +1588,11 @@ const BIG_DEALS = [
 
 // 5 stock definitions — limited pool so same stocks repeat more
 const STOCK_MARKET_DEALS = [
-  {title:"OK4U Drug Co.", symbol:"OK4U", desc:"Rates hit a long-time medicine maker. Price looks beaten down.", basePrice:5, rangeLow:3, rangeHigh:40, cashflow:0, type:"stock", sector:"Healthcare"},
-  {title:"MYT4U Gaming", symbol:"MYT4U", desc:"New game launch sentiment is volatile after mixed reviews.", basePrice:12, rangeLow:5, rangeHigh:30, cashflow:0, type:"stock", sector:"Gaming"},
-  {title:"GRO4US Green Energy", symbol:"GRO4US", desc:"Clean energy basket dips after supply-chain news.", basePrice:18, rangeLow:10, rangeHigh:50, cashflow:0, type:"stock", sector:"Energy"},
-  {title:"AI2GO Cloud", symbol:"AI2GO", desc:"Data center demand is strong, but the stock pulled back.", basePrice:24, rangeLow:15, rangeHigh:60, cashflow:0, type:"stock", sector:"AI Infrastructure"},
-  {title:"BOTZ Robotics", symbol:"BOTZ", desc:"Automation names sell off after a weak quarter.", basePrice:9, rangeLow:5, rangeHigh:35, cashflow:0, type:"stock", sector:"Robotics"}
+  {title:"HLTHX Pharma Co.", symbol:"HLTHX", desc:"Rates hit a long-time medicine maker. Price looks beaten down.", basePrice:5, rangeLow:3, rangeHigh:40, cashflow:0, type:"stock", sector:"Healthcare"},
+  {title:"PLYNX Gaming", symbol:"PLYNX", desc:"New game launch sentiment is volatile after mixed reviews.", basePrice:12, rangeLow:5, rangeHigh:30, cashflow:0, type:"stock", sector:"Gaming"},
+  {title:"SOLRX Green Energy", symbol:"SOLRX", desc:"Clean energy basket dips after supply-chain news.", basePrice:18, rangeLow:10, rangeHigh:50, cashflow:0, type:"stock", sector:"Energy"},
+  {title:"CLDAI Cloud", symbol:"CLDAI", desc:"Data center demand is strong, but the stock pulled back.", basePrice:24, rangeLow:15, rangeHigh:60, cashflow:0, type:"stock", sector:"AI Infrastructure"},
+  {title:"ROBOX Robotics", symbol:"ROBOX", desc:"Automation names sell off after a weak quarter.", basePrice:9, rangeLow:5, rangeHigh:35, cashflow:0, type:"stock", sector:"Robotics"}
 ];
 
 // Price history: array of {open, high, low, close} candles
@@ -1617,7 +1617,7 @@ function initStockPrices() {
   });
 }
 
-const DOODADS = [
+const SPLURGES = [
   {title:"Phone Upgrade", desc:"Flagship device on launch week", cost:1200},
   {title:"Music Festival", desc:"Tickets, travel, and merch", cost:1800},
   {title:"Laptop Repair", desc:"Main board failure before a deadline", cost:950},
@@ -1828,7 +1828,7 @@ function beginTurn() {
   if (isOnline && !isMyTurn()) {
     document.getElementById("action-area").innerHTML = `
       <div class="ac" style="text-align:center;">
-        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${p.onFastTrack ? '🚀 FAST TRACK' : '🐀 RAT RACE'}</div>
+        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${p.onFastTrack ? '🚀 FREEDOM TRACK' : '⚙️ DAILY GRIND'}</div>
         <div style="padding:32px 20px;">
           <div style="font-size:40px;margin-bottom:12px;">⏳</div>
           <div style="font-size:17px;font-weight:700;">Waiting for <span style="color:${p.color};">${p.name}</span></div>
@@ -1845,7 +1845,7 @@ function beginTurn() {
   }
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${p.onFastTrack ? '🚀 FAST TRACK' : '🐀 RAT RACE'}</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${p.onFastTrack ? '🚀 FREEDOM TRACK' : '⚙️ DAILY GRIND'}</div>
       <div class="ac-title">${p.name} — <span style="color:var(--muted);font-size:15px;">${p.profession}</span></div>
       <div style="padding:28px; text-align:center;">
         <div class="dice-row" id="die-result"><span class="die-face">?</span></div>
@@ -1948,7 +1948,7 @@ async function rollDice() {
 // ==================== SPACE HANDLERS ====================
 function handleRatRaceSpace(space) {
   if (space.type === "deal")    handleDealChoice();
-  else if (space.type === "doodad")  drawDoodad();
+  else if (space.type === "splurge")  drawSplurge();
   else if (space.type === "baby")    handleBaby();
   else if (space.type === "charity") handleCharity();
   else if (space.type === "layoff")  handleLayoff();
@@ -2550,7 +2550,7 @@ function collectFastTrackIncome(p) {
   renderFS();
   const dream = p.dream;
   if (!dream) {
-    renderAction_EndTurn(`Fast Track payday: +$${income.toLocaleString()}`);
+    renderAction_EndTurn(`Freedom Track payday: +$${income.toLocaleString()}`);
     return;
   }
   const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
@@ -2569,7 +2569,7 @@ function collectFastTrackIncome(p) {
         <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
       </div>
     </div>`;
-  renderAction_EndTurn(`Fast Track +$${income.toLocaleString()}${progressBar}`);
+  renderAction_EndTurn(`Freedom Track +$${income.toLocaleString()}${progressBar}`);
 }
 
 function handleOwnDreamLanding(p) {
@@ -2639,26 +2639,26 @@ function showWin(p, details) {
   document.getElementById("winner-details").textContent = details;
 }
 
-function drawDoodad() {
-  const card = DOODADS[Math.floor(Math.random() * DOODADS.length)];
+function drawSplurge() {
+  const card = SPLURGES[Math.floor(Math.random() * SPLURGES.length)];
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">DOODAD</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">SPLURGE</div>
       <div class="ac-title">${card.title}</div>
       <div style="padding:20px;">
         <p style="color:#fca5a5; margin-bottom:12px;">${card.desc}</p>
         <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:20px;">−$${card.cost.toLocaleString()}</div>
-        <button class="btn btn-danger-act" style="width:100%;" onclick="payDoodad(${card.cost})">PAY</button>
+        <button class="btn btn-danger-act" style="width:100%;" onclick="paySplurge(${card.cost})">PAY</button>
       </div>
     </div>`;
 }
 
-function payDoodad(cost) {
+function paySplurge(cost) {
   const p = currentPlayer();
   p.cash -= cost;
   renderFS();
   if (!checkSolvency()) return;
-  renderAction_EndTurn(`Paid $${cost.toLocaleString()} for Doodad`);
+  renderAction_EndTurn(`Paid $${cost.toLocaleString()} for Splurge`);
 }
 
 function renderAction_EndTurn(msg) {
@@ -2913,7 +2913,7 @@ function checkFastTrack(p) {
     p.onFastTrack = true;
     p.position = 0;
     p.visualPosition = 0;
-    showNotif(`🎉 ${p.name} escaped the Rat Race!`, "success");
+    showNotif(`🎉 ${p.name} escaped the Daily Grind!`, "success");
   }
 }
 
@@ -2929,7 +2929,7 @@ function renderGame() {
 function updateTurnBanner() {
   const p = currentPlayer();
   document.getElementById("turn-who").innerHTML = `<span style="color:${p.color}">${p.name}</span>`;
-  document.getElementById("turn-track").textContent = p.onFastTrack ? "🚀 FAST TRACK" : "🐀 RAT RACE";
+  document.getElementById("turn-track").textContent = p.onFastTrack ? "🚀 FREEDOM TRACK" : "⚙️ DAILY GRIND";
   document.getElementById("turn-count").textContent = state.turn;
 }
 
@@ -3051,7 +3051,7 @@ function renderFS() {
 // ==================== BOARD DRAWING ====================
 function tileColor(type) {
   return {
-    payday:"#22c55e", deal:"#38bdf8", doodad:"#fb3f5f",
+    payday:"#22c55e", deal:"#38bdf8", splurge:"#fb3f5f",
     baby:"#f59e0b", charity:"#84cc16", layoff:"#ef4444",
     dream:"#f59e0b", cashflow:"#22c55e", tax:"#8b5cf6",
     travel:"#0ea5e9", business:"#14b8a6"
@@ -3060,7 +3060,7 @@ function tileColor(type) {
 
 function tileLabel(type) {
   return {
-    payday:"PAY", deal:"DEAL", doodad:"DOD",
+    payday:"PAY", deal:"DEAL", splurge:"SPL",
     baby:"BABY", charity:"CHAR", layoff:"LAY",
     dream:"DREAM", cashflow:"CASH", tax:"TAX",
     travel:"TRIP", business:"BIZ"
@@ -3193,7 +3193,7 @@ function drawRatRaceRing(ctx, activePositions) {
   ctx.fillStyle = isDark ? "#d1e8f7" : "#9570b8";
   ctx.font = "bold 14px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("RAT RACE", cx, cy+40);
+  ctx.fillText("DAILY GRIND", cx, cy+40);
 }
 
 function drawPlayerToken(ctx, x, y, color, label) {
@@ -3278,12 +3278,12 @@ function drawBoard() {
 
   drawCardDeck(ctx, 116, 166, 118, 70, "SMALL DEAL", "rgba(56,189,248,0.85)");
   drawCardDeck(ctx, 116, 342, 118, 70, "BIG DEAL",   "rgba(34,197,94,0.85)");
-  drawCardDeck(ctx, 668, 342, 104, 70, "DOODADS",    "rgba(251,63,95,0.82)");
+  drawCardDeck(ctx, 668, 342, 104, 70, "SPLURGES",    "rgba(251,63,95,0.82)");
 
   ctx.fillStyle = isDark ? "rgba(56,189,248,0.6)" : "rgba(149,112,184,0.8)";
   ctx.font = "bold 11px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("FAST TRACK", 450, 92);
+  ctx.fillText("FREEDOM TRACK", 450, 92);
 
   drawRatRaceRing(ctx, ratPositions);
 
