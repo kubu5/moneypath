@@ -1,0 +1,3617 @@
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoneyPath — Financial Freedom</title>
+<!-- Educational financial board game — original work, inspired by passive income concepts -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap');
+
+/* ── LIGHT THEME (default) — Little Explorers palette ── */
+:root {
+  --bg: #fef9f8;
+  --glass: rgba(255,255,255,0.80);
+  --glass-strong: rgba(255,255,255,0.95);
+  --accent: #9570b8;
+  --accent2: #4CAF7D;
+  --profit: #4CAF7D;
+  --loss: #e05050;
+  --warning: #FF8C42;
+  --dark: #f3e8ff;
+  --card: rgba(255,255,255,0.92);
+  --text: #2d2d2d;
+  --muted: #888;
+  /* Little Explorers tokens */
+  --sal: #FFA699;
+  --sal-d: #E68A7E;
+  --sal-l: #FFEBEA;
+  --pur: #B691D2;
+  --pur-d: #9570b8;
+  --pur-l: #f3e8ff;
+  --grn: #4CAF7D;
+  --grn-d: #2e7d32;
+  --yel: #FFD166;
+  --yel-l: #fffbea;
+  --blu: #5B9BD5;
+  --ora: #FF8C42;
+}
+
+/* ── DARK THEME ── */
+[data-theme="dark"] {
+  --bg: #04101e;
+  --glass: rgba(8, 20, 40, 0.65);
+  --glass-strong: rgba(12, 28, 52, 0.88);
+  --accent: #38bdf8;
+  --accent2: #22c55e;
+  --profit: #22c55e;
+  --loss: #fb3f5f;
+  --warning: #f59e0b;
+  --dark: #050f1c;
+  --card: rgba(10, 24, 48, 0.85);
+  --text: #e6f6ff;
+  --muted: #7ab0d2;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(176,145,210,0.18) 0%, transparent 38%),
+    radial-gradient(ellipse at 88% 15%, rgba(76,175,125,0.12) 0%, transparent 34%),
+    radial-gradient(ellipse at 50% 100%, rgba(255,166,153,0.10) 0%, transparent 40%);
+  background-size: auto;
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== GLASS SYSTEM ===== */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 16px;
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 -1px 0 rgba(0,0,0,0.3) inset;
+  border: 1px solid rgba(176,145,210,0.25);
+  box-shadow: 0 8px 32px rgba(149,112,184,0.10);
+}
+
+.glass-premium {
+  background: linear-gradient(135deg, rgba(15,35,65,0.72), rgba(8,20,40,0.82));
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(125,211,252,0.28);
+  border-radius: 18px;
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.55),
+    0 2px 0 rgba(255,255,255,0.08) inset,
+    0 0 0 1px rgba(56,189,248,0.06) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-premium::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(125,211,252,0.5), transparent);
+}
+
+.glass-premium::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 60%; height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent 60%);
+  pointer-events: none;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(90deg, rgba(4,12,28,0.98), rgba(10,28,55,0.94));
+  border-bottom: 1px solid rgba(56,189,248,0.3);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent);
+}
+
+.logo {
+  font-size: 34px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #38bdf8, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -2px;
+}
+
+/* ===== SETUP ===== */
+#setup-screen {
+  /* display controlled by screen visibility system */
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-y: auto;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(56,189,248,0.25), transparent 30%),
+    radial-gradient(ellipse at 75% 80%, rgba(99,102,241,0.15), transparent 30%),
+    linear-gradient(135deg, #04101e, #081c38 55%, #04101e);
+}
+
+.setup-container { width: 520px; max-width: 94vw; }
+
+.setup-card { padding: 36px; }
+
+h1 {
+  font-size: 44px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  background: rgba(8,20,40,0.8);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(56,189,248,0.12);
+  transition: border-color 0.2s;
+}
+
+.player-row:hover { border-color: rgba(56,189,248,0.25); }
+
+.pnum {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 14px; color: white;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px currentColor;
+}
+
+input, select {
+  background: rgba(4,12,28,0.9);
+  border: 1px solid rgba(125,211,252,0.2);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  flex: 1;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: rgba(56,189,248,0.5);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.08);
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  pointer-events: none;
+}
+
+.btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: linear-gradient(135deg, #0ea5e9, #22c55e);
+  color: #fff;
+  font-size: 15px;
+  box-shadow: 0 4px 20px rgba(14,165,233,0.3);
+}
+
+.btn-add {
+  background: transparent;
+  border: 2px dashed rgba(100,116,139,0.6);
+  color: #94a3b8;
+}
+
+/* ===== GAME SCREEN ===== */
+#game-screen {
+  display: none;
+  grid-template-columns: 240px minmax(480px,1fr) 460px;
+  height: 100vh;
+}
+
+#game-screen.active { display: grid; }
+
+.left-panel, .right-panel {
+  background: linear-gradient(180deg, rgba(6,18,38,0.95), rgba(4,12,28,0.97));
+  border-right: 1px solid rgba(56,189,248,0.12);
+  overflow-y: auto;
+}
+
+.right-panel {
+  border-right: 0;
+  border-left: 1px solid rgba(56,189,248,0.12);
+}
+
+.left-panel::-webkit-scrollbar, .right-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.left-panel::-webkit-scrollbar-track, .right-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.left-panel::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb {
+  background: rgba(56,189,248,0.2);
+  border-radius: 4px;
+}
+
+.center-panel {
+  background: radial-gradient(ellipse at 50% -10%, rgba(56,189,248,0.12), transparent 40%), #04101e;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.turn-banner {
+  background: linear-gradient(90deg, rgba(6,20,44,0.95), rgba(12,36,72,0.85));
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+.turn-banner::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56,189,248,0.4), transparent);
+}
+
+#boardCanvas {
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 16px;
+  background: #02060f;
+  box-shadow: 0 0 60px rgba(0,212,255,0.1), 0 24px 64px rgba(0,0,0,0.6);
+  image-rendering: crisp-edges;
+  width: auto;
+  height: min(580px, calc(100vh - 170px));
+  max-width: min(900px, 100%);
+  align-self: center;
+}
+
+.dice-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  min-height: 70px;
+  font-size: 44px;
+  font-weight: 900;
+}
+
+.die-face {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px; height: 54px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  color: #0f172a;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.8) inset;
+  transform: rotate(-3deg);
+}
+
+.die-face.rolling { animation: dice-wobble 0.16s linear infinite; }
+
+/* ===== FINANCIAL STATEMENT ===== */
+.fs-paper {
+  position: relative;
+  padding: 18px;
+  color: var(--text);
+  background: linear-gradient(155deg, rgba(10,26,52,0.95), rgba(4,14,32,0.98));
+  border: 1px solid rgba(125,211,252,0.15);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.fs-section-title {
+  margin: 0 0 8px;
+  padding: 7px 12px;
+  background: linear-gradient(90deg, rgba(56,189,248,0.2), rgba(34,197,94,0.12));
+  color: #f0f8ff;
+  border: 1px solid rgba(125,211,252,0.15);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.fs-row {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  min-height: 26px;
+  border-bottom: 1px solid rgba(125,211,252,0.1);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.fs-row .value {
+  min-width: 86px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.fs-row.subtle { color: var(--muted); font-weight: 500; }
+
+.fs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.fs-summary {
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(4,12,28,0.5);
+  border: 1px solid rgba(125,211,252,0.1);
+  border-radius: 10px;
+}
+
+.fs-mini {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.fs-empty {
+  min-height: 22px;
+  border-bottom: 1px solid rgba(125,211,252,0.08);
+}
+
+.fs-progress {
+  height: 20px;
+  margin: 7px 0 10px;
+  border: 1px solid rgba(125,211,252,0.2);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(4,12,28,0.8);
+}
+
+.fs-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--loss), var(--warning), var(--profit));
+  transition: width 0.6s ease;
+}
+
+/* ===== STOCK CARD ===== */
+.stock-card {
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(8,22,46,0.98), rgba(4,12,28,0.98));
+  border: 1px solid rgba(125,211,252,0.2);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.stock-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56,189,248,0.5), transparent);
+}
+
+.stock-card-head {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.stock-icon {
+  width: 68px; height: 68px;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(145deg, rgba(56,189,248,0.28), rgba(34,197,94,0.18));
+  border: 1px solid rgba(125,211,252,0.22);
+  font-size: 22px; font-weight: 900; color: #e6f6ff;
+  box-shadow: 0 0 24px rgba(56,189,248,0.15);
+}
+
+.stock-title {
+  color: #f0f8ff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.stock-subtitle {
+  color: var(--muted);
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stock-chart {
+  height: 120px;
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  margin: 14px 0;
+  padding: 10px 12px 8px;
+  background: rgba(2,6,16,0.7);
+  border: 1px solid rgba(125,211,252,0.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.stock-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  margin: 12px 0 16px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.stock-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(125,211,252,0.12);
+}
+
+/* ===== ACTION AREA ===== */
+.ac {
+  background: linear-gradient(155deg, rgba(10,24,48,0.92), rgba(6,16,36,0.95));
+  border: 1px solid rgba(56,189,248,0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+
+.ac-head {
+  padding: 12px 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 12px;
+  position: relative;
+}
+
+.ac-head::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+.ac-title {
+  padding: 16px 20px;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+/* ===== BUTTONS ===== */
+.btn-p {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: white; padding: 12px 24px;
+  box-shadow: 0 4px 16px rgba(14,165,233,0.25);
+}
+
+.btn-invest {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+}
+
+.btn-danger-act {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239,68,68,0.25);
+}
+
+.btn-secondary {
+  background: rgba(30,42,68,0.9);
+  color: var(--text);
+  border: 1px solid rgba(56,189,248,0.2);
+}
+
+.btn-secondary:hover { border-color: rgba(56,189,248,0.4); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,15,0.88);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: linear-gradient(155deg, rgba(10,24,50,0.96), rgba(6,16,36,0.98));
+  border: 1px solid rgba(56,189,248,0.28);
+  border-radius: 20px;
+  width: 540px;
+  max-width: 94vw;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent);
+}
+
+#modal-head-txt {
+  padding: 16px 24px;
+  background: rgba(4,12,28,0.8);
+  border-bottom: 1px solid rgba(56,189,248,0.15);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+#modal-content {
+  overflow-y: auto;
+  flex: 1;
+  padding: 24px;
+  overscroll-behavior: contain;
+}
+
+#modal-content::-webkit-scrollbar { width: 5px; }
+#modal-content::-webkit-scrollbar-track { background: transparent; }
+#modal-content::-webkit-scrollbar-thumb {
+  background: rgba(56,189,248,0.25);
+  border-radius: 4px;
+}
+
+/* ===== TURN CONFIRMATION OVERLAY ===== */
+#turn-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,15,0.82);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 950;
+}
+
+#turn-confirm-overlay.active { display: flex; }
+
+.turn-confirm-card {
+  background: linear-gradient(155deg, rgba(10,26,54,0.97), rgba(6,18,40,0.99));
+  border: 1px solid rgba(56,189,248,0.35);
+  border-radius: 24px;
+  padding: 48px 40px;
+  text-align: center;
+  max-width: 440px;
+  width: 90vw;
+  box-shadow:
+    0 48px 120px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(56,189,248,0.06) inset,
+    0 1px 0 rgba(255,255,255,0.07) inset;
+  animation: confirm-pop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes confirm-pop {
+  from { transform: scale(0.88) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ===== NOTIFICATION ===== */
+.notif {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, rgba(10,24,50,0.97), rgba(6,16,36,0.99));
+  border: 1px solid rgba(56,189,248,0.3);
+  border-left: 4px solid var(--accent);
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  display: none;
+  z-index: 2000;
+  font-weight: 600;
+  font-size: 14px;
+  max-width: 320px;
+  backdrop-filter: blur(16px);
+}
+
+/* ══════════════════════════════════════════
+   SCREEN VISIBILITY SYSTEM
+   ══════════════════════════════════════════ */
+
+/* All screens hidden by default */
+#menu-screen, #online-screen, #room-screen,
+#setup-screen, #win-screen { display: none; }
+
+/* Lobby-style screens (menu / online / room / setup) */
+#menu-screen, #online-screen, #room-screen {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-y: auto;
+  /* dark theme default — overridden in light mode below */
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(56,189,248,0.25), transparent 30%),
+    radial-gradient(ellipse at 75% 80%, rgba(99,102,241,0.15), transparent 30%),
+    linear-gradient(135deg, #04101e, #081c38 55%, #04101e);
+}
+
+#menu-screen.active, #online-screen.active,
+#room-screen.active, #setup-screen.active { display: flex; }
+
+#win-screen.active {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes dice-wobble {
+  0%   { transform: rotate(-10deg) translateY(0); }
+  50%  { transform: rotate(8deg) translateY(-6px); }
+  100% { transform: rotate(-10deg) translateY(0); }
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.015); opacity: 0.95; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes glow-pulse {
+  0%   { box-shadow: 0 0 12px rgba(56,189,248,0.2); }
+  50%  { box-shadow: 0 0 28px rgba(56,189,248,0.4); }
+  100% { box-shadow: 0 0 12px rgba(56,189,248,0.2); }
+}
+
+/* ===== BREAKOUT BADGE ===== */
+.breakout-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-left: 8px;
+}
+
+.breakout-badge.up {
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.4);
+  color: #4ade80;
+}
+
+.breakout-badge.down {
+  background: rgba(251,63,95,0.15);
+  border: 1px solid rgba(251,63,95,0.4);
+  color: #fb7185;
+}
+
+.breakout-badge.normal {
+  background: rgba(56,189,248,0.1);
+  border: 1px solid rgba(56,189,248,0.25);
+  color: #7dd3fc;
+}
+
+/* ===== TREND INDICATOR ===== */
+.trend-up   { color: #4ade80; }
+.trend-down { color: #fb7185; }
+
+/* ══════════════════════════════════════════
+   LIGHT THEME OVERRIDES (default — no [data-theme])
+   ══════════════════════════════════════════ */
+:root body { color: var(--text); }
+
+/* Panels */
+:root .left-panel, :root .right-panel {
+  background: linear-gradient(180deg, #ffffff, #faf4ff);
+  border-color: rgba(176,145,210,0.2);
+}
+:root .center-panel {
+  background: linear-gradient(180deg, #fef9f8, #f9f0ff);
+}
+
+/* Setup */
+:root #setup-screen,
+:root #menu-screen,
+:root #online-screen,
+:root #room-screen {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(176,145,210,0.22), transparent 35%),
+    radial-gradient(ellipse at 75% 80%, rgba(255,166,153,0.16), transparent 35%),
+    linear-gradient(135deg, #fef9f8, #f3e8ff 55%, #fff8f7);
+}
+:root .glass-premium {
+  background: rgba(255,255,255,0.92);
+  border: 1.5px solid rgba(255,166,153,0.3);
+  box-shadow: 0 16px 48px rgba(149,112,184,0.14), 0 2px 0 rgba(255,255,255,0.9) inset;
+}
+:root .glass-premium::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.4), transparent); }
+:root .glass-premium::after  { background: linear-gradient(135deg, rgba(255,255,255,0.5), transparent 60%); }
+:root .setup-card { background: rgba(255,255,255,0.95); }
+
+/* Header */
+:root .header {
+  background: linear-gradient(90deg, #fff8f7, #f3e8ff);
+  border-bottom: 1px solid rgba(176,145,210,0.25);
+}
+:root .header::after { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.5), transparent); }
+:root .logo {
+  background: linear-gradient(90deg, var(--pur-d), var(--sal-d));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Turn banner */
+:root .turn-banner {
+  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(243,232,255,0.8));
+  border: 1px solid rgba(176,145,210,0.25);
+  box-shadow: 0 2px 12px rgba(149,112,184,0.08);
+}
+:root .turn-banner::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.4), transparent); }
+
+/* Player rows in setup */
+:root .player-row {
+  background: rgba(243,232,255,0.4);
+  border: 1px solid rgba(176,145,210,0.2);
+}
+:root .player-row:hover { border-color: rgba(176,145,210,0.45); }
+
+/* Inputs */
+:root input, :root select {
+  background: rgba(243,232,255,0.45) !important;
+  border: 1px solid rgba(176,145,210,0.35) !important;
+  color: #2d2d2d !important;
+}
+:root input:focus, :root select:focus {
+  border-color: rgba(149,112,184,0.7) !important;
+  box-shadow: 0 0 0 3px rgba(176,145,210,0.15) !important;
+}
+
+/* Board canvas */
+:root #boardCanvas {
+  border: 1.5px solid rgba(176,145,210,0.3);
+  box-shadow: 0 4px 32px rgba(149,112,184,0.15);
+  background: #fdf5ff;
+}
+
+/* Action cards */
+:root .ac {
+  background: #ffffff;
+  border: 1.5px solid rgba(176,145,210,0.22);
+  box-shadow: 0 4px 20px rgba(149,112,184,0.10);
+  color: #2d2d2d;
+}
+:root .ac-title { color: #2d2d2d; }
+:root .ac-head { color: #fff; } /* keep white text on coloured heads */
+
+/* Financial statement */
+:root .fs-paper {
+  background: #ffffff;
+  border: 1.5px solid rgba(176,145,210,0.18);
+  box-shadow: 0 4px 20px rgba(149,112,184,0.08);
+  color: #2d2d2d;
+}
+:root .fs-section-title {
+  background: linear-gradient(90deg, rgba(176,145,210,0.18), rgba(76,175,125,0.1));
+  color: #2d2d2d;
+  border: 1px solid rgba(176,145,210,0.2);
+}
+:root .fs-row { color: #2d2d2d; border-bottom-color: rgba(176,145,210,0.12); }
+:root .fs-row.subtle { color: #888; }
+:root .fs-summary {
+  background: rgba(243,232,255,0.35);
+  border: 1px solid rgba(176,145,210,0.15);
+}
+:root .fs-progress {
+  background: rgba(243,232,255,0.6);
+  border-color: rgba(176,145,210,0.2);
+}
+:root .fs-empty { border-bottom-color: rgba(176,145,210,0.08); }
+
+/* Players sidebar items */
+:root #players-sidebar > div { background: rgba(255,255,255,0.8) !important; border-color: rgba(176,145,210,0.15) !important; }
+:root #action-area { color: #2d2d2d; }
+
+/* Stock card */
+:root .stock-card {
+  background: #ffffff;
+  border: 1.5px solid rgba(176,145,210,0.2);
+  box-shadow: 0 4px 20px rgba(149,112,184,0.08);
+  color: #2d2d2d;
+}
+:root .stock-card::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.4), transparent); }
+:root .stock-title { color: var(--pur-d); }
+:root .stock-subtitle { color: #888; }
+:root .stock-chart {
+  background: rgba(243,232,255,0.4);
+  border: 1px solid rgba(176,145,210,0.15);
+}
+:root .stock-icon {
+  background: linear-gradient(145deg, rgba(176,145,210,0.25), rgba(76,175,125,0.15));
+  border: 1px solid rgba(176,145,210,0.25);
+  color: var(--pur-d);
+}
+:root .stock-stat { border-bottom-color: rgba(176,145,210,0.12); }
+
+/* Buttons */
+:root .btn-primary {
+  background: linear-gradient(135deg, var(--pur-d), var(--pur));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(149,112,184,0.3);
+}
+:root .btn-invest {
+  background: linear-gradient(135deg, var(--grn-d), var(--grn));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(76,175,125,0.25);
+}
+:root .btn-secondary {
+  background: rgba(176,145,210,0.1);
+  border: 1.5px solid rgba(176,145,210,0.3);
+  color: var(--pur-d);
+}
+:root .btn-secondary:hover { background: rgba(176,145,210,0.2); }
+:root .btn-danger-act { background: linear-gradient(135deg, #c0392b, var(--loss)); color: #fff; }
+:root .btn-add { border-color: rgba(176,145,210,0.4); color: var(--pur-d); }
+
+/* Modal */
+:root .modal-overlay { background: rgba(100,80,140,0.45); }
+:root .modal {
+  background: #ffffff;
+  border: 1.5px solid rgba(176,145,210,0.3);
+  box-shadow: 0 24px 80px rgba(149,112,184,0.25);
+  color: #2d2d2d;
+}
+:root .modal::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.5), transparent); }
+:root #modal-head-txt {
+  background: rgba(243,232,255,0.6);
+  border-bottom: 1px solid rgba(176,145,210,0.2);
+  color: var(--pur-d);
+}
+:root #modal-content { color: #2d2d2d; }
+:root #modal-content::-webkit-scrollbar-thumb { background: rgba(176,145,210,0.3); }
+
+/* Turn confirm overlay */
+:root #turn-confirm-overlay { background: rgba(100,80,140,0.4); }
+:root .turn-confirm-card {
+  background: #ffffff;
+  border: 1.5px solid rgba(176,145,210,0.35);
+  box-shadow: 0 32px 80px rgba(149,112,184,0.22);
+  color: #2d2d2d;
+}
+
+/* Player name in turn banner — darken bright player colors for readability */
+:root #turn-who span { filter: saturate(1.3) brightness(0.55); }
+/* Panel section headers handled by :root .panel-header above */
+/* Sidebar player items — player name and active badge */
+:root #players-sidebar span[style*="color:"],
+:root #players-sidebar strong[style*="color:"] { filter: saturate(1.3) brightness(0.55); }
+/* Turn confirm card text */
+:root .turn-confirm-card div { color: #2d2d2d !important; }
+:root #turn-confirm-avatar { filter: saturate(1.3) brightness(0.55); }
+/* "✓ Turn Complete" and other ac-title accent uses */
+:root .ac-title[style*="color:var(--accent)"] { color: var(--pur-d) !important; }
+/* Action card inner boxes with dark rgba backgrounds */
+:root .ac div[style*="rgba(4,12,28"], :root .ac div[style*="rgba(14,165,233"] { background: rgba(243,232,255,0.35) !important; border-color: rgba(176,145,210,0.2) !important; }
+/* Light text inside deal cards */
+:root .ac p[style*="color:#c8e6ff"], :root .ac p[style*="#fca5a5"] { color: #444 !important; }
+/* Win screen */
+:root #win-screen .glass-premium { background: #fff !important; }
+:root #win-screen h2[style*="#f0f8ff"] { color: #2d2d2d !important; }
+:root #win-screen p[style*="var(--muted)"] { color: #666 !important; }
+
+/* Notification */
+:root .notif {
+  background: rgba(255,255,255,0.97);
+  border: 1px solid rgba(176,145,210,0.25);
+  border-left: 4px solid var(--accent);
+  color: #2d2d2d;
+  box-shadow: 0 8px 24px rgba(149,112,184,0.15);
+}
+
+/* Breakout badges in light mode */
+:root .breakout-badge.up   { background: rgba(76,175,125,0.12); border-color: rgba(76,175,125,0.4); color: #2e7d32; }
+:root .breakout-badge.down { background: rgba(224,80,80,0.1);   border-color: rgba(224,80,80,0.35); color: #c0392b; }
+:root .breakout-badge.normal { background: rgba(176,145,210,0.1); border-color: rgba(176,145,210,0.3); color: var(--pur-d); }
+
+/* ══════════════════════════════════════════
+   DARK THEME OVERRIDES — restore original dark styles
+   ══════════════════════════════════════════ */
+[data-theme="dark"] body { color: #e6f6ff; }
+[data-theme="dark"] .left-panel, [data-theme="dark"] .right-panel {
+  background: linear-gradient(180deg, rgba(6,18,38,0.95), rgba(4,12,28,0.97));
+  border-color: rgba(56,189,248,0.12);
+}
+[data-theme="dark"] .center-panel { background: radial-gradient(ellipse at 50% -10%, rgba(56,189,248,0.12), transparent 40%), #04101e; }
+[data-theme="dark"] #setup-screen,
+[data-theme="dark"] #menu-screen,
+[data-theme="dark"] #online-screen,
+[data-theme="dark"] #room-screen {
+  background: radial-gradient(ellipse at 30% 20%, rgba(56,189,248,0.25), transparent 30%),
+    radial-gradient(ellipse at 75% 80%, rgba(99,102,241,0.15), transparent 30%),
+    linear-gradient(135deg, #04101e, #081c38 55%, #04101e);
+}
+[data-theme="dark"] .glass-premium {
+  background: linear-gradient(135deg, rgba(15,35,65,0.72), rgba(8,20,40,0.82));
+  border: 1px solid rgba(125,211,252,0.28);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 2px 0 rgba(255,255,255,0.08) inset;
+}
+[data-theme="dark"] .header {
+  background: linear-gradient(90deg, rgba(4,12,28,0.98), rgba(10,28,55,0.94));
+  border-bottom: 1px solid rgba(56,189,248,0.3);
+}
+[data-theme="dark"] .logo { background: linear-gradient(90deg,#38bdf8,#22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+[data-theme="dark"] .turn-banner {
+  background: linear-gradient(90deg, rgba(6,20,44,0.95), rgba(12,36,72,0.85));
+  border: 1px solid rgba(56,189,248,0.2);
+}
+[data-theme="dark"] .player-row { background: rgba(8,20,40,0.8); border: 1px solid rgba(56,189,248,0.12); }
+[data-theme="dark"] input, [data-theme="dark"] select {
+  background: rgba(4,12,28,0.9) !important;
+  border: 1px solid rgba(125,211,252,0.2) !important;
+  color: white !important;
+}
+[data-theme="dark"] #boardCanvas { border-color: rgba(0,212,255,0.2); box-shadow: 0 0 60px rgba(0,212,255,0.1); background: #02060f; }
+[data-theme="dark"] .ac { background: linear-gradient(155deg, rgba(10,24,48,0.92), rgba(6,16,36,0.95)); border: 1px solid rgba(56,189,248,0.15); color: #e6f6ff; }
+[data-theme="dark"] .ac-title { color: #e6f6ff; }
+[data-theme="dark"] .fs-paper { background: linear-gradient(155deg, rgba(10,26,52,0.95), rgba(4,14,32,0.98)); border: 1px solid rgba(125,211,252,0.15); color: #e6f6ff; }
+[data-theme="dark"] .fs-section-title { background: linear-gradient(90deg,rgba(56,189,248,0.2),rgba(34,197,94,0.12)); color: #f0f8ff; border: 1px solid rgba(125,211,252,0.15); }
+[data-theme="dark"] .fs-row { color: #e6f6ff; border-bottom-color: rgba(125,211,252,0.1); }
+[data-theme="dark"] .fs-summary { background: rgba(4,12,28,0.5); border-color: rgba(125,211,252,0.1); }
+[data-theme="dark"] .fs-progress { background: rgba(4,12,28,0.8); border-color: rgba(125,211,252,0.2); }
+[data-theme="dark"] #players-sidebar > div { background: rgba(8,20,40,0.5) !important; border-color: rgba(56,189,248,0.06) !important; }
+[data-theme="dark"] .stock-card { background: linear-gradient(145deg,rgba(8,22,46,0.98),rgba(4,12,28,0.98)); border: 1px solid rgba(125,211,252,0.2); color: #e6f6ff; }
+[data-theme="dark"] .stock-title { color: #f0f8ff; }
+[data-theme="dark"] .stock-chart { background: rgba(2,6,16,0.7); border-color: rgba(125,211,252,0.12); }
+[data-theme="dark"] .stock-icon { background: linear-gradient(145deg,rgba(56,189,248,0.28),rgba(34,197,94,0.18)); border-color: rgba(125,211,252,0.22); color: #e6f6ff; }
+[data-theme="dark"] .btn-primary { background: linear-gradient(135deg,#0ea5e9,#22c55e); }
+[data-theme="dark"] .btn-secondary { background: rgba(30,42,68,0.9); border: 1px solid rgba(56,189,248,0.2); color: #e6f6ff; }
+[data-theme="dark"] .modal-overlay { background: rgba(2,6,15,0.88); }
+[data-theme="dark"] .modal { background: linear-gradient(155deg,rgba(10,24,50,0.96),rgba(6,16,36,0.98)); border: 1px solid rgba(56,189,248,0.28); color: #e6f6ff; }
+[data-theme="dark"] #modal-head-txt { background: rgba(4,12,28,0.8); border-bottom-color: rgba(56,189,248,0.15); color: #e6f6ff; }
+[data-theme="dark"] #modal-content { color: #e6f6ff; }
+[data-theme="dark"] #turn-confirm-overlay { background: rgba(2,6,15,0.82); }
+[data-theme="dark"] .turn-confirm-card { background: linear-gradient(155deg,rgba(10,26,54,0.97),rgba(6,18,40,0.99)); border: 1px solid rgba(56,189,248,0.35); color: #e6f6ff; }
+[data-theme="dark"] .notif { background: linear-gradient(135deg,rgba(10,24,50,0.97),rgba(6,16,36,0.99)); border: 1px solid rgba(56,189,248,0.3); border-left: 4px solid var(--accent); color: #e6f6ff; }
+[data-theme="dark"] .breakout-badge.up   { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4); color: #4ade80; }
+[data-theme="dark"] .breakout-badge.down { background: rgba(251,63,95,0.15); border-color: rgba(251,63,95,0.4); color: #fb7185; }
+
+[data-theme="dark"] .breakout-badge.normal { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.25); color: #7dd3fc; }
+
+/* ══════════════════════════════════════════
+   ONLINE MULTIPLAYER UI
+   ══════════════════════════════════════════ */
+.lobby-game-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: 12px;
+  background: var(--glass);
+  border: 1.5px solid rgba(150,112,184,0.2);
+  cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+}
+.lobby-game-card:hover {
+  border-color: rgba(150,112,184,0.5);
+  background: rgba(150,112,184,0.1);
+  transform: translateY(-1px);
+}
+:root .lobby-game-card { background: rgba(255,255,255,0.7); }
+:root .lobby-game-card:hover { background: rgba(243,232,255,0.6); }
+
+.room-player-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 20px;
+  background: rgba(150,112,184,0.1);
+  border: 1px solid rgba(150,112,184,0.25);
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.room-code-box {
+  font-size: 38px; font-weight: 900; letter-spacing: 8px;
+  color: var(--accent); font-family: 'Baloo 2', monospace;
+  background: rgba(150,112,184,0.08); border: 2px solid rgba(150,112,184,0.2);
+  padding: 12px 20px; border-radius: 14px; display: inline-block;
+  cursor: pointer; user-select: all; transition: background 0.2s;
+}
+.room-code-box:hover { background: rgba(150,112,184,0.16); }
+
+#online-waiting-bar {
+  display: none;
+  padding: 10px 16px; margin-bottom: 10px;
+  background: rgba(255,166,153,0.12);
+  border: 1.5px solid rgba(255,166,153,0.3);
+  border-radius: 10px;
+  font-size: 13px; font-weight: 700; color: var(--sal-d);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   COLLAPSIBLE PANELS
+   ══════════════════════════════════════════ */
+.panel-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-weight: 800; letter-spacing: 2px; font-size: 12px; text-transform: uppercase;
+  color: var(--accent); cursor: pointer; user-select: none;
+  border-bottom: 1px solid rgba(56,189,248,0.15);
+  transition: background 0.2s;
+}
+.panel-header:hover { background: rgba(150,112,184,0.07); }
+.panel-toggle { font-style: normal; font-size: 10px; transition: transform 0.3s; display: inline-block; }
+.panel-body {
+  max-height: 2000px; opacity: 1;
+  overflow: hidden; transition: max-height 0.4s ease, opacity 0.25s ease;
+}
+.panel-body.collapsed { max-height: 0; opacity: 0; }
+:root .panel-header { color: var(--pur-d) !important; border-bottom-color: rgba(176,145,210,0.2) !important; }
+
+/* ══════════════════════════════════════════
+   MOBILE CASH BAR
+   ══════════════════════════════════════════ */
+#mobile-cash-bar {
+  display: none;
+  align-items: center; justify-content: space-between;
+  padding: 9px 16px;
+  background: var(--glass);
+  border: 1.5px solid rgba(150,112,184,0.28);
+  border-radius: 12px; margin-bottom: 10px;
+  font-size: 13px; font-weight: 700;
+  color: var(--text);
+}
+#mcb-amount { font-size: 20px; font-weight: 900; }
+
+/* ══════════════════════════════════════════
+   MOBILE / RESPONSIVE
+   ══════════════════════════════════════════ */
+@media (max-width: 820px) {
+  body { overflow-y: auto !important; }
+
+  #game-screen {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto auto !important;
+    height: auto !important;
+    min-height: 100dvh;
+  }
+
+  .left-panel {
+    margin: 8px 8px 0 8px !important;
+    border-radius: 12px !important;
+    max-height: none !important;
+  }
+  .right-panel {
+    margin: 0 8px 8px 8px !important;
+    border-radius: 12px !important;
+    max-height: none !important;
+  }
+
+  .center-panel {
+    padding: 8px !important;
+    overflow: visible !important;
+  }
+
+  #mobile-cash-bar { display: flex !important; }
+
+  #boardCanvas {
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 12px;
+  }
+
+  .turn-banner { padding: 10px 12px !important; }
+  #turn-who { font-size: 17px !important; }
+  #turn-count { font-size: 20px !important; }
+
+  #theme-toggle {
+    position: fixed !important;
+    top: 6px !important; right: 8px !important;
+    font-size: 10px !important;
+    padding: 5px 10px !important;
+    z-index: 9999 !important;
+  }
+
+  .modal { width: 95vw !important; max-width: 95vw !important; max-height: 90dvh; overflow-y: auto; }
+
+  .ac div[style*="grid-template-columns"] { grid-template-columns: 1fr 1fr !important; }
+  .btn { font-size: 13px !important; padding: 11px 14px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<!-- ══════════════════════════════════════════
+     MENU SCREEN (initial)
+════════════════════════════════════════════ -->
+<div id="menu-screen" class="screen active">
+  <div class="setup-container">
+    <div class="glass-premium setup-card">
+      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
+        <div class="logo">MoneyPath</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
+      </div>
+      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;">Choose Mode</h1>
+      <p class="subtitle" style="margin-bottom:28px;">Play locally on one screen, or compete with friends online</p>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <button class="btn btn-primary" style="padding:18px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('setup')">
+          <span style="font-size:28px;">💻</span>
+          <span><strong>Play Local</strong><br><span style="font-size:12px; opacity:0.8;">Same device or screen share</span></span>
+        </button>
+        <button class="btn btn-invest" style="padding:18px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('online')">
+          <span style="font-size:28px;">🌐</span>
+          <span><strong>Play Online</strong><br><span style="font-size:12px; opacity:0.8;">Each player on their own device</span></span>
+        </button>
+      </div>
+      <div style="margin-top:22px; padding:12px 14px; border-radius:10px; background:rgba(176,145,210,0.08); border:1px solid rgba(176,145,210,0.2); font-size:11px; color:var(--muted); line-height:1.6; text-align:center;">
+        📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
+        Created for educational use only. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ONLINE LOBBY SCREEN
+════════════════════════════════════════════ -->
+<div id="online-screen" class="screen">
+  <div class="setup-container">
+    <div class="glass-premium setup-card">
+      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
+        <div class="logo">MoneyPath</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">🌐 Online Lobby</div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;">Your Name</label>
+        <input id="online-player-name" type="text" placeholder="Enter your name" maxlength="20"
+          style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:15px; font-family:inherit; box-sizing:border-box;">
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:24px;">
+        <input id="online-game-name" type="text" placeholder="Game name (optional)" maxlength="30"
+          style="flex:1; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box;">
+        <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()">🎮 Create</button>
+      </div>
+
+      <div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted);">Available Games</span>
+          <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="refreshLobby()">🔄 Refresh</button>
+        </div>
+        <div id="lobby-list-items" style="min-height:70px;">
+          <div style="color:var(--muted); font-size:13px; text-align:center; padding:18px;">Checking for games...</div>
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:18px;" onclick="goScreen('menu')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ROOM / WAITING SCREEN
+════════════════════════════════════════════ -->
+<div id="room-screen" class="screen">
+  <div class="setup-container">
+    <div class="glass-premium setup-card">
+      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
+        <div class="logo">MoneyPath</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">⏳ Waiting Room</div>
+      </div>
+
+      <div style="text-align:center; margin-bottom:24px;">
+        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Share this code with friends</div>
+        <div id="room-code-display" class="room-code-box" title="Click to copy" onclick="copyRoomCode()">·····</div>
+        <div id="copy-hint" style="font-size:11px; color:var(--muted); margin-top:6px;">Click code to copy</div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;">Players in room</div>
+        <div id="room-players-list" style="display:flex; flex-wrap:wrap; gap:8px; min-height:36px;"></div>
+      </div>
+
+      <div id="room-status-msg" style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px; min-height:20px;">Waiting for more players...</div>
+
+      <button id="room-start-btn" class="btn btn-primary" style="width:100%; padding:16px; font-size:15px; display:none;" onclick="startOnlineGame()">
+        ▶ Start Game
+      </button>
+
+      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:10px;" onclick="leaveRoom()">← Leave Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LOCAL SETUP SCREEN
+════════════════════════════════════════════ -->
+<div id="setup-screen" class="screen">
+  <div class="setup-container">
+    <div class="glass-premium setup-card">
+      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
+        <div class="logo">MoneyPath</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
+      </div>
+
+      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+        New Game
+      </h1>
+      <p class="subtitle">Build assets, manage debt, and buy your dream</p>
+
+      <div id="player-list"></div>
+
+      <div style="display:flex; gap:12px; margin-top:24px;">
+        <button class="btn btn-add" style="flex:1; padding:14px;" onclick="addPlayer()">+ Add Player</button>
+        <button class="btn btn-primary" style="flex:2; padding:14px; font-size:16px;" onclick="startGame()">▶ Start Game</button>
+      </div>
+      <button class="btn btn-secondary" style="width:100%; padding:10px; margin-top:10px; font-size:13px;" onclick="goScreen('menu')">← Back to Menu</button>
+
+      <div style="margin-top:22px; padding:12px 14px; border-radius:10px; background:rgba(176,145,210,0.08); border:1px solid rgba(176,145,210,0.2); font-size:11px; color:var(--muted); line-height:1.6; text-align:center;">
+        📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
+        Created for educational use only. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <!-- Left Panel -->
+  <div class="left-panel" style="margin:8px 0 8px 8px; border-radius:16px; border:1px solid rgba(56,189,248,0.1);">
+    <div class="panel-header" onclick="togglePanel('players')">
+      <span>👥 Players</span>
+      <em id="players-toggle" class="panel-toggle">▲</em>
+    </div>
+    <div id="players-body" class="panel-body">
+      <div id="players-sidebar" style="padding:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Center - Board -->
+  <div class="center-panel">
+    <div class="turn-banner">
+      <div>
+        <div id="turn-who" style="font-size:22px; font-weight:800;"></div>
+        <div id="turn-track" style="color:var(--muted); font-size:12px; letter-spacing:1px; text-transform:uppercase; margin-top:2px;"></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px; opacity:0.6; letter-spacing:2px; text-transform:uppercase;">Round</div>
+        <div id="turn-count" style="font-size:28px; font-weight:900; color:var(--accent);">1</div>
+      </div>
+    </div>
+
+    <button id="theme-toggle" onclick="toggleTheme()" style="position:fixed;top:12px;right:16px;z-index:9999;padding:7px 14px;border-radius:20px;border:1.5px solid rgba(176,145,210,0.4);background:rgba(255,255,255,0.85);color:#9570b8;font-weight:700;font-size:12px;cursor:pointer;backdrop-filter:blur(8px);">🌙 Dark</button>
+
+    <canvas id="boardCanvas" width="900" height="620"></canvas>
+
+    <!-- Online: waiting for other player indicator -->
+    <div id="online-waiting-bar">⏳ Waiting for another player…</div>
+
+    <!-- Sticky cash bar — always visible on mobile during decisions -->
+    <div id="mobile-cash-bar">
+      <span>💰 Cash on hand</span>
+      <span id="mcb-amount" style="color:var(--grn);">$0</span>
+    </div>
+
+    <div id="action-area" style="margin-top:0;"></div>
+  </div>
+
+  <!-- Right Panel - Financial Statement -->
+  <div class="right-panel" style="margin:8px 8px 8px 0; border-radius:16px; border:1px solid rgba(56,189,248,0.1);">
+    <div class="panel-header" onclick="togglePanel('fs')">
+      <span>📊 Financial Statement</span>
+      <em id="fs-toggle" class="panel-toggle">▲</em>
+    </div>
+    <div id="fs-body" class="panel-body">
+      <div id="fs-display" style="padding:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WIN SCREEN -->
+<div id="win-screen" class="screen">
+  <div class="glass-premium" style="padding:60px 48px; text-align:center; max-width:520px; margin:auto;">
+    <div style="font-size:64px; margin-bottom:16px;">🏆</div>
+    <h1 style="font-size:48px; background:linear-gradient(90deg,#22c55e,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:16px;">
+      FINANCIAL FREEDOM!
+    </h1>
+    <h2 id="winner-name" style="font-size:28px; margin-bottom:12px; color:#f0f8ff;"></h2>
+    <p id="winner-details" style="color:var(--muted); font-size:16px;"></p>
+    <button class="btn btn-primary" style="margin-top:36px; padding:18px 48px; font-size:18px;" onclick="location.reload()">Play Again</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div id="modal-head-txt"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- TURN CONFIRMATION OVERLAY -->
+<div id="turn-confirm-overlay">
+  <div class="turn-confirm-card">
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:10px;">Next Player</div>
+    <div id="turn-confirm-avatar" style="width:64px; height:64px; border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900; color:white; box-shadow:0 0 24px currentColor;"></div>
+    <div id="turn-confirm-name" style="font-size:32px; font-weight:900; margin-bottom:6px;"></div>
+    <div id="turn-confirm-profession" style="color:var(--muted); font-size:14px; margin-bottom:28px;"></div>
+    <button class="btn btn-primary" style="width:100%; font-size:17px; padding:16px;" id="turn-confirm-btn">
+      START MY TURN →
+    </button>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ==================== GAME DATA ====================
+const PROFESSIONS = [
+  {name:"Schoolteacher",        salary:3800, taxes:680,  mortgage:820,  studentLoan:200, carLoan:110, creditCards:90,  retailPayment:80,  otherExpenses:1350, startCash:1100, homeMortgageLiability:0, studentLoanLiability:18000, carLoanLiability:5200,  creditCardLiability:2100, retailDebt:1200},
+  {name:"Chef",                 salary:4400, taxes:800,  mortgage:940,  studentLoan:80,  carLoan:140, creditCards:180, retailPayment:150, otherExpenses:1480, startCash:1300, homeMortgageLiability:0, studentLoanLiability:6000,  carLoanLiability:7200,  creditCardLiability:3800, retailDebt:2400},
+  {name:"Plumber",              salary:5200, taxes:1050, mortgage:1000, studentLoan:0,   carLoan:200, creditCards:130, retailPayment:110, otherExpenses:1560, startCash:1800, homeMortgageLiability:0, studentLoanLiability:0,     carLoanLiability:9800,  creditCardLiability:2700, retailDebt:1700},
+  {name:"Sales Representative", salary:5500, taxes:1100, mortgage:1100, studentLoan:140, carLoan:180, creditCards:160, retailPayment:120, otherExpenses:1620, startCash:1600, homeMortgageLiability:0, studentLoanLiability:11000, carLoanLiability:8400,  creditCardLiability:3500, retailDebt:1900},
+  {name:"Registered Nurse",     salary:6600, taxes:1400, mortgage:1280, studentLoan:320, carLoan:160, creditCards:110, retailPayment:100, otherExpenses:1750, startCash:2400, homeMortgageLiability:0, studentLoanLiability:28000, carLoanLiability:7000,  creditCardLiability:2400, retailDebt:1500},
+  {name:"Accountant",           salary:6400, taxes:1350, mortgage:1260, studentLoan:280, carLoan:130, creditCards:100, retailPayment:90,  otherExpenses:1700, startCash:2500, homeMortgageLiability:0, studentLoanLiability:24000, carLoanLiability:6200,  creditCardLiability:2200, retailDebt:1400},
+  {name:"Firefighter",          salary:7200, taxes:1600, mortgage:1380, studentLoan:120, carLoan:210, creditCards:120, retailPayment:140, otherExpenses:1900, startCash:2800, homeMortgageLiability:0, studentLoanLiability:8000,  carLoanLiability:12000, creditCardLiability:2800, retailDebt:2000},
+  {name:"Construction Manager", salary:7800, taxes:1780, mortgage:1480, studentLoan:160, carLoan:230, creditCards:115, retailPayment:130, otherExpenses:1980, startCash:3000, homeMortgageLiability:0, studentLoanLiability:12000, carLoanLiability:13500, creditCardLiability:2500, retailDebt:1800},
+  {name:"Pharmacist",           salary:9200, taxes:2200, mortgage:1720, studentLoan:580, carLoan:240, creditCards:130, retailPayment:110, otherExpenses:2200, startCash:3400, homeMortgageLiability:0, studentLoanLiability:52000, carLoanLiability:12500, creditCardLiability:2900, retailDebt:1600}
+];
+
+// Rat Race: NO market spaces — deals only on Deal spaces
+const RAT_RACE_SPACES = [
+  {type:"payday"}, {type:"deal"}, {type:"deal"},  {type:"deal"},   {type:"doodad"},
+  {type:"doodad"}, {type:"payday"},{type:"baby"},  {type:"deal"},   {type:"charity"},
+  {type:"deal"},   {type:"payday"},{type:"charity"},{type:"deal"},   {type:"doodad"},
+  {type:"payday"}, {type:"deal"},  {type:"layoff"},{type:"deal"},   {type:"doodad"},
+  {type:"deal"},   {type:"payday"},{type:"deal"},   {type:"doodad"}
+];
+
+const SMALL_DEAL_LIMIT = 6000;
+
+const FAST_TRACK_SPACES = [
+  {type:"payday"},             // 0
+  {type:"charity"},            // 1
+  {type:"charity"},            // 2
+  {type:"dream", dreamId:0},   // 3  Beach House
+  {type:"payday"},             // 4
+  {type:"charity"},            // 5
+  {type:"charity"},            // 6
+  {type:"dream", dreamId:1},   // 7  Ski Chalet
+  {type:"payday"},             // 8
+  {type:"charity"},            // 9
+  {type:"charity"},            // 10
+  {type:"dream", dreamId:2},   // 11 World Travel Year
+  {type:"payday"},             // 12
+  {type:"charity"},            // 13
+  {type:"charity"},            // 14
+  {type:"dream", dreamId:3},   // 15 Own Business
+  {type:"payday"},             // 16
+  {type:"charity"},            // 17
+  {type:"charity"},            // 18
+  {type:"dream", dreamId:4},   // 19 The Ranch
+  {type:"payday"},             // 20
+  {type:"charity"},            // 21
+  {type:"charity"},            // 22
+  {type:"dream", dreamId:5},   // 23 Sailing Yacht
+  {type:"payday"},             // 24
+  {type:"charity"},            // 25
+  {type:"charity"},            // 26
+  {type:"dream", dreamId:6},   // 27 Charity Foundation
+  {type:"payday"},             // 28
+  {type:"charity"},            // 29
+  {type:"charity"},            // 30
+  {type:"dream", dreamId:7},   // 31 Investment Estate
+  {type:"payday"},             // 32
+  {type:"charity"},            // 33
+];
+
+const SMALL_DEALS = [
+  {title:"Fractional Rental Studio", desc:"Tiny rental share near campus. Down: $1,200 | Cashflow: +$70/mo", cost:1200, downpayment:1200, cashflow:70, price:52000, type:"rental"},
+  {title:"Print-on-Demand Store", desc:"Automated merch shop. Down: $900 | Cashflow: +$95/mo", cost:900, downpayment:900, cashflow:95, price:12000, type:"business"},
+  {title:"E-bike Rental Fleet", desc:"Three e-bikes near a transit hub. Down: $2,400 | Cashflow: +$160/mo", cost:2400, downpayment:2400, cashflow:160, price:18000, type:"business"},
+  {title:"Dividend ETF Lot", desc:"Income-focused fund. Down: $1,500 | Cashflow: +$45/mo", cost:1500, downpayment:1500, cashflow:45, price:1500, type:"fund"},
+  {title:"Parking Spot Rental", desc:"Monthly lease arbitrage. Down: $1,000 | Cashflow: +$85/mo", cost:1000, downpayment:1000, cashflow:85, price:9000, type:"rental"},
+  {title:"Micro SaaS Shares", desc:"Small private income note. Down: $3,000 | Cashflow: +$135/mo", cost:3000, downpayment:3000, cashflow:135, price:3000, type:"fund"}
+];
+
+const BIG_DEALS = [
+  {title:"Co-living Townhouse", desc:"Shared housing for young professionals. Down: $38,000 | Cashflow: +$1,450/mo", cost:38000, downpayment:38000, cashflow:1450, price:420000, type:"rental"},
+  {title:"AI Workflow Agency", desc:"Subscription automation service. Down: $24,000 | Cashflow: +$1,250/mo", cost:24000, downpayment:24000, cashflow:1250, price:120000, type:"business"},
+  {title:"Content Studio Space", desc:"Podcast, video, and stream rooms. Down: $32,000 | Cashflow: +$1,600/mo", cost:32000, downpayment:32000, cashflow:1600, price:210000, type:"business"},
+  {title:"Solar Microgrid Lease", desc:"Community energy project. Down: $45,000 | Cashflow: +$2,100/mo", cost:45000, downpayment:45000, cashflow:2100, price:360000, type:"business"},
+  {title:"12-Unit Apartment", desc:"Renovated rental building. Down: $55,000 | Cashflow: +$2,350/mo", cost:55000, downpayment:55000, cashflow:2350, price:620000, type:"rental"}
+];
+
+// 5 stock definitions — limited pool so same stocks repeat more
+const STOCK_MARKET_DEALS = [
+  {title:"OK4U Drug Co.", symbol:"OK4U", desc:"Rates hit a long-time medicine maker. Price looks beaten down.", basePrice:5, rangeLow:3, rangeHigh:40, cashflow:0, type:"stock", sector:"Healthcare"},
+  {title:"MYT4U Gaming", symbol:"MYT4U", desc:"New game launch sentiment is volatile after mixed reviews.", basePrice:12, rangeLow:5, rangeHigh:30, cashflow:0, type:"stock", sector:"Gaming"},
+  {title:"GRO4US Green Energy", symbol:"GRO4US", desc:"Clean energy basket dips after supply-chain news.", basePrice:18, rangeLow:10, rangeHigh:50, cashflow:0, type:"stock", sector:"Energy"},
+  {title:"AI2GO Cloud", symbol:"AI2GO", desc:"Data center demand is strong, but the stock pulled back.", basePrice:24, rangeLow:15, rangeHigh:60, cashflow:0, type:"stock", sector:"AI Infrastructure"},
+  {title:"BOTZ Robotics", symbol:"BOTZ", desc:"Automation names sell off after a weak quarter.", basePrice:9, rangeLow:5, rangeHigh:35, cashflow:0, type:"stock", sector:"Robotics"}
+];
+
+// Price history: array of {open, high, low, close} candles
+const stockHistory = {};
+
+function initStockPrices() {
+  STOCK_MARKET_DEALS.forEach(s => {
+    let price = s.basePrice;
+    stockHistory[s.symbol] = [];
+    // Generate 14 seed candles
+    for (let i = 0; i < 14; i++) {
+      const o = price;
+      const volatility = 0.08;
+      const move = 1 + (Math.random() - 0.5) * volatility * 2;
+      const c = Math.max(1, Math.round(price * move));
+      const h = Math.round(Math.max(o, c) * (1 + Math.random() * 0.04));
+      const l = Math.round(Math.min(o, c) * (1 - Math.random() * 0.04));
+      stockHistory[s.symbol].push({open:o, high:h, low:l, close:c});
+      price = c;
+    }
+    state.market[s.symbol] = price;
+  });
+}
+
+const DOODADS = [
+  {title:"Phone Upgrade", desc:"Flagship device on launch week", cost:1200},
+  {title:"Music Festival", desc:"Tickets, travel, and merch", cost:1800},
+  {title:"Laptop Repair", desc:"Main board failure before a deadline", cost:950},
+  {title:"Sneaker Drop", desc:"Limited release temptation", cost:650},
+  {title:"Gaming Setup", desc:"Monitor, chair, lights, and headset", cost:1400},
+  {title:"Emergency Vet Bill", desc:"Unexpected medical visit for a pet", cost:1100},
+  {title:"Online Course Bundle", desc:"Skill upgrade that hits cash now", cost:700}
+];
+
+const FAST_TRACK_DREAMS = [
+  {id:0, spaceIdx:3,  icon:"🏡", title:"Family Homestead",     desc:"Your own home on your own terms, paid in full.",              cost:650000},
+  {id:1, spaceIdx:7,  icon:"🎨", title:"Creative Studio",       desc:"A dedicated space to create, build, and share freely.",       cost:630000},
+  {id:2, spaceIdx:11, icon:"🌍", title:"Around the World",      desc:"A year of travel with no schedule and no return ticket.",     cost:620000},
+  {id:3, spaceIdx:15, icon:"🌱", title:"Social Enterprise",     desc:"Launch a venture that turns a profit and does real good.",    cost:680000},
+  {id:4, spaceIdx:19, icon:"📚", title:"Learning Academy",      desc:"Build and fund an education centre for your community.",      cost:660000},
+  {id:5, spaceIdx:23, icon:"🏕️", title:"Off-Grid Retreat",      desc:"Live simply on your own land, away from the noise.",         cost:640000},
+  {id:6, spaceIdx:27, icon:"🍽️", title:"Restaurant & Café",     desc:"Open the eatery you have always dreamed about.",             cost:670000},
+  {id:7, spaceIdx:31, icon:"🏗️", title:"Real Estate Portfolio", desc:"A collection of income properties that work while you rest.", cost:700000},
+];
+
+// ==================== GAME STATE ====================
+let state = {
+  players: [],
+  currentPlayerIdx: 0,
+  turn: 1,
+  currentCard: null,
+  market: {}
+};
+
+let playerDreams = {};
+let isAnimatingTurn = false;
+const DIE_FACES = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
+
+// ==================== AUDIO ====================
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playNote(freq, {dur=0.3, type='sine', vol=0.3, atk=0.01, dec=0.12, sus=0.5, rel=0.18, detune=0, lpf=null} = {}) {
+  try {
+    const now = audioCtx.currentTime;
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.detune.value = detune;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(vol, now + atk);
+    gain.gain.linearRampToValueAtTime(vol * sus, now + atk + dec);
+    gain.gain.setValueAtTime(vol * sus, now + dur - rel);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    let node = osc;
+    if (lpf) {
+      const f = audioCtx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = lpf; f.Q.value = 0.8;
+      osc.connect(f); node = f;
+    }
+    node.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now + dur + 0.05);
+  } catch(e) {}
+}
+
+// Dice roll — percussive low thuds
+function playRoll() {
+  [0, 60, 120].forEach(ms => setTimeout(() => {
+    playNote(60 + Math.random()*50, {dur:0.08, type:'sine', vol:0.35, atk:0.003, dec:0.06, sus:0, rel:0.02, lpf:350});
+    playNote(200 + Math.random()*100, {dur:0.05, type:'sawtooth', vol:0.08, atk:0.002, dec:0.04, sus:0, rel:0.01, lpf:500});
+  }, ms));
+}
+
+// Payday — coin jingle, C major arpeggio
+function playPayday() {
+  [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => {
+    playNote(f,    {dur:0.35, type:'sine', vol:0.28, atk:0.01, dec:0.14, sus:0.3, rel:0.18, detune:-4});
+    playNote(f*2,  {dur:0.22, type:'sine', vol:0.08, atk:0.01, dec:0.08, sus:0,   rel:0.10, detune: 4});
+  }, i * 85));
+}
+
+// Buy — low thump then chime
+function playBuy() {
+  playNote(110, {dur:0.14, type:'sine', vol:0.4, atk:0.005, dec:0.12, sus:0, rel:0.02, lpf:280});
+  setTimeout(() => {
+    playNote(1047, {dur:0.45, type:'sine', vol:0.22, atk:0.01, dec:0.18, sus:0.2, rel:0.22, detune: 5});
+    playNote(1319, {dur:0.38, type:'sine', vol:0.12, atk:0.02, dec:0.14, sus:0.1, rel:0.18, detune:-5});
+  }, 65);
+}
+
+// Turn switch — soft bell ding
+function playTurnSwitch() {
+  playNote(880,  {dur:0.65, type:'sine', vol:0.22, atk:0.01, dec:0.28, sus:0.12, rel:0.30});
+  playNote(1109, {dur:0.45, type:'sine', vol:0.10, atk:0.01, dec:0.18, sus:0.05, rel:0.22, detune: 3});
+}
+
+// Win — ascending fanfare
+function playWin() {
+  [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => {
+    playNote(f,   {dur:0.30, type:'sine', vol:0.28, atk:0.01, dec:0.10, sus:0.55, rel:0.16});
+    if (i === 4) playNote(f, {dur:0.70, type:'sine', vol:0.14, atk:0.01, dec:0.20, sus:0.55, rel:0.35, detune:-7});
+  }, i * 115));
+}
+
+// ==================== SETUP ====================
+let setupPlayers = [
+  {name:"Player 1"},
+  {name:"Player 2"}
+];
+
+const PCOLORS = ["#00d4ff","#00ff9d","#ff2d55","#a855f7","#eab308","#f97316"];
+
+function renderSetup() {
+  const el = document.getElementById("player-list");
+  el.innerHTML = "";
+  setupPlayers.forEach((sp, i) => {
+    const div = document.createElement("div");
+    div.className = "player-row";
+    div.innerHTML = `
+      <div class="pnum" style="background:${PCOLORS[i]}">${i+1}</div>
+      <input type="text" value="${sp.name}" onchange="setupPlayers[${i}].name=this.value" style="flex:1;">
+      <button onclick="removePlayer(${i})" style="background:rgba(69,10,10,0.8); color:white; padding:8px 14px; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer;">×</button>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function addPlayer() {
+  if (setupPlayers.length >= 6) return alert("Maximum 6 players");
+  setupPlayers.push({name:`Player ${setupPlayers.length+1}`});
+  renderSetup();
+}
+
+function removePlayer(i) {
+  if (setupPlayers.length <= 1) return alert("Minimum 1 player");
+  setupPlayers.splice(i, 1);
+  renderSetup();
+}
+
+// ==================== START GAME ====================
+function startGame() {
+  if (setupPlayers.length < 1) return alert("Need at least 1 player");
+
+  state.players = setupPlayers.map((sp, i) => {
+    const prof = {...PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)]};
+    return {
+      name: sp.name,
+      color: PCOLORS[i],
+      profession: prof.name,
+      salary: prof.salary,
+      taxes: prof.taxes,
+      mortgage: prof.mortgage,
+      studentLoan: prof.studentLoan || 0,
+      carLoan: prof.carLoan,
+      creditCards: prof.creditCards,
+      retailPayment: prof.retailPayment || 0,
+      otherExpenses: prof.otherExpenses,
+      cash: prof.startCash,
+      assets: [],
+      liabilities: [
+        {name:"Housing Lease/Mortgage", value:prof.homeMortgageLiability||0, payment:prof.mortgage, type:"home"},
+        {name:"Student Loans", value:prof.studentLoanLiability||0, payment:prof.studentLoan||0, type:"student"},
+        {name:"Transport Loan", value:prof.carLoanLiability||0, payment:prof.carLoan, type:"car"},
+        {name:"Credit Cards / BNPL", value:prof.creditCardLiability||0, payment:prof.creditCards, type:"credit"},
+        {name:"Subscriptions & Retail", value:prof.retailDebt||0, payment:prof.retailPayment||0, type:"retail"}
+      ],
+      position: 0,
+      visualPosition: 0,
+      onFastTrack: false,
+      layoffTurnsLeft: 0,
+      charityTurnsLeft: 0,
+      passiveIncome: 0,
+      dream: null
+    };
+  });
+
+  // Init stock price system before first player runs
+  initStockPrices();
+  state.players.forEach(p => recalcPassive(p));
+
+  document.getElementById("setup-screen").classList.remove("active");
+  document.getElementById("game-screen").classList.add("active");
+
+  initPanelsMobile();
+  renderGame();
+  chooseDream(0);
+}
+
+// ==================== CORE FUNCTIONS ====================
+function currentPlayer() { return state.players[state.currentPlayerIdx]; }
+
+function recalcPassive(p) {
+  p.passiveIncome = p.assets.reduce((sum,a) => sum + (a.cashflow||0), 0);
+}
+
+function totalExpenses(p) {
+  return p.taxes + p.otherExpenses + p.liabilities.reduce((sum,l) => {
+    if (l.type==='loan') return sum + (l.value * 0.1);
+    return sum + (l.payment||0);
+  }, 0);
+}
+
+function monthlyCashflow(p) {
+  return p.salary + p.passiveIncome - totalExpenses(p);
+}
+
+function beginTurn() {
+  renderGame();
+  updateOnlineWaiting();
+  const p = currentPlayer();
+
+  // Online: show waiting state when it's not my turn
+  if (isOnline && !isMyTurn()) {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac" style="text-align:center;">
+        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${p.onFastTrack ? '🚀 FAST TRACK' : '🐀 RAT RACE'}</div>
+        <div style="padding:32px 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">⏳</div>
+          <div style="font-size:17px;font-weight:700;">Waiting for <span style="color:${p.color};">${p.name}</span></div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;">to roll the dice…</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (p.layoffTurnsLeft > 0) {
+    p.layoffTurnsLeft--;
+    renderAction_EndTurn(`${p.name} is laid off this turn. Turns remaining: ${p.layoffTurnsLeft}`);
+    return;
+  }
+  document.getElementById("action-area").innerHTML = `
+    <div class="ac">
+      <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${p.onFastTrack ? '🚀 FAST TRACK' : '🐀 RAT RACE'}</div>
+      <div class="ac-title">${p.name} — <span style="color:var(--muted);font-size:15px;">${p.profession}</span></div>
+      <div style="padding:28px; text-align:center;">
+        <div class="dice-row" id="die-result"><span class="die-face">?</span></div>
+        <button id="roll-button" class="btn btn-primary" style="font-size:17px; padding:15px 52px; margin-top:8px;" onclick="rollDice()">ROLL DICE</button>
+      </div>
+    </div>`;
+}
+
+function formatDice(values, rolling=false) {
+  const diceHtml = values.map(v => `<span class="die-face${rolling?' rolling':''}">${DIE_FACES[v]}</span>`).join("");
+  const total = values.reduce((sum,n)=>sum+n,0);
+  return values.length > 1 ? `${diceHtml}<span style="font-size:24px;margin-left:8px;">=${total}</span>` : diceHtml;
+}
+
+function animateDiceRoll(finalValues) {
+  const dieEl = document.getElementById("die-result");
+  const diceCount = finalValues.length;
+  let ticks = 0;
+  return new Promise(resolve => {
+    const interval = setInterval(() => {
+      ticks++;
+      const values = Array.from({length:diceCount}, ()=>Math.floor(Math.random()*6)+1);
+      dieEl.innerHTML = formatDice(ticks >= 14 ? finalValues : values, ticks < 14);
+      if (ticks >= 14) { clearInterval(interval); setTimeout(resolve, 220); }
+    }, 60);
+  });
+}
+
+function animatePlayerMove(p, spaces) {
+  const trackLength = p.onFastTrack ? FAST_TRACK_SPACES.length : RAT_RACE_SPACES.length;
+  let current = p.position;
+  let step = 0;
+  return new Promise(resolve => {
+    function moveOneSpace() {
+      if (step >= spaces) {
+        p.position = current;
+        p.visualPosition = current;
+        drawBoard();
+        resolve();
+        return;
+      }
+      const from = current;
+      const to = (current+1) % trackLength;
+      const nowTime = () => (window.performance && window.performance.now) ? window.performance.now() : Date.now();
+      if (!p.onFastTrack && RAT_RACE_SPACES[to].type === 'payday') handlePayday();
+      const nextFrame = window.requestAnimationFrame || (cb => setTimeout(()=>cb(nowTime()), 16));
+      const startedAt = nowTime();
+      const duration = 145;
+      function frame(now) {
+        const progress = Math.min(1, (now-startedAt)/duration);
+        const eased = 1 - Math.pow(1-progress, 3);
+        p.visualPosition = from + eased;
+        if (p.visualPosition >= trackLength) p.visualPosition -= trackLength;
+        drawBoard();
+        if (progress < 1) {
+          nextFrame(frame);
+        } else {
+          current = to;
+          p.position = current;
+          p.visualPosition = current;
+          step++;
+          playNote(180 + step*12, {dur:0.05, type:'sine', vol:0.07, atk:0.003, dec:0.04, sus:0, rel:0.01, lpf:600});
+          setTimeout(moveOneSpace, 22);
+        }
+      }
+      nextFrame(frame);
+    }
+    moveOneSpace();
+  });
+}
+
+async function rollDice() {
+  if (!isMyTurn()) return;          // online guard
+  if (isAnimatingTurn) return;
+  isAnimatingTurn = true;
+  playRoll();
+  const p = currentPlayer();
+  const diceCount = p.charityTurnsLeft > 0 ? 2 : 1;
+  const rolls = Array.from({length:diceCount}, ()=>Math.floor(Math.random()*6)+1);
+  const roll = rolls.reduce((sum,n)=>sum+n, 0);
+  if (p.charityTurnsLeft > 0) p.charityTurnsLeft--;
+  const rollButton = document.getElementById("roll-button");
+  if (rollButton) rollButton.disabled = true;
+  await animateDiceRoll(rolls);
+  await animatePlayerMove(p, roll);
+  if (p.onFastTrack) {
+    handleFastTrack();
+  } else {
+    const space = RAT_RACE_SPACES[p.position];
+    if (space.type !== "payday") {
+      handleRatRaceSpace(space);
+    } else {
+      renderAction_EndTurn("Landed on Payday — cash received!");
+    }
+  }
+  drawBoard();
+  isAnimatingTurn = false;
+}
+
+// ==================== SPACE HANDLERS ====================
+function handleRatRaceSpace(space) {
+  if (space.type === "deal")    handleDealChoice();
+  else if (space.type === "doodad")  drawDoodad();
+  else if (space.type === "baby")    handleBaby();
+  else if (space.type === "charity") handleCharity();
+  else if (space.type === "layoff")  handleLayoff();
+  else renderAction_EndTurn("Nothing special happens here.");
+}
+
+function handleDealChoice() {
+  const p = currentPlayer();
+  setModal("Deal Opportunity", `
+    <div style="text-align:center; padding:8px 0 24px;">
+      <h2 style="font-size:22px; margin-bottom:10px;">${p.name}, choose your deal</h2>
+      <p style="color:var(--muted); margin-bottom:28px;">Small Deals &lt; $${SMALL_DEAL_LIMIT.toLocaleString()}&nbsp;·&nbsp;Big Deals &gt; $${SMALL_DEAL_LIMIT.toLocaleString()}</p>
+      <div style="display:flex; gap:16px; justify-content:center;">
+        <button class="btn btn-primary" style="flex:1; padding:20px 12px; flex-direction:column;" onclick="drawSmallDeal();closeModal()">
+          <div style="font-size:18px; font-weight:900;">SMALL DEAL</div>
+          <div style="font-size:12px; opacity:0.7; margin-top:4px;">Stocks, rentals, business</div>
+        </button>
+        <button class="btn btn-invest" style="flex:1; padding:20px 12px;" onclick="drawBigDeal();closeModal()">
+          <div style="font-size:18px; font-weight:900;">BIG DEAL</div>
+          <div style="font-size:12px; opacity:0.7; margin-top:4px;">Large investments</div>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function drawSmallDeal() {
+  // Stocks appear 3x more frequently — limited pool of 5 symbols
+  const pool = [...SMALL_DEALS, ...STOCK_MARKET_DEALS, ...STOCK_MARKET_DEALS, ...STOCK_MARKET_DEALS];
+  const base = pool[Math.floor(Math.random() * pool.length)];
+  const card = {...base};
+
+  if (card.type === "stock") {
+    card.isStockMarket = true;
+    card.sharePrice = state.market[card.symbol] || card.basePrice;
+    card.cost = card.sharePrice;
+    card.downpayment = card.sharePrice;
+    card.price = card.sharePrice;
+  }
+
+  state.currentCard = card;
+  showDealCard();
+}
+
+function drawBigDeal() {
+  state.currentCard = BIG_DEALS[Math.floor(Math.random() * BIG_DEALS.length)];
+  showDealCard();
+}
+
+function showDealCard() {
+  const card = state.currentCard;
+  if (card.isStockMarket) { showStockDealCard(card); return; }
+
+  const p = currentPlayer();
+  updateCashBar();
+  const canBuy = p.cash >= card.downpayment;
+  const dealSize = card.downpayment > SMALL_DEAL_LIMIT ? "Big Deal" : "Small Deal";
+
+  document.getElementById("action-area").innerHTML = `
+    <div class="ac">
+      <div class="ac-head" style="background:linear-gradient(90deg,#1e40af,#3b82f6)">${dealSize.toUpperCase()}</div>
+      <div class="ac-title">${card.title}</div>
+      <div style="padding:20px;">
+        <p style="color:#c8e6ff; margin-bottom:12px;">${card.desc}</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; padding:14px; background:rgba(4,12,28,0.6); border-radius:10px; border:1px solid rgba(56,189,248,0.12);">
+          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Down Payment</div><div style="font-size:20px; font-weight:900; color:var(--accent);">$${card.downpayment.toLocaleString()}</div></div>
+          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Monthly Cash Flow</div><div style="font-size:20px; font-weight:900; color:var(--profit);">+$${card.cashflow}/mo</div></div>
+        </div>
+        <div style="margin-bottom:20px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:14px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+          <span>💰 Your Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:18px;">$${p.cash.toLocaleString()}</strong></span>
+          ${canBuy ? '' : `<span style="color:var(--loss); font-size:13px;">Need $${(card.downpayment - p.cash).toLocaleString()} more</span>`}
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY DEAL</button>
+          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Deal passed')" style="flex:1;">PASS</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildCandleChart(symbol) {
+  const history = (stockHistory[symbol] || []).slice(-14);
+  if (!history.length) return '<div style="color:var(--muted);text-align:center;width:100%;line-height:100px;">No data</div>';
+
+  const allPrices = history.flatMap(c => [c.high, c.low]);
+  const minP = Math.min(...allPrices);
+  const maxP = Math.max(...allPrices);
+  const range = maxP - minP || 1;
+  const chartH = 100;
+
+  return history.map(c => {
+    const upward = c.close >= c.open;
+    const color = upward ? '#22c55e' : '#fb3f5f';
+    const glow = upward ? 'rgba(34,197,94,0.35)' : 'rgba(251,63,95,0.35)';
+
+    const wickTopPx = ((maxP - c.high) / range) * chartH;
+    const wickBotPx = ((c.low - minP) / range) * chartH;
+    const bodyTopPx = ((maxP - Math.max(c.open, c.close)) / range) * chartH;
+    const bodyH = Math.max(3, (Math.abs(c.close - c.open) / range) * chartH);
+    const wickH = chartH - wickTopPx - wickBotPx;
+
+    return `<div style="flex:1;min-width:8px;position:relative;height:${chartH}px;display:flex;flex-direction:column;align-items:center;">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:${wickH + wickTopPx}px;background:rgba(226,246,255,0.55);margin-top:${wickTopPx}px;border-radius:2px;"></div>
+      <div style="position:absolute;top:${bodyTopPx}px;width:65%;height:${bodyH}px;background:${color};border-radius:3px;box-shadow:0 0 8px ${glow};"></div>
+      <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:2px;height:${wickBotPx}px;background:rgba(226,246,255,0.55);border-radius:2px;"></div>
+    </div>`;
+  }).join('');
+}
+
+function getTrend(symbol) {
+  const h = stockHistory[symbol] || [];
+  if (h.length < 3) return 'normal';
+  const last = h.slice(-5);
+  const ups = last.filter(c => c.close >= c.open).length;
+  const downs = last.filter(c => c.close < c.open).length;
+  if (ups >= 3) return 'up';
+  if (downs >= 3) return 'down';
+  return 'normal';
+}
+
+function getTrendLabel(symbol) {
+  const t = getTrend(symbol);
+  if (t === 'up')   return '<span class="breakout-badge up">▲ After rally</span>';
+  if (t === 'down') return '<span class="breakout-badge down">▼ After decline</span>';
+  return '<span class="breakout-badge normal">≈ Stable</span>';
+}
+
+function sharesOwned(p, symbol) {
+  return p.assets.filter(a=>a.symbol===symbol).reduce((sum,a)=>sum+(a.shares||0),0);
+}
+
+function updateStockBuyCost(symbol) {
+  const card = state.currentCard;
+  if (!card || card.symbol !== symbol) return;
+  const qtyInput = document.getElementById("stock-quantity-input");
+  const totalCostEl = document.getElementById("stock-total-cost");
+  const buyBtn = document.getElementById("stock-buy-button");
+  if (!qtyInput || !totalCostEl || !buyBtn) return;
+  let quantity = parseInt(qtyInput.value, 10);
+  if (Number.isNaN(quantity) || quantity < 1) quantity = 1;
+  qtyInput.value = quantity;
+  const totalCost = quantity * card.sharePrice;
+  totalCostEl.textContent = `$${totalCost.toLocaleString()}`;
+  buyBtn.disabled = currentPlayer().cash < totalCost;
+}
+
+function showStockDealCard(card) {
+  const p = currentPlayer();
+  const canBuy = p.cash >= card.sharePrice;
+  const owned = sharesOwned(p, card.symbol);
+  const trendBadge = getTrendLabel(card.symbol);
+
+  // Is this price outside normal range?
+  let breakoutNote = '';
+  const currentPrice = card.sharePrice;
+  const stock = STOCK_MARKET_DEALS.find(s=>s.symbol===card.symbol);
+  if (stock) {
+    if (currentPrice > stock.rangeHigh) {
+      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; font-size:12px; color:#4ade80;">⚡ BREAKOUT — price above normal range ($${stock.rangeHigh})</div>`;
+    } else if (currentPrice < stock.rangeLow) {
+      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(251,63,95,0.1); border:1px solid rgba(251,63,95,0.3); border-radius:8px; font-size:12px; color:#fb7185;">⚡ CRASH — price below normal range ($${stock.rangeLow})</div>`;
+    }
+  }
+
+  document.getElementById("action-area").innerHTML = `
+    <div class="ac">
+      <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">SMALL DEAL · STOCK MARKET</div>
+      <div class="stock-card">
+        <div class="stock-card-head">
+          <div class="stock-icon">${card.symbol.slice(0,2)}</div>
+          <div>
+            <div class="stock-title">${card.symbol} ${trendBadge}</div>
+            <div class="stock-subtitle">${card.sector} · ${card.title}</div>
+          </div>
+        </div>
+        <p style="color:#c8e6ff; font-size:13px; margin-bottom:8px;">${card.desc}</p>
+        ${breakoutNote}
+        <div class="stock-chart" aria-label="Candlestick chart">${buildCandleChart(card.symbol)}</div>
+        <div class="stock-stats">
+          <div class="stock-stat"><span style="color:var(--muted)">Price / share</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">Normal range</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">Owned</span><strong>${owned} shares</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">Quantity to buy</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">Total cost</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
+        </div>
+        <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+          <span>💰 Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:17px;">$${p.cash.toLocaleString()}</strong></span>
+          ${!canBuy ? `<span style="color:var(--loss); font-size:12px;">Need $${(card.sharePrice - p.cash).toLocaleString()} more</span>` : ''}
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY SHARES</button>
+          ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">SELL ${card.symbol}</button>` : ''}
+          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Deal passed')" style="flex:1;">PASS</button>
+        </div>
+      </div>
+    </div>`;
+
+  updateStockBuyCost(card.symbol);
+}
+
+function buyDeal() {
+  const p = currentPlayer();
+  const card = state.currentCard;
+  const qtyInput = document.getElementById("stock-quantity-input");
+  const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+  const currentPrice = card.sharePrice || (state.market[card.symbol] || 1);
+  const totalCost = card.isStockMarket ? quantity * currentPrice : card.downpayment;
+
+  if (p.cash < totalCost) {
+    showNotif("Not enough cash.", "error");
+    return;
+  }
+  p.cash -= totalCost;
+
+  if (card.isStockMarket) {
+    // Merge with existing holding if same symbol
+    const existing = p.assets.find(a => a.symbol === card.symbol);
+    if (existing) {
+      existing.shares = (existing.shares || 0) + quantity;
+      existing.value += totalCost;
+    } else {
+      p.assets.push({
+        name: card.title, value: totalCost, cashflow: 0,
+        type: "stock", symbol: card.symbol,
+        shares: quantity, sharePrice: currentPrice,
+        rangeLow: card.rangeLow, rangeHigh: card.rangeHigh
+      });
+    }
+  } else {
+    p.assets.push({
+      name: card.title, value: totalCost, cashflow: card.cashflow,
+      type: card.type, rangeLow: card.rangeLow, rangeHigh: card.rangeHigh
+    });
+    if (card.type === "rental" || card.type === "business") {
+      p.liabilities.push({
+        name: card.title,
+        value: Math.max(0, card.price - card.downpayment),
+        payment: 0, type: card.type
+      });
+    }
+  }
+
+  recalcPassive(p);
+  checkFastTrack(p);
+  renderGame();
+  playBuy();
+  showNotif(card.isStockMarket ? `Purchased ${quantity} shares of ${card.symbol}` : `Purchased ${card.title}! +$${card.cashflow}/mo`, "success");
+  renderAction_EndTurn(`Acquired: ${card.title}`);
+}
+
+// ==================== SELL STOCKS ====================
+function showSellStocksModal() {
+  const p = currentPlayer();
+  const stocks = p.assets.filter(a => a.type === 'stock' && a.shares > 0);
+  if (!stocks.length) { showNotif("You don't own any stocks.", "info"); return; }
+
+  let html = `<h2 style="margin-bottom:6px;">Sell Stocks</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Sell at current market price — profit or loss.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">`;
+
+  stocks.forEach((asset, i) => {
+    const curPrice = state.market[asset.symbol] || asset.sharePrice;
+    const curVal   = asset.shares * curPrice;
+    const costBasis = asset.value;
+    const pnl      = curVal - costBasis;
+    const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
+    const pnlStr   = `${pnl >= 0 ? '+' : ''}$${Math.abs(Math.round(pnl)).toLocaleString()}`;
+
+    html += `
+      <div style="padding:14px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="color:var(--accent);">${asset.symbol}</strong>
+          <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+          <span style="font-size:12px;color:${pnlColor};">P&amp;L ${pnlStr}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="color:var(--muted);font-size:13px;">Qty:</span>
+          <input type="number" id="sell-qty-${i}" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
+            style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
+          <span style="color:var(--muted);font-size:12px;">@ $${curPrice}/share</span>
+          <button class="btn btn-danger-act" style="margin-left:auto;padding:8px 16px;" onclick="confirmSellStock(${i})">SELL</button>
+        </div>
+      </div>`;
+  });
+
+  html += `<button class="btn btn-secondary" onclick="closeModal()">CANCEL</button></div>`;
+  setModal("Sell Stocks", html);
+}
+
+function confirmSellStock(idx) {
+  const p = currentPlayer();
+  const stocks = p.assets.filter(a => a.type === 'stock' && a.shares > 0);
+  const asset = stocks[idx];
+  if (!asset) return;
+
+  const qtyInput = document.getElementById(`sell-qty-${idx}`);
+  const qty = Math.max(1, Math.min(asset.shares, parseInt(qtyInput?.value, 10) || asset.shares));
+  const curPrice = state.market[asset.symbol] || asset.sharePrice;
+  const proceeds = qty * curPrice;
+  const costBasis = Math.round((qty / asset.shares) * asset.value);
+  const pnl = proceeds - costBasis;
+  const pnlStr = `${pnl >= 0 ? '+' : ''}$${Math.abs(pnl).toLocaleString()}`;
+
+  if (qty >= asset.shares) {
+    p.assets.splice(p.assets.indexOf(asset), 1);
+  } else {
+    const fraction = qty / asset.shares;
+    asset.shares -= qty;
+    asset.value = Math.round(asset.value * (1 - fraction));
+  }
+
+  p.cash += proceeds;
+  recalcPassive(p);
+  closeModal();
+  renderGame();
+  showNotif(`Sold ${qty}× ${asset.symbol} @ $${curPrice} · P&L ${pnlStr}`, pnl >= 0 ? "success" : "");
+  showStockDealCard(state.currentCard);
+}
+
+// ==================== BANKRUPTCY ====================
+function checkSolvency() {
+  const p = currentPlayer();
+  if (p.cash < 0) {
+    showBankruptcyModal(p);
+    return false;
+  }
+  return true;
+}
+
+function showBankruptcyModal(p) {
+  const deficit = Math.abs(p.cash);
+  const loanAmount = Math.ceil(deficit / 100) * 100;
+  const repay = Math.round(loanAmount * 1.1);
+
+  setModal("⚠️ Account Below Zero", `
+    <div style="text-align:center;padding:8px 0 20px;">
+      <div style="font-size:52px;margin-bottom:10px;">💸</div>
+      <h2 style="color:var(--loss);margin-bottom:8px;">Cash Crisis</h2>
+      <p style="color:var(--muted);margin-bottom:6px;">${p.name}'s balance:</p>
+      <div style="font-size:32px;font-weight:900;color:var(--loss);">$${p.cash.toLocaleString()}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-primary" onclick="emergencyLoan(${loanAmount})">
+        <div style="font-size:15px;font-weight:900;">🏦 EMERGENCY LOAN</div>
+        <div style="font-size:12px;opacity:0.75;margin-top:3px;">Borrow $${loanAmount.toLocaleString()} · repay $${repay.toLocaleString()}</div>
+      </button>
+      <button class="btn btn-secondary" onclick="showSellStocksFromBankruptcy()">
+        <div style="font-size:15px;font-weight:900;">📉 SELL ASSETS</div>
+        <div style="font-size:12px;opacity:0.75;margin-top:3px;">Liquidate stocks, rentals or businesses</div>
+      </button>
+      <button class="btn btn-danger-act" onclick="declareBankruptcy()">
+        <div style="font-size:15px;font-weight:900;">💀 DECLARE BANKRUPTCY</div>
+        <div style="font-size:12px;opacity:0.75;margin-top:3px;">Game over for ${p.name}</div>
+      </button>
+    </div>`);
+}
+
+function showSellStocksFromBankruptcy() {
+  closeModal();
+  const p = currentPlayer();
+  if (!p.assets.length) {
+    showNotif("No assets to sell.", "info");
+    setTimeout(() => showBankruptcyModal(p), 300);
+    return;
+  }
+  showLiquidateModal();
+}
+
+function showLiquidateModal() {
+  const p = currentPlayer();
+  const sellable = p.assets.filter(a => a.type === 'stock' ? a.shares > 0 : true);
+  if (!sellable.length) {
+    showNotif("No assets to sell.", "info");
+    setTimeout(() => showBankruptcyModal(p), 300);
+    return;
+  }
+
+  let html = `<h2 style="margin-bottom:6px;">Liquidate Assets</h2>
+    <p style="color:var(--loss);font-size:13px;margin-bottom:16px;">Balance: <strong>$${p.cash.toLocaleString()}</strong> · sell assets to cover deficit</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">`;
+
+  sellable.forEach((asset, i) => {
+    if (asset.type === 'stock') {
+      const curPrice = state.market[asset.symbol] || asset.sharePrice || 1;
+      const curVal = asset.shares * curPrice;
+      html += `
+        <div style="padding:12px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <strong style="color:var(--accent);">${asset.symbol}</strong>
+            <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="number" id="liq-qty-${i}" min="1" max="${asset.shares}" value="${asset.shares}"
+              style="width:72px;padding:5px 7px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
+            <span style="color:var(--muted);font-size:12px;">shares</span>
+            <button class="btn btn-danger-act" style="margin-left:auto;padding:7px 14px;" onclick="liquidateSell(${i})">SELL</button>
+          </div>
+        </div>`;
+    } else {
+      const salePrice = asset.price || asset.cost || asset.value || 0;
+      html += `
+        <div style="padding:12px;background:rgba(4,12,28,0.7);border:1px solid rgba(251,63,95,0.2);border-radius:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <strong style="color:#e2e8f0;">${asset.name}</strong>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">${asset.type} · cashflow $${(asset.cashflow||0).toLocaleString()}/mo</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:14px;font-weight:900;color:var(--profit);">$${salePrice.toLocaleString()}</div>
+              <button class="btn btn-danger-act" style="margin-top:6px;padding:6px 12px;font-size:12px;" onclick="liquidateSell(${i})">SELL</button>
+            </div>
+          </div>
+        </div>`;
+    }
+  });
+
+  html += `<button class="btn btn-secondary" onclick="closeModal();showBankruptcyModal(currentPlayer())">BACK</button></div>`;
+  setModal("Liquidate Assets", html);
+}
+
+function liquidateSell(idx) {
+  const p = currentPlayer();
+  const sellable = p.assets.filter(a => a.type === 'stock' ? a.shares > 0 : true);
+  const asset = sellable[idx];
+  if (!asset) return;
+
+  let proceeds = 0;
+  if (asset.type === 'stock') {
+    const qtyInput = document.getElementById(`liq-qty-${idx}`);
+    const qty = Math.max(1, Math.min(asset.shares, parseInt(qtyInput?.value, 10) || asset.shares));
+    const curPrice = state.market[asset.symbol] || asset.sharePrice || 1;
+    proceeds = qty * curPrice;
+    if (qty >= asset.shares) {
+      p.assets.splice(p.assets.indexOf(asset), 1);
+    } else {
+      asset.shares -= qty;
+      asset.value = Math.round(asset.value * (asset.shares / (asset.shares + qty)));
+    }
+    showNotif(`Sold ${qty}× ${asset.symbol} for $${proceeds.toLocaleString()}`, "success");
+  } else {
+    proceeds = asset.price || asset.cost || asset.value || 0;
+    // Remove associated liability if any
+    const liIdx = p.liabilities.findIndex(l => l.name === asset.name);
+    if (liIdx !== -1) p.liabilities.splice(liIdx, 1);
+    p.assets.splice(p.assets.indexOf(asset), 1);
+    showNotif(`Sold ${asset.name} for $${proceeds.toLocaleString()}`, "success");
+  }
+
+  p.cash += proceeds;
+  recalcPassive(p);
+  renderGame();
+  closeModal();
+  setTimeout(() => {
+    if (p.cash < 0) showLiquidateModal();
+    else {
+      showNotif("Crisis resolved! Continue your turn.", "success");
+      if (state.currentCard) {
+        state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard();
+      } else {
+        renderAction_EndTurn('Crisis resolved — assets liquidated.');
+      }
+    }
+  }, 350);
+}
+
+function emergencyLoan(amount) {
+  const p = currentPlayer();
+  const repayAmount = Math.round(amount * 1.1);
+  p.cash += amount;
+  p.liabilities.push({name: "Emergency Loan", value: repayAmount, payment: Math.round(repayAmount * 0.1), type: "loan"});
+  recalcPassive(p);
+  renderGame();
+  closeModal();
+  showNotif(`Emergency loan: $${amount.toLocaleString()} received. Repay: $${repayAmount.toLocaleString()}`, "warning");
+  state.currentCard = null;
+  renderAction_EndTurn('Emergency loan taken — turn ends here.');
+}
+
+function declareBankruptcy() {
+  const p = currentPlayer();
+  closeModal();
+  showNotif(`${p.name} declared bankruptcy and is out of the game!`, "error");
+  state.players.splice(state.currentPlayerIdx, 1);
+  if (state.players.length === 0) {
+    document.getElementById("game-screen").classList.remove("active");
+    document.getElementById("win-screen").classList.add("active");
+    document.getElementById("winner-name").textContent = "No Winners";
+    document.getElementById("winner-details").textContent = "All players went bankrupt.";
+    return;
+  }
+  if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
+  renderGame();
+  beginTurn();
+}
+
+// ==================== OTHER HANDLERS ====================
+function handlePayday() {
+  playPayday();
+  const p = currentPlayer();
+  const salary = p.salary;
+  const passive = p.passiveIncome;
+  const expenses = totalExpenses(p);
+  const cf = salary + passive - expenses;
+  p.cash += cf;
+  checkFastTrack(p);
+  if (p.cash < 0) { checkSolvency(); return; }
+  renderFS();
+  // Notyfikacja widoczna niezależnie od tego czy staje czy przekracza
+  const sign = cf >= 0 ? '+' : '';
+  showNotif(`💰 Payday! Salary $${salary.toLocaleString()} · Expenses -$${expenses.toLocaleString()} · Net ${sign}$${cf.toLocaleString()}`, cf >= 0 ? "success" : "error");
+}
+
+function handleBaby() {
+  const p = currentPlayer();
+  p.otherExpenses += 350;
+  renderGame();
+  renderAction_EndTurn("Baby! Monthly expenses increased by $350.");
+}
+
+function handleCharity() {
+  const p = currentPlayer();
+  const cost = Math.max(100, Math.round(monthlyCashflow(p) * 0.1));
+  const canDonate = p.cash >= cost;
+  document.getElementById("action-area").innerHTML = `
+    <div class="ac">
+      <div class="ac-head" style="background:linear-gradient(90deg,#065f46,#10b981)">CHARITY</div>
+      <div class="ac-title">Charity — roll two dice</div>
+      <div style="padding:20px;">
+        <p>Donate $${cost.toLocaleString()} to roll 2 dice for the next 3 turns.</p>
+        <div style="display:flex; gap:12px; margin-top:20px;">
+          <button class="btn btn-invest" onclick="donateToCharity(${cost})" ${canDonate?'':'disabled'}>DONATE $${cost.toLocaleString()}</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Charity skipped')">PASS</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function donateToCharity(cost) {
+  const p = currentPlayer();
+  p.cash -= cost;
+  p.charityTurnsLeft = 3;
+  renderGame();
+  if (!checkSolvency()) return;
+  renderAction_EndTurn(`Donated $${cost.toLocaleString()}. Roll 2 dice for the next 3 turns.`);
+}
+
+function handleLayoff() {
+  const p = currentPlayer();
+  const lostCash = Math.max(0, monthlyCashflow(p));
+  p.cash -= lostCash;
+  p.layoffTurnsLeft = 1;
+  renderGame();
+  if (!checkSolvency()) return;
+  renderAction_EndTurn(`Layoff! Lost one month's cash flow: $${lostCash.toLocaleString()}.`);
+}
+
+function getFastTrackIncome(p) {
+  // Reward players who built real passive income in Rat Race
+  return Math.max(50000, p.passiveIncome * 12);
+}
+
+function handleFastTrack() {
+  const p = currentPlayer();
+  const pos = p.position % FAST_TRACK_SPACES.length;
+  const space = FAST_TRACK_SPACES[pos];
+
+  if (space.type === 'dream') {
+    const dreamDef = FAST_TRACK_DREAMS[space.dreamId];
+    const owner = state.players.find(pl => pl.dream && pl.dream.id === dreamDef.id);
+
+    if (owner && owner !== p) {
+      // Someone else's dream — price doubles for the owner
+      const oldCost = owner.dream.cost;
+      owner.dream.cost = oldCost * 2;
+      showNotif(`${p.name} landed on ${dreamDef.icon} ${dreamDef.title}! Cost for ${owner.name} doubled → $${owner.dream.cost.toLocaleString()}!`, "error");
+      collectFastTrackIncome(p);
+      return;
+    }
+
+    if (owner === p) {
+      handleOwnDreamLanding(p);
+      return;
+    }
+
+    // Unclaimed space — just collect income
+    collectFastTrackIncome(p);
+    return;
+  }
+
+  // payday or charity — collect income (no rat race charity mechanic on fast track)
+  collectFastTrackIncome(p);
+}
+
+function collectFastTrackIncome(p) {
+  const income = getFastTrackIncome(p);
+  p.cash += income;
+  renderFS();
+  const dream = p.dream;
+  if (!dream) {
+    renderAction_EndTurn(`Fast Track payday: +$${income.toLocaleString()}`);
+    return;
+  }
+  const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
+  const remaining = Math.max(0, dream.cost - p.cash);
+  const lapsEst = remaining > 0 ? Math.ceil(remaining / income) : 0;
+  const progressBar = `
+    <div style="margin:14px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;">
+        <span>${dream.icon} ${dream.title}</span>
+        <span>${progress}% · ~${lapsEst} paydays left</span>
+      </div>
+      <div style="height:10px;background:rgba(4,12,28,0.8);border-radius:999px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);">
+        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:width 0.5s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--muted);">
+        <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
+      </div>
+    </div>`;
+  renderAction_EndTurn(`Fast Track +$${income.toLocaleString()}${progressBar}`);
+}
+
+function handleOwnDreamLanding(p) {
+  const dream = p.dream;
+  const canAfford = p.cash >= dream.cost;
+  const isFinanciallyFree = p.passiveIncome >= totalExpenses(p);
+
+  if (canAfford && isFinanciallyFree) {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#4c1d95,#7c3aed)">🌟 YOUR DREAM</div>
+        <div class="ac-title">${dream.icon} ${dream.title}</div>
+        <div style="padding:20px;">
+          <p style="color:#c8e6ff;margin-bottom:14px;">${dream.desc}</p>
+          <div style="padding:14px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;margin-bottom:18px;">
+            <div style="margin-bottom:6px;">Dream cost: <strong style="color:#a78bfa;">$${dream.cost.toLocaleString()}</strong></div>
+            <div style="margin-bottom:6px;">Your cash: <strong style="color:var(--profit);">$${p.cash.toLocaleString()}</strong></div>
+            <div style="margin-bottom:6px;">Passive income: <strong style="color:var(--profit);">$${p.passiveIncome.toLocaleString()}/mo</strong></div>
+            <div>Monthly expenses: <strong>$${totalExpenses(p).toLocaleString()}/mo</strong></div>
+          </div>
+          <div style="padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;margin-bottom:16px;font-size:13px;color:#4ade80;">
+            ✅ You are financially free — passive income covers all expenses!
+          </div>
+          <button class="btn btn-primary" style="width:100%;font-size:17px;padding:16px;" onclick="buyDream()">🏆 BUY YOUR DREAM</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Not ready yet — show what's missing and collect income anyway
+  const income = getFastTrackIncome(p);
+  p.cash += income;
+  renderFS();
+
+  let missing = [];
+  if (!canAfford) missing.push(`Need $${(dream.cost - p.cash).toLocaleString()} more cash`);
+  if (!isFinanciallyFree) missing.push(`Passive income $${p.passiveIncome.toLocaleString()}/mo must reach expenses $${totalExpenses(p).toLocaleString()}/mo`);
+
+  const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
+  const progressBar = `
+    <div style="margin:14px 0;">
+      <div style="height:10px;background:rgba(4,12,28,0.8);border-radius:999px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);">
+        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--muted);">
+        <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
+      </div>
+    </div>`;
+
+  renderAction_EndTurn(`${dream.icon} Landed on your dream! Not ready yet:<br><span style="color:var(--loss);font-size:13px;">${missing.join(' · ')}</span>+$${income.toLocaleString()} collected${progressBar}`);
+}
+
+function buyDream() {
+  const p = currentPlayer();
+  const dream = p.dream;
+  if (!dream || p.cash < dream.cost) { showNotif("Not enough cash.", "error"); return; }
+  if (p.passiveIncome < totalExpenses(p)) { showNotif("You must be financially free to buy your dream.", "error"); return; }
+  p.cash -= dream.cost;
+  showWin(p, `${p.name} bought ${dream.icon} ${dream.title} and achieved financial freedom!`);
+}
+
+function showWin(p, details) {
+  playWin();
+  document.getElementById("game-screen").classList.remove("active");
+  document.getElementById("win-screen").classList.add("active");
+  document.getElementById("winner-name").textContent = p.name;
+  document.getElementById("winner-details").textContent = details;
+}
+
+function drawDoodad() {
+  const card = DOODADS[Math.floor(Math.random() * DOODADS.length)];
+  document.getElementById("action-area").innerHTML = `
+    <div class="ac">
+      <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">DOODAD</div>
+      <div class="ac-title">${card.title}</div>
+      <div style="padding:20px;">
+        <p style="color:#fca5a5; margin-bottom:12px;">${card.desc}</p>
+        <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:20px;">−$${card.cost.toLocaleString()}</div>
+        <button class="btn btn-danger-act" style="width:100%;" onclick="payDoodad(${card.cost})">PAY</button>
+      </div>
+    </div>`;
+}
+
+function payDoodad(cost) {
+  const p = currentPlayer();
+  p.cash -= cost;
+  renderFS();
+  if (!checkSolvency()) return;
+  renderAction_EndTurn(`Paid $${cost.toLocaleString()} for Doodad`);
+}
+
+function renderAction_EndTurn(msg) {
+  syncState(); // broadcast current state to all online players
+  const p = currentPlayer();
+  const hasLiabilities = p.liabilities && p.liabilities.length > 0;
+  document.getElementById("action-area").innerHTML = `
+    <div class="ac">
+      <div class="ac-title" style="color:var(--accent);">✓ Turn Complete</div>
+      <div style="padding:20px 30px; text-align:center; font-size:16px; color:#c8e6ff;">${msg}</div>
+      <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
+        ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">💳 PAY DEBT</button>` : ''}
+        <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">🏦 TAKE LOAN</button>
+        <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">NEXT PLAYER →</button>
+      </div>
+    </div>`;
+}
+
+function showPayLiabilityModal() {
+  const p = currentPlayer();
+  if (!p.liabilities || !p.liabilities.length) { showNotif("No liabilities to pay.", "info"); return; }
+  let html = `<h2 style="margin-bottom:16px;">Pay Liability</h2>
+    <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1)); padding:14px; border-radius:10px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
+      <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Cash</div>
+      <div style="font-size:26px; font-weight:900; color:#fff;">$${p.cash.toLocaleString()}</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">`;
+  p.liabilities.forEach((l,i) => {
+    const canPay = p.cash >= l.value;
+    html += `<button class="btn ${canPay?'btn-primary':'btn-secondary'}" onclick="payLiability(${i})" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
+      <span>${l.name}</span>
+      <span>${canPay ? `$${l.value.toLocaleString()}` : `Need $${(l.value-p.cash).toLocaleString()} more`}</span>
+    </button>`;
+  });
+  html += `<button class="btn btn-secondary" onclick="closeModal()">CANCEL</button></div>`;
+  setModal("Manage Debt", html);
+}
+
+function payLiability(liabilityIndex) {
+  const p = currentPlayer();
+  if (!p.liabilities || !p.liabilities[liabilityIndex]) return;
+  const liability = p.liabilities[liabilityIndex];
+  if (p.cash < liability.value) { showNotif("Not enough cash.", "error"); return; }
+  p.cash -= liability.value;
+  const removed = p.liabilities.splice(liabilityIndex, 1)[0];
+  recalcPassive(p);
+  renderGame();
+  closeModal();
+  showNotif(`Paid off: ${removed.name} — $${removed.value.toLocaleString()}!`, "success");
+}
+
+function showTakeLoanModal() {
+  const p = currentPlayer();
+  const html = `<h2 style="margin-bottom:16px;">Take a Loan</h2>
+    <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1)); padding:14px; border-radius:10px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
+      <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Cash</div>
+      <div style="font-size:26px; font-weight:900; color:#fff;">$${p.cash.toLocaleString()}</div>
+    </div>
+    <p style="color:var(--muted); margin-bottom:16px; font-size:14px;">Borrow money at 10% interest (repay 110% of the loan amount).</p>
+    <div style="display:flex; gap:10px; margin-bottom:14px;">
+      <input type="number" id="loan-amount" min="100" step="100" placeholder="Loan amount" style="flex:1; padding:12px; border-radius:8px; border:1px solid rgba(56,189,248,0.2); background:rgba(4,12,28,0.9); color:#e2e8f0;">
+      <button class="btn btn-primary" onclick="confirmTakeLoan()">BORROW</button>
+    </div>
+    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">CANCEL</button>`;
+  setModal("Loans", html);
+  document.getElementById("loan-amount").focus();
+}
+
+function confirmTakeLoan() {
+  const p = currentPlayer();
+  const amount = parseInt(document.getElementById("loan-amount").value, 10);
+  if (Number.isNaN(amount) || amount < 100) { showNotif("Minimum amount: $100.", "error"); return; }
+  const repayAmount = Math.round(amount * 1.1);
+  p.cash += amount;
+  p.liabilities.push({name:"Bank Loan", value:repayAmount, payment:Math.round(repayAmount*0.1), type:"loan"});
+  recalcPassive(p);
+  renderGame();
+  closeModal();
+  showNotif(`Borrowed $${amount.toLocaleString()} (repay: $${repayAmount.toLocaleString()})`, "success");
+  // Return to deal card if loan was taken during a deal
+  if (state.currentCard) {
+    setTimeout(() => state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard(), 200);
+  }
+}
+
+function showTakeLoanThenDeal() {
+  state._loanFromDeal = true;
+  showTakeLoanModal();
+}
+
+function showDealStockSell() {
+  const card = state.currentCard;
+  if (!card) return;
+  const p = currentPlayer();
+  const asset = p.assets.find(a => a.type === 'stock' && a.symbol === card.symbol && a.shares > 0);
+  if (!asset) { showNotif(`You don't own any ${card.symbol} shares.`, "info"); return; }
+
+  const curPrice = state.market[card.symbol] || card.sharePrice;
+  const curVal = asset.shares * curPrice;
+  const pnl = curVal - asset.value;
+  const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
+  const pnlStr = `${pnl >= 0 ? '+' : ''}$${Math.abs(Math.round(pnl)).toLocaleString()}`;
+
+  const html = `<h2 style="margin-bottom:6px;">Sell ${card.symbol}</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Sell at current market price — profit or loss.</p>
+    <div style="padding:14px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:12px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong style="color:var(--accent);">${asset.symbol}</strong>
+        <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+        <span style="font-size:12px;color:${pnlColor};">P&L ${pnlStr}</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="color:var(--muted);font-size:13px;">Qty:</span>
+        <input type="number" id="deal-sell-qty" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
+          style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
+        <span style="color:var(--muted);font-size:12px;">@ $${curPrice}/share</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-danger-act" style="flex:1;" onclick="confirmDealStockSell()">SELL</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal();showStockDealCard(state.currentCard)">CANCEL</button>
+    </div>`;
+  setModal(`Sell ${card.symbol}`, html);
+}
+
+function confirmDealStockSell() {
+  const card = state.currentCard;
+  const p = currentPlayer();
+  const asset = p.assets.find(a => a.type === 'stock' && a.symbol === card.symbol && a.shares > 0);
+  if (!asset) return;
+  const qtyInput = document.getElementById("deal-sell-qty");
+  const qty = Math.max(1, Math.min(asset.shares, parseInt(qtyInput?.value, 10) || asset.shares));
+  const curPrice = state.market[card.symbol] || card.sharePrice;
+  const proceeds = qty * curPrice;
+  const costBasis = Math.round((qty / asset.shares) * asset.value);
+  const pnl = proceeds - costBasis;
+  const pnlStr = `${pnl >= 0 ? '+' : ''}$${Math.abs(pnl).toLocaleString()}`;
+  if (qty >= asset.shares) {
+    p.assets.splice(p.assets.indexOf(asset), 1);
+  } else {
+    asset.shares -= qty;
+    asset.value = Math.round(asset.value * (1 - qty / (asset.shares + qty)));
+  }
+  p.cash += proceeds;
+  recalcPassive(p);
+  closeModal();
+  renderGame();
+  showNotif(`Sold ${qty}× ${card.symbol} @ $${curPrice} · P&L ${pnlStr}`, pnl >= 0 ? "success" : "");
+  showStockDealCard(state.currentCard);
+}
+
+// ==================== STOCK PRICES ====================
+function updateMarketPrices() {
+  STOCK_MARKET_DEALS.forEach(s => {
+    const sym = s.symbol;
+    const currentPrice = state.market[sym] || s.basePrice;
+    const normalVolatility = 0.22;
+    const bias = (Math.random() - 0.47);
+    let move = 1 + bias * normalVolatility * 2;
+
+    // Frequent crashes and surges to create buy/sell opportunities
+    const roll = Math.random();
+    let isBreakout = false;
+    if (roll < 0.10) {
+      // Crash — sharp drop, good buying opportunity
+      move = 0.38 + Math.random() * 0.22;
+      isBreakout = true;
+      showNotif(`💥 CRASH: ${sym} collapsed — buy opportunity?`, "error");
+    } else if (roll < 0.20) {
+      // Surge — sharp rise, good selling opportunity
+      move = 1.6 + Math.random() * 1.0;
+      isBreakout = true;
+      showNotif(`🚀 BREAKOUT: ${sym} surged — sell opportunity?`, "success");
+    } else {
+      // Mild mean reversion when far from center
+      const center = (s.rangeLow + s.rangeHigh) / 2;
+      const distFromCenter = (currentPrice - center) / center;
+      move *= (1 - distFromCenter * 0.05);
+    }
+
+    const open = currentPrice;
+    const close = Math.max(1, Math.round(currentPrice * move));
+    const high = Math.round(Math.max(open, close) * (1 + Math.random() * 0.10));
+    const low  = Math.round(Math.min(open, close) * (1 - Math.random() * 0.10));
+
+    state.market[sym] = close;
+
+    if (!stockHistory[sym]) stockHistory[sym] = [];
+    stockHistory[sym].push({open, high, low, close, breakout: isBreakout});
+    if (stockHistory[sym].length > 22) stockHistory[sym].shift();
+  });
+  renderFS();
+  drawBoard();
+}
+
+// ==================== NEXT TURN + CONFIRMATION ====================
+function nextTurn() {
+  updateMarketPrices();
+  playTurnSwitch();
+  state.currentPlayerIdx = (state.currentPlayerIdx + 1) % state.players.length;
+  if (state.currentPlayerIdx === 0) state.turn++;
+
+  if (isOnline) {
+    // Sync new turn to all players; the new current player will begin their turn
+    _lastTurnIdx = state.currentPlayerIdx;
+    syncState();
+    // Show local waiting/begin state
+    renderGame();
+    updateOnlineWaiting();
+    if (isMyTurn()) {
+      showTurnConfirmation(currentPlayer(), () => beginTurn());
+    } else {
+      beginTurn(); // shows "waiting for X" UI
+    }
+    return;
+  }
+
+  const p = currentPlayer();
+  showTurnConfirmation(p, () => {
+    const sidebar = document.querySelector(".left-panel");
+    if (sidebar) {
+      sidebar.style.animation = "none";
+      setTimeout(() => { sidebar.style.animation = "pulse 0.6s ease-out"; }, 10);
+    }
+    beginTurn();
+  });
+}
+
+function showTurnConfirmation(player, callback) {
+  const overlay = document.getElementById("turn-confirm-overlay");
+  const avatar  = document.getElementById("turn-confirm-avatar");
+  const nameEl  = document.getElementById("turn-confirm-name");
+  const profEl  = document.getElementById("turn-confirm-profession");
+  const btn     = document.getElementById("turn-confirm-btn");
+
+  avatar.style.background = player.color;
+  avatar.style.color = '#06111f';
+  avatar.textContent = player.name.charAt(0).toUpperCase();
+  nameEl.textContent = player.name;
+  nameEl.style.color = player.color;
+  profEl.textContent = player.profession;
+
+  overlay.classList.add("active");
+  btn.onclick = () => {
+    overlay.classList.remove("active");
+    callback();
+  };
+}
+
+function checkFastTrack(p) {
+  if (!p.onFastTrack && p.passiveIncome >= totalExpenses(p)) {
+    p.onFastTrack = true;
+    p.position = 0;
+    p.visualPosition = 0;
+    showNotif(`🎉 ${p.name} escaped the Rat Race!`, "success");
+  }
+}
+
+// ==================== RENDERING ====================
+function renderGame() {
+  renderSidebar();   // also calls updateCashBar()
+  renderFS();
+  updateTurnBanner();
+  drawBoard();
+  updateOnlineWaiting();
+}
+
+function updateTurnBanner() {
+  const p = currentPlayer();
+  document.getElementById("turn-who").innerHTML = `<span style="color:${p.color}">${p.name}</span>`;
+  document.getElementById("turn-track").textContent = p.onFastTrack ? "🚀 FAST TRACK" : "🐀 RAT RACE";
+  document.getElementById("turn-count").textContent = state.turn;
+}
+
+function renderSidebar() {
+  const el = document.getElementById("players-sidebar");
+  el.innerHTML = state.players.map((p, i) => {
+    const isActive = i === state.currentPlayerIdx;
+    const cf = monthlyCashflow(p);
+    return `
+      <div style="padding:12px; background:${isActive?'rgba(56,189,248,0.08)':'rgba(8,20,40,0.5)'}; margin-bottom:8px; border-radius:10px; border:1px solid ${isActive?'rgba(56,189,248,0.3)':'rgba(56,189,248,0.06)'}; transition:all 0.3s;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:${p.color}; box-shadow:0 0 6px ${p.color};"></div>
+          <strong style="color:${p.color}; font-size:14px;">${p.name}</strong>
+          ${isActive ? '<span style="margin-left:auto; font-size:10px; color:var(--accent); letter-spacing:1px;">ACTIVE</span>' : ''}
+        </div>
+        <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">${p.profession}</div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text);">
+          <span>💵 Cash: <strong style="color:${p.cash>=0?'var(--profit)':'var(--loss)'}; font-size:15px;">$${p.cash.toLocaleString()}</strong></span>
+          <span style="color:${cf>=0?'var(--profit)':'var(--loss)'};">${cf>=0?'+':''}$${cf.toLocaleString()}/mo</span>
+        </div>
+        <div style="font-size:11px; color:var(--accent); margin-top:4px;">${p.dream ? p.dream.icon + ' ' + p.dream.title + ' · $' + p.dream.cost.toLocaleString() : '— no dream'}</div>
+      </div>`;
+  }).join('');
+  updateCashBar();
+}
+
+function renderFS() {
+  const p = currentPlayer();
+  recalcPassive(p);
+  const cf = monthlyCashflow(p);
+  const expenses = totalExpenses(p);
+  const totalIncome = p.salary + p.passiveIncome;
+  const progress = expenses > 0 ? Math.min(100, Math.round((p.passiveIncome/expenses)*100)) : 100;
+  const investmentAssets = p.assets.filter(a=>a.type==="stock"||a.type==="fund"||a.type==="cd");
+  const businessAssets   = p.assets.filter(a=>a.type==="rental"||a.type==="business");
+  const fixedLiabilities    = p.liabilities.filter(l=>["home","student","car","credit","retail"].includes(l.type));
+  const businessLiabilities = p.liabilities.filter(l=>l.type==="rental"||l.type==="business");
+  const row = (label, value, cls="") => `
+    <div class="fs-row ${cls}">
+      <span>${label}</span>
+      <span class="value">${value}</span>
+    </div>`;
+  const money = v => `${v<0?"-":""}$${Math.abs(Math.round(v)).toLocaleString()}`;
+  const emptyRows = n => Array.from({length:n},()=>`<div class="fs-empty"></div>`).join("");
+
+  const assetRows = businessAssets.length
+    ? businessAssets.map(a=>row(`${a.name} (+${money(a.cashflow)}/mo)`, money(a.value))).join("")
+    : emptyRows(2);
+
+  const stockRows = investmentAssets.length
+    ? investmentAssets.map(a => {
+        const curPrice = a.symbol ? (state.market[a.symbol]||a.sharePrice) : a.sharePrice;
+        const curVal = a.symbol && a.shares ? a.shares * curPrice : a.value;
+        const pnl = curVal - a.value;
+        const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
+        return row(
+          a.symbol ? `${a.symbol} · ${a.shares} shares @ $${curPrice}` : a.name,
+          `<span style="color:${pnlColor};">${money(curVal)}</span>`
+        );
+      }).join("")
+    : emptyRows(2);
+
+  const bizLiabRows = businessLiabilities.length
+    ? businessLiabilities.map(l=>row(l.name, money(l.value))).join("")
+    : emptyRows(3);
+
+  document.getElementById("fs-display").innerHTML = `
+    <div class="fs-paper">
+      <div style="background:linear-gradient(135deg,rgba(14,165,233,0.25),rgba(6,182,212,0.15)); padding:16px; border-radius:12px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px;">Current Cash</div>
+        <div style="font-size:30px; font-weight:900; color:${p.cash>=0?'var(--profit)':'var(--loss)'};">${money(p.cash)}</div>
+      </div>
+
+      <div class="fs-section-title">Income</div>
+      ${row(`${p.profession}`, money(p.salary))}
+      ${row("Dividends / Interest", money(investmentAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+      ${row("Real Estate / Business", money(businessAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+
+      <div class="fs-summary">
+        <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Financial Freedom Progress</div>
+        <div class="fs-progress"><div class="fs-progress-fill" style="width:${progress}%"></div></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted);">
+          <span>Passive: <strong style="color:var(--profit);">${money(p.passiveIncome)}</strong></span>
+          <span>Target: <strong style="color:var(--loss);">${money(expenses)}</strong></span>
+        </div>
+      </div>
+
+      <div class="fs-section-title">Expenses</div>
+      ${row("Taxes + Living", money(p.taxes + p.otherExpenses))}
+      ${p.liabilities.filter(l=>l.payment>0).map(l=>row(l.name, money(l.payment), "subtle")).join("")}
+
+      <div class="fs-summary">
+        <div class="fs-mini">
+          <span>Total Income:</span><span>${money(totalIncome)}</span>
+          <span>Total Expenses:</span><span>${money(-expenses)}</span>
+          <span style="font-size:14px; font-weight:900;">Payday:</span><span style="font-size:14px; font-weight:900; color:${cf>=0?'var(--profit)':'var(--loss)'};">${money(cf)}</span>
+        </div>
+      </div>
+
+      <div class="fs-grid">
+        <div>
+          <div class="fs-section-title">Assets</div>
+          ${row("Stocks / Funds","Curr. Value")}
+          ${stockRows}
+          ${row("Real Estate / Business","Cost")}
+          ${assetRows}
+        </div>
+        <div>
+          <div class="fs-section-title">Liabilities</div>
+          ${fixedLiabilities.map(l=>row(l.name, money(l.value))).join("")}
+          ${row("Real Estate / Business","Debt")}
+          ${bizLiabRows}
+        </div>
+      </div>
+    </div>`;
+  updateCashBar();
+}
+
+// ==================== BOARD DRAWING ====================
+function tileColor(type) {
+  return {
+    payday:"#22c55e", deal:"#38bdf8", doodad:"#fb3f5f",
+    baby:"#f59e0b", charity:"#84cc16", layoff:"#ef4444",
+    dream:"#f59e0b", cashflow:"#22c55e", tax:"#8b5cf6",
+    travel:"#0ea5e9", business:"#14b8a6"
+  }[type] || "#64748b";
+}
+
+function tileLabel(type) {
+  return {
+    payday:"PAY", deal:"DEAL", doodad:"DOD",
+    baby:"BABY", charity:"CHAR", layoff:"LAY",
+    dream:"DREAM", cashflow:"CASH", tax:"TAX",
+    travel:"TRIP", business:"BIZ"
+  }[type] || type.toUpperCase();
+}
+
+function drawRoundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function drawBoardTile(ctx, tile, spaceOrType, active=false) {
+  const space = typeof spaceOrType === 'string' ? {type: spaceOrType} : spaceOrType;
+  const type = space.type;
+  drawRoundedRect(ctx, tile.x, tile.y, tile.w, tile.h, 8);
+  ctx.fillStyle = tileColor(type);
+  ctx.fill();
+
+  if (type === 'dream' && space.dreamId !== undefined) {
+    const dream = FAST_TRACK_DREAMS[space.dreamId];
+    const owner = state.players.find(pl => pl.dream && pl.dream.id === dream.id);
+    // Highlight in owner's color if owner exists on Fast Track
+    if (owner) {
+      ctx.strokeStyle = active ? "#ffffff" : owner.color;
+      ctx.lineWidth = active ? 5 : 3;
+    } else {
+      ctx.strokeStyle = active ? "#ffffff" : "rgba(21,15,31,0.75)";
+      ctx.lineWidth = active ? 5 : 3;
+    }
+    ctx.stroke();
+    // Draw icon
+    ctx.font = `${Math.min(tile.w, tile.h) * 0.45}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(dream.icon, tile.x + tile.w/2, tile.y + tile.h/2 - 4);
+    // Draw tiny dream number
+    ctx.font = "bold 8px Arial";
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillText(dream.title.slice(0,6), tile.x + tile.w/2, tile.y + tile.h - 9);
+  } else {
+    ctx.strokeStyle = active ? "#ffffff" : "rgba(21,15,31,0.75)";
+    ctx.lineWidth = active ? 5 : 3;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(tileLabel(type), tile.x + tile.w/2, tile.y + tile.h/2);
+  }
+}
+
+function makeFastTrackTiles() {
+  const tiles = [];
+  for (let i=0; i<10; i++) tiles.push({x:120+i*68, y:24, w:64, h:52});
+  for (let i=0; i<7;  i++) tiles.push({x:800, y:88+i*63, w:58, h:58});
+  for (let i=0; i<10; i++) tiles.push({x:732-i*68, y:534, w:64, h:52});
+  for (let i=0; i<7;  i++) tiles.push({x:42, y:466-i*63, w:58, h:58});
+  return tiles;
+}
+
+function drawCardDeck(ctx, x, y, w, h, label, color) {
+  drawRoundedRect(ctx, x+8, y+8, w, h, 6);
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fill();
+  drawRoundedRect(ctx, x, y, w, h, 6);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.4)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.font = "bold 14px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, x+w/2, y+h/2);
+}
+
+function drawRatRaceRing(ctx, activePositions) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const cx=450, cy=318, outerR=196, innerR=114;
+  const step = (Math.PI*2) / RAT_RACE_SPACES.length;
+  RAT_RACE_SPACES.forEach((space, i) => {
+    const start = -Math.PI/2 + i*step;
+    const end = start + step - 0.012;
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, start, end);
+    ctx.arc(cx, cy, innerR, end, start, true);
+    ctx.closePath();
+    ctx.fillStyle = tileColor(space.type);
+    ctx.fill();
+    ctx.strokeStyle = activePositions.includes(i) ? "#ffffff" : "rgba(18,12,26,0.72)";
+    ctx.lineWidth = activePositions.includes(i) ? 5 : 3;
+    ctx.stroke();
+    const mid = start + step/2;
+    const labelR = (outerR+innerR)/2;
+    ctx.save();
+    ctx.translate(cx+Math.cos(mid)*labelR, cy+Math.sin(mid)*labelR);
+    ctx.rotate(mid+Math.PI/2);
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.font = "bold 10px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(tileLabel(space.type), 0, 0);
+    ctx.restore();
+  });
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR-8, 0, Math.PI*2);
+  ctx.fillStyle = isDark ? "#0a0d14" : "#fdf5ff";
+  ctx.fill();
+  ctx.save();
+  ctx.translate(cx, cy-18);
+  ctx.rotate(-0.08);
+  ctx.fillStyle = isDark ? "#f5a623" : "#FF8C42";
+  ctx.strokeStyle = isDark ? "rgba(90,45,14,0.8)" : "rgba(176,145,210,0.5)";
+  ctx.lineWidth = 5;
+  ctx.font = "900 50px Arial";
+  ctx.textAlign = "center";
+  ctx.strokeText("MoneyPath", 0, 0);
+  ctx.fillText("MoneyPath", 0, 0);
+  ctx.restore();
+  ctx.fillStyle = isDark ? "#d1e8f7" : "#9570b8";
+  ctx.font = "bold 14px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("RAT RACE", cx, cy+40);
+}
+
+function drawPlayerToken(ctx, x, y, color, label) {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.arc(x, y, 12, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = "#07101c";
+  ctx.font = "bold 10px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, x, y+1);
+}
+
+function getFastTrackPoint(position, playerIndex, fastTiles) {
+  const tl = fastTiles.length;
+  const norm = ((position%tl)+tl)%tl;
+  const fromIdx = Math.floor(norm);
+  const toIdx = (fromIdx+1)%tl;
+  const progress = norm-fromIdx;
+  const from=fastTiles[fromIdx], to=fastTiles[toIdx];
+  return {
+    x: (from.x+from.w/2) + ((to.x+to.w/2) - (from.x+from.w/2)) * progress + (playerIndex%2)*13-6,
+    y: (from.y+from.h/2) + ((to.y+to.h/2) - (from.y+from.h/2)) * progress + Math.floor(playerIndex/2)*13-6
+  };
+}
+
+function getRatRacePoint(position, playerIndex) {
+  const tl = RAT_RACE_SPACES.length;
+  const norm = ((position%tl)+tl)%tl;
+  const angle = (((norm+0.5)/tl)*Math.PI*2) - Math.PI/2;
+  const radius = 156;
+  return {
+    x: 450+Math.cos(angle)*radius + (playerIndex%2)*13-6,
+    y: 318+Math.sin(angle)*radius + Math.floor(playerIndex/2)*13-6
+  };
+}
+
+function drawBoard() {
+  const canvas = document.getElementById("boardCanvas");
+  const ctx = canvas.getContext("2d");
+  const w=canvas.width, h=canvas.height;
+  const fastTiles = makeFastTrackTiles();
+  const ratPositions = state.players.filter(p=>!p.onFastTrack).map(p=>p.position);
+  ctx.clearRect(0,0,w,h);
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  // Board background
+  const bg = ctx.createLinearGradient(0,0,w,h);
+  if (isDark) {
+    bg.addColorStop(0,"#0a1628");
+    bg.addColorStop(0.5,"#112238");
+    bg.addColorStop(1,"#080f1e");
+  } else {
+    bg.addColorStop(0,"#fdf5ff");
+    bg.addColorStop(0.5,"#fff8f7");
+    bg.addColorStop(1,"#f3e8ff");
+  }
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,w,h);
+
+  // Subtle grid lines
+  ctx.strokeStyle = isDark ? "rgba(56,189,248,0.04)" : "rgba(176,145,210,0.08)";
+  ctx.lineWidth = 1;
+  for (let i=0; i<w; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+  for (let j=0; j<h; j+=40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(w,j); ctx.stroke(); }
+
+  drawRoundedRect(ctx, 28, 18, 844, 580, 24);
+  ctx.fillStyle = isDark ? "rgba(4,12,28,0.7)" : "rgba(255,255,255,0.70)";
+  ctx.fill();
+  ctx.strokeStyle = isDark ? "rgba(56,189,248,0.18)" : "rgba(176,145,210,0.35)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  fastTiles.forEach((tile, i) => {
+    const active = state.players.some(p=>p.onFastTrack && p.position===i);
+    drawBoardTile(ctx, tile, FAST_TRACK_SPACES[i % FAST_TRACK_SPACES.length], active);
+  });
+
+  drawCardDeck(ctx, 116, 166, 118, 70, "SMALL DEAL", "rgba(56,189,248,0.85)");
+  drawCardDeck(ctx, 116, 342, 118, 70, "BIG DEAL",   "rgba(34,197,94,0.85)");
+  drawCardDeck(ctx, 668, 342, 104, 70, "DOODADS",    "rgba(251,63,95,0.82)");
+
+  ctx.fillStyle = isDark ? "rgba(56,189,248,0.6)" : "rgba(149,112,184,0.8)";
+  ctx.font = "bold 11px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("FAST TRACK", 450, 92);
+
+  drawRatRaceRing(ctx, ratPositions);
+
+  state.players.forEach((p, i) => {
+    const vp = typeof p.visualPosition === "number" ? p.visualPosition : p.position;
+    if (p.onFastTrack) {
+      const pt = getFastTrackPoint(vp, i, fastTiles);
+      drawPlayerToken(ctx, pt.x, pt.y, p.color, i+1);
+    } else {
+      const pt = getRatRacePoint(vp, i);
+      drawPlayerToken(ctx, pt.x, pt.y, p.color, i+1);
+    }
+  });
+}
+
+// ==================== MODAL & NOTIF ====================
+function setModal(title, html) {
+  document.getElementById("modal-head-txt").textContent = title;
+  document.getElementById("modal-content").innerHTML = html;
+  document.getElementById("modal-overlay").classList.add("active");
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("active");
+}
+
+function showNotif(msg, type="") {
+  const n = document.getElementById("notif");
+  n.textContent = msg;
+  n.style.borderLeftColor = type==="success" ? "#22c55e" : type==="error" ? "#fb3f5f" : "var(--accent)";
+  n.style.display = "block";
+  setTimeout(()=>n.style.display="none", 3000);
+}
+
+// ==================== DREAM SELECTION ====================
+function chooseDream(idx) {
+  if (idx >= state.players.length) {
+    // All dreams chosen
+    if (isOnline) syncState();
+    beginTurn();
+    return;
+  }
+  const p = state.players[idx];
+
+  // Online: only the player whose turn it is picks their dream
+  if (isOnline && idx !== myPlayerIdx) {
+    // Show a waiting message in the action area for non-choosers
+    document.getElementById('action-area').innerHTML = `
+      <div class="ac" style="text-align:center;">
+        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">Dream Selection ${idx+1}/${state.players.length}</div>
+        <div style="padding:32px 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">🌙</div>
+          <div style="font-size:16px;font-weight:700;">Waiting for <span style="color:${p.color};">${p.name}</span></div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;">to choose their dream…</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const takenIds = state.players.slice(0, idx).map(pl => pl.dream ? pl.dream.id : -1);
+  const available = FAST_TRACK_DREAMS.filter(d => !takenIds.includes(d.id));
+
+  let html = `
+    <h2 style="margin-bottom:4px;font-size:19px;">${p.name} — choose your dream</h2>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:18px;">Each player has a unique dream. You win by landing on your space when financially free.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">`;
+
+  available.forEach(dream => {
+    html += `<button class="btn btn-secondary" onclick="selectDream(${idx},${dream.id})" style="text-align:left;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;">
+      <span style="font-size:22px;margin-right:10px;">${dream.icon}</span>
+      <span style="flex:1;">
+        <span style="font-size:14px;font-weight:700;">${dream.title}</span>
+        <span style="display:block;font-size:11px;color:var(--muted);margin-top:2px;">${dream.desc}</span>
+      </span>
+      <span style="font-size:14px;color:var(--accent);flex-shrink:0;margin-left:12px;">$${dream.cost.toLocaleString()}</span>
+    </button>`;
+  });
+
+  html += `</div>`;
+  setModal(`Dream Selection — Player ${idx+1} of ${state.players.length}`, html);
+}
+
+function selectDream(playerIdx, dreamId) {
+  const dream = FAST_TRACK_DREAMS.find(d => d.id === dreamId);
+  // Each player gets their OWN copy so cost can be doubled independently
+  state.players[playerIdx].dream = {...dream};
+  closeModal();
+  if (isOnline) syncState(); // broadcast this player's dream choice to everyone
+  setTimeout(() => chooseDream(playerIdx + 1), 300);
+}
+
+function sellAsset(assetName, salePrice) {
+  const p = currentPlayer();
+  const assetIdx = p.assets.findIndex(a=>a.name===assetName);
+  if (assetIdx===-1) return;
+  const [asset] = p.assets.splice(assetIdx,1);
+  const liIdx = p.liabilities.findIndex(l=>l.name===asset.name&&(l.type==="rental"||l.type==="business"));
+  if (liIdx!==-1) p.liabilities.splice(liIdx,1);
+  p.cash += salePrice;
+  recalcPassive(p);
+  closeModal();
+  renderGame();
+  renderAction_EndTurn(`Sprzedano ${asset.name} za $${salePrice.toLocaleString()}`);
+}
+
+// ==================== INIT ====================
+renderSetup();
+
+// ── THEME TOGGLE ──
+// ==================== ONLINE MULTIPLAYER ====================
+let isOnline    = false;   // true once game_started received
+let isHost      = false;   // true for the player who created the room
+let myPlayerIdx = -1;      // which player am I (0-based)
+let myPlayerId  = null;    // random UUID for this session
+let wsConn      = null;    // WebSocket connection
+let roomPlayers = [];      // [{id, name, color, idx}] — populated as players join
+let _syncing    = false;   // prevents sync loops
+let _lastTurnIdx = -1;     // detects whose turn just started
+
+// ── Screen navigation ────────────────────────────────────────
+function goScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(name + '-screen').classList.add('active');
+  if (name === 'online') refreshLobby();
+}
+
+// ── WebSocket helpers ─────────────────────────────────────────
+function connectWS(onOpen) {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  wsConn = new WebSocket(`${proto}//${location.host}`);
+  wsConn.onopen    = onOpen;
+  wsConn.onmessage = e => { try { handleServerMsg(JSON.parse(e.data)); } catch(ex) { console.error(ex); } };
+  wsConn.onerror   = () => showNotif('⚠️ Connection error', 'loss');
+  wsConn.onclose   = () => { if (isOnline) showNotif('⚠️ Disconnected from server', 'loss'); };
+}
+
+function wsSend(obj) {
+  if (wsConn && wsConn.readyState === 1) wsConn.send(JSON.stringify(obj));
+}
+
+// ── Lobby ─────────────────────────────────────────────────────
+async function refreshLobby() {
+  const el = document.getElementById('lobby-list-items');
+  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px;">Loading…</div>';
+  try {
+    const r  = await fetch('/api/lobby');
+    const gs = await r.json();
+    if (gs.length === 0) {
+      el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px;">No open games. Create one above!</div>';
+      return;
+    }
+    el.innerHTML = gs.map(g => `
+      <div class="lobby-game-card" onclick="onlineJoinGame('${g.id}')">
+        <div>
+          <div style="font-weight:700;font-size:15px;">${htmlEsc(g.name)}</div>
+          <div style="font-size:12px;color:var(--muted);">Host: ${htmlEsc(g.host)} · ${g.players}/${g.maxPlayers} players</div>
+        </div>
+        <button class="btn btn-invest" style="padding:8px 18px;font-size:13px;pointer-events:none;">JOIN</button>
+      </div>`).join('');
+  } catch {
+    el.innerHTML = '<div style="color:var(--loss);text-align:center;padding:16px;font-size:13px;">Cannot reach server. Is it running?</div>';
+  }
+}
+
+function htmlEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getOnlineName() {
+  return (document.getElementById('online-player-name')?.value.trim()) || 'Player';
+}
+
+// ── Create / Join ─────────────────────────────────────────────
+function onlineCreateGame() {
+  const name = getOnlineName();
+  if (!name) return alert('Enter your name first');
+  const gameName = document.getElementById('online-game-name').value.trim() || `${name}'s game`;
+  myPlayerId  = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+  myPlayerIdx = 0;
+  isHost      = true;
+  connectWS(() => {
+    wsSend({ type: 'create_game', playerName: name, gameName, playerId: myPlayerId, color: PCOLORS[0], maxPlayers: 4 });
+  });
+}
+
+function onlineJoinGame(gameId) {
+  const name = getOnlineName();
+  if (!name) return alert('Enter your name first');
+  myPlayerId  = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+  isHost      = false;
+  connectWS(() => {
+    wsSend({ type: 'join_game', gameId, playerName: name, playerId: myPlayerId, color: PCOLORS[1] });
+  });
+}
+
+// ── Room UI ───────────────────────────────────────────────────
+function updateRoomUI(players) {
+  roomPlayers = players;
+  const el = document.getElementById('room-players-list');
+  el.innerHTML = players.map(p => `
+    <div class="room-player-chip">
+      <div style="width:10px;height:10px;border-radius:50%;background:${PCOLORS[p.idx]||'#888'};flex-shrink:0;"></div>
+      <span>${htmlEsc(p.name)}</span>
+      ${p.idx===0?'<span style="font-size:10px;color:var(--accent);">HOST</span>':''}
+    </div>`).join('');
+  document.getElementById('room-status-msg').textContent =
+    players.length < 2 ? 'Waiting for at least one more player…' : `${players.length} players ready`;
+  const btn = document.getElementById('room-start-btn');
+  if (btn) btn.style.display = (isHost && players.length >= 2) ? 'block' : 'none';
+}
+
+function copyRoomCode() {
+  const code = document.getElementById('room-code-display').textContent;
+  navigator.clipboard?.writeText(code).then(() => {
+    document.getElementById('copy-hint').textContent = '✅ Copied!';
+    setTimeout(() => { document.getElementById('copy-hint').textContent = 'Click code to copy'; }, 2000);
+  });
+}
+
+function leaveRoom() {
+  if (wsConn) { wsConn.close(); wsConn = null; }
+  isOnline = false; isHost = false; myPlayerIdx = -1;
+  goScreen('menu');
+}
+
+// ── Start online game (host only) ─────────────────────────────
+function startOnlineGame() {
+  if (!isHost || roomPlayers.length < 2) return;
+
+  // Build initial state from room player list (same logic as startGame())
+  state.players = roomPlayers.map((rp, i) => {
+    const prof = {...PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)]};
+    return {
+      name: rp.name, color: PCOLORS[i], profession: prof.name,
+      salary: prof.salary, taxes: prof.taxes, mortgage: prof.mortgage,
+      studentLoan: prof.studentLoan || 0, carLoan: prof.carLoan,
+      creditCards: prof.creditCards, retailPayment: prof.retailPayment || 0,
+      otherExpenses: prof.otherExpenses, cash: prof.startCash,
+      assets: [],
+      liabilities: [
+        {name:"Housing Lease/Mortgage", value:prof.homeMortgageLiability||0, payment:prof.mortgage, type:"home"},
+        {name:"Student Loans", value:prof.studentLoanLiability||0, payment:prof.studentLoan||0, type:"student"},
+        {name:"Transport Loan", value:prof.carLoanLiability||0, payment:prof.carLoan, type:"car"},
+        {name:"Credit Cards / BNPL", value:prof.creditCardLiability||0, payment:prof.creditCards, type:"credit"},
+        {name:"Subscriptions & Retail", value:prof.retailDebt||0, payment:prof.retailPayment||0, type:"retail"}
+      ],
+      position: 0, visualPosition: 0, onFastTrack: false,
+      layoffTurnsLeft: 0, charityTurnsLeft: 0, passiveIncome: 0, dream: null
+    };
+  });
+  state.currentPlayerIdx = 0;
+  state.turn  = 1;
+  state.currentCard = null;
+  initStockPrices();
+  state.players.forEach(p => recalcPassive(p));
+
+  // Send initial state — all clients will receive game_started
+  wsSend({ type: 'start_game', state: JSON.parse(JSON.stringify(state)) });
+}
+
+// ── Server message handler ────────────────────────────────────
+function handleServerMsg(msg) {
+  switch (msg.type) {
+
+    case 'game_created': {
+      document.getElementById('room-code-display').textContent = msg.gameId;
+      updateRoomUI(msg.players);
+      goScreen('room');
+      break;
+    }
+
+    case 'joined_game': {
+      myPlayerIdx = msg.playerIdx;
+      document.getElementById('room-code-display').textContent = msg.gameId;
+      updateRoomUI(msg.players);
+      goScreen('room');
+      break;
+    }
+
+    case 'lobby_update': {
+      updateRoomUI(msg.players);
+      // Re-confirm my index (might shift if someone joined before me)
+      const me = msg.players.find(p => p.id === myPlayerId);
+      if (me) myPlayerIdx = me.idx;
+      break;
+    }
+
+    case 'player_left': {
+      updateRoomUI(msg.players);
+      showNotif(`${msg.playerName} left the game`, 'warning');
+      break;
+    }
+
+    case 'game_started': {
+      myPlayerIdx = msg.playerIdx;
+      isOnline    = true;
+      _lastTurnIdx = 0;
+      state = JSON.parse(JSON.stringify(msg.state));
+      goScreen('game');
+      initPanelsMobile();
+      renderGame();
+      // Player 0 starts with dream selection; others wait
+      chooseDream(0);
+      updateOnlineWaiting();
+      break;
+    }
+
+    case 'state_update': {
+      if (_syncing) return;
+      _syncing = true;
+      const wasMyTurn = _lastTurnIdx === myPlayerIdx;
+      state = JSON.parse(JSON.stringify(msg.state));
+      renderGame();
+
+      // Dream selection phase: if not all dreams chosen, continue chooseDream
+      const dreamsSet = state.players.filter(p => p.dream).length;
+      if (dreamsSet < state.players.length) {
+        chooseDream(dreamsSet);
+        _syncing = false;
+        updateOnlineWaiting();
+        return;
+      }
+
+      // Normal turn: if it just became MY turn, begin my turn
+      const isNowMyTurn = state.currentPlayerIdx === myPlayerIdx;
+      const turnChanged  = state.currentPlayerIdx !== _lastTurnIdx;
+      _lastTurnIdx = state.currentPlayerIdx;
+
+      if (isNowMyTurn && turnChanged) {
+        // Small delay so the board animates first
+        setTimeout(() => {
+          showTurnConfirmation(currentPlayer(), () => beginTurn());
+        }, 500);
+      }
+      updateOnlineWaiting();
+      _syncing = false;
+      break;
+    }
+
+    case 'error': {
+      alert(msg.message);
+      break;
+    }
+
+    case 'chat': {
+      showNotif(`💬 ${htmlEsc(msg.from)}: ${htmlEsc(msg.text)}`, 'info');
+      break;
+    }
+  }
+}
+
+// ── Online UI helpers ─────────────────────────────────────────
+function updateOnlineWaiting() {
+  const bar = document.getElementById('online-waiting-bar');
+  if (!bar) return;
+  if (!isOnline) { bar.style.display = 'none'; return; }
+  if (isMyTurn()) {
+    bar.style.display = 'none';
+  } else {
+    const cp = state.players[state.currentPlayerIdx];
+    bar.textContent = `⏳ Waiting for ${cp?.name || '…'} to play`;
+    bar.style.display = 'block';
+  }
+}
+
+// ── Guards ────────────────────────────────────────────────────
+function isMyTurn() {
+  if (!isOnline) return true;
+  return state.currentPlayerIdx === myPlayerIdx;
+}
+
+// ── State sync (call after any state mutation during your turn) ─
+function syncState() {
+  if (!isOnline || _syncing) return;
+  if (!isMyTurn()) return; // only current player syncs
+  wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
+}
+
+/* ── Panel collapse ── */
+function togglePanel(id) {
+  const body = document.getElementById(id + '-body');
+  const icon = document.getElementById(id + '-toggle');
+  if (!body) return;
+  const collapsed = body.classList.toggle('collapsed');
+  if (icon) icon.textContent = collapsed ? '▼' : '▲';
+}
+
+/* ── Mobile cash bar ── */
+function updateCashBar() {
+  const p = currentPlayer ? currentPlayer() : null;
+  if (!p) return;
+  const el = document.getElementById('mcb-amount');
+  if (!el) return;
+  el.textContent = '$' + p.cash.toLocaleString();
+  el.style.color = p.cash >= 0 ? 'var(--grn)' : 'var(--loss)';
+}
+
+/* ── On mobile: collapse FS by default, open Players ── */
+function initPanelsMobile() {
+  if (window.innerWidth <= 820) {
+    const fsBody = document.getElementById('fs-body');
+    const fsIcon = document.getElementById('fs-toggle');
+    if (fsBody && !fsBody.classList.contains('collapsed')) {
+      fsBody.classList.add('collapsed');
+      if (fsIcon) fsIcon.textContent = '▼';
+    }
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+  localStorage.setItem('moneypath-theme', theme);
+  drawBoard();
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+// Load saved theme (default: light)
+(function() {
+  const saved = localStorage.getItem('moneypath-theme') || 'light';
+  applyTheme(saved);
+})();
+</script>
+</body>
+</html>

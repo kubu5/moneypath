@@ -1,0 +1,29 @@
+/* MoneyPath WordPress Plugin — Embed Styles */
+
+.moneypath-wrapper {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    /* --mp-height is injected inline from the shortcode attribute */
+    height: var(--mp-height, 92vh);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+    background: #04101e;
+}
+
+.moneypath-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* On mobile: full height */
+@media (max-width: 600px) {
+    .moneypath-wrapper {
+        border-radius: 0;
+        height: 100dvh;
+        box-shadow: none;
+    }
+}
