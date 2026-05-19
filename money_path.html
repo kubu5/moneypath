@@ -3321,8 +3321,8 @@ function showNotif(msg, type="") {
 // ==================== DREAM SELECTION ====================
 function chooseDream(idx) {
   if (idx >= state.players.length) {
-    // All dreams chosen
-    if (isOnline) syncState();
+    // All dreams chosen — send directly, syncState() blocks non-current-player
+    if (isOnline) wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
     beginTurn();
     return;
   }
@@ -3371,7 +3371,9 @@ function selectDream(playerIdx, dreamId) {
   // Each player gets their OWN copy so cost can be doubled independently
   state.players[playerIdx].dream = {...dream};
   closeModal();
-  if (isOnline) syncState(); // broadcast this player's dream choice to everyone
+  // Send directly — syncState() has isMyTurn() guard which blocks non-host players
+  // during dream selection (currentPlayerIdx stays 0 throughout this phase)
+  if (isOnline) wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
   setTimeout(() => chooseDream(playerIdx + 1), 300);
 }
 
