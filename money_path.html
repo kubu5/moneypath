@@ -3026,7 +3026,10 @@ function nextTurn() {
 
   if (isOnline) {
     // Sync new turn to all players; the new current player will begin their turn
-    _lastTurnIdx = state.currentPlayerIdx;
+    // NOTE: do NOT update _lastTurnIdx here — only the authoritative state_update
+    // from the host should drive turn-change detection. Setting it here causes a
+    // race where a delayed mid-turn state_update arrives after nextTurn() and
+    // incorrectly triggers a spurious "your turn" for the non-host player.
     syncState();
     // Show local waiting/begin state
     renderGame();
@@ -3890,32 +3893,36 @@ function handleServerMsg(msg) {
     case 'state_update': {
       if (_syncing) return;
       _syncing = true;
-      const wasMyTurn = _lastTurnIdx === myPlayerIdx;
-      state = JSON.parse(JSON.stringify(msg.state));
-      renderGame();
+      try {
+        state = JSON.parse(JSON.stringify(msg.state));
+        renderGame();
 
-      // Dream selection phase: if not all dreams chosen, continue chooseDream
-      const dreamsSet = state.players.filter(p => p.dream).length;
-      if (dreamsSet < state.players.length) {
-        chooseDream(dreamsSet);
-        _syncing = false;
+        // Dream selection phase: if not all dreams chosen, continue chooseDream
+        const dreamsSet = state.players.filter(p => p.dream).length;
+        if (dreamsSet < state.players.length) {
+          chooseDream(dreamsSet);
+          updateOnlineWaiting();
+          return;
+        }
+
+        // Normal turn: if it just became MY turn, begin my turn.
+        // turnChanged compares the incoming currentPlayerIdx against _lastTurnIdx,
+        // which is ONLY updated here (not in nextTurn), so it correctly reflects
+        // the last turn-change we SAW from the server — not what we predicted locally.
+        const isNowMyTurn = state.currentPlayerIdx === myPlayerIdx;
+        const turnChanged  = state.currentPlayerIdx !== _lastTurnIdx;
+        _lastTurnIdx = state.currentPlayerIdx;
+
+        if (isNowMyTurn && turnChanged) {
+          // Small delay so the board animates first
+          setTimeout(() => {
+            showTurnConfirmation(currentPlayer(), () => beginTurn());
+          }, 500);
+        }
         updateOnlineWaiting();
-        return;
+      } finally {
+        _syncing = false;
       }
-
-      // Normal turn: if it just became MY turn, begin my turn
-      const isNowMyTurn = state.currentPlayerIdx === myPlayerIdx;
-      const turnChanged  = state.currentPlayerIdx !== _lastTurnIdx;
-      _lastTurnIdx = state.currentPlayerIdx;
-
-      if (isNowMyTurn && turnChanged) {
-        // Small delay so the board animates first
-        setTimeout(() => {
-          showTurnConfirmation(currentPlayer(), () => beginTurn());
-        }, 500);
-      }
-      updateOnlineWaiting();
-      _syncing = false;
       break;
     }
 
