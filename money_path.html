@@ -3542,6 +3542,10 @@ function startOnlineGame() {
   initStockPrices();
   state.players.forEach(p => recalcPassive(p));
 
+  // Pre-assign unique random dreams — avoids fragile per-player sync during selection
+  const dreamPool = [...FAST_TRACK_DREAMS].sort(() => Math.random() - 0.5);
+  state.players.forEach((p, i) => { p.dream = {...dreamPool[i % dreamPool.length]}; });
+
   // Send initial state — all clients will receive game_started
   wsSend({ type: 'start_game', state: JSON.parse(JSON.stringify(state)) });
 }
@@ -3574,8 +3578,38 @@ function handleServerMsg(msg) {
     }
 
     case 'player_left': {
-      updateRoomUI(msg.players);
-      showNotif(`${msg.playerName} left the game`, 'warning');
+      if (!isOnline || !state.players || state.players.length === 0) {
+        updateRoomUI(msg.players);
+        showNotif(`${msg.playerName} left the game`, 'warning');
+        break;
+      }
+      // Remove disconnected player from local game state
+      const leftIdx = state.players.findIndex(p => p.name === msg.playerName);
+      if (leftIdx !== -1) {
+        state.players.splice(leftIdx, 1);
+        // Re-adjust my own index
+        if (leftIdx < myPlayerIdx) myPlayerIdx--;
+        // Re-adjust current player index
+        if (state.players.length === 0) break;
+        if (leftIdx < state.currentPlayerIdx) {
+          state.currentPlayerIdx--;
+        } else if (leftIdx === state.currentPlayerIdx) {
+          state.currentPlayerIdx = state.currentPlayerIdx % state.players.length;
+        }
+        if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
+        _lastTurnIdx = state.currentPlayerIdx;
+      }
+      showNotif(`⚠️ ${msg.playerName} disconnected — game continues`, 'warning');
+      renderGame();
+      if (state.players.length <= 1) {
+        showNotif('You are the last player — you win!', 'cashflow');
+        isOnline = false;
+      } else if (isMyTurn()) {
+        beginTurn();
+      } else {
+        updateOnlineWaiting();
+        beginTurn();
+      }
       break;
     }
 
@@ -3587,8 +3621,22 @@ function handleServerMsg(msg) {
       goScreen('game');
       initPanelsMobile();
       renderGame();
-      // Player 0 starts with dream selection; others wait
-      chooseDream(0);
+      // Dreams are pre-assigned by host — show each player their own dream
+      const myDream = state.players[myPlayerIdx]?.dream;
+      if (myDream) {
+        setModal('Your Dream', `
+          <div style="text-align:center;padding:16px 8px;">
+            <div style="font-size:56px;margin-bottom:10px;">${myDream.icon}</div>
+            <h2 style="margin-bottom:4px;">${myDream.title}</h2>
+            <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">${myDream.desc}</p>
+            <p style="font-size:15px;">Target: <strong style="color:var(--accent);">$${myDream.cost.toLocaleString()}</strong></p>
+            <p style="font-size:12px;color:var(--muted);margin-top:8px;">Land on your dream space when financially free to win!</p>
+            <button class="btn btn-primary" style="margin-top:18px;width:100%;font-size:16px;padding:14px;"
+              onclick="closeModal(); beginTurn();">Let's Play! 🎲</button>
+          </div>`);
+      } else {
+        beginTurn();
+      }
       updateOnlineWaiting();
       break;
     }
