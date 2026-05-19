@@ -3580,7 +3580,7 @@ function handleServerMsg(msg) {
     case 'game_started': {
       myPlayerIdx = msg.playerIdx;
       isOnline    = true;
-      _lastTurnIdx = 0;
+      _lastTurnIdx = -1; // -1 so turnChanged is true when dream phase ends
       state = JSON.parse(JSON.stringify(msg.state));
       goScreen('game');
       initPanelsMobile();
