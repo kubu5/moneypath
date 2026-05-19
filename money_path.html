@@ -1287,10 +1287,14 @@ input:focus, select:focus {
           <span style="font-size:28px;">🌐</span>
           <span><strong>Play Online</strong><br><span style="font-size:12px; opacity:0.8;">Each player on their own device</span></span>
         </button>
+        <button class="btn btn-secondary" style="padding:14px 18px; font-size:14px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="showRulesModal()">
+          <span style="font-size:24px;">📖</span>
+          <span><strong>Zasady i misja gry</strong><br><span style="font-size:12px; opacity:0.8;">Od autora · cel gry · inspiracje</span></span>
+        </button>
       </div>
       <div class="disclaimer-box">
-        📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
-        Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+        📚 <strong>MoneyPath</strong> to oryginalna edukacyjna gra planszowa zainspirowana ideą dochodu pasywnego i wolności finansowej.<br>
+        Nie jest powiązana z ani promowana przez Rich Dad Company ani grą Cashflow® 101.
       </div>
     </div>
     <div class="screen-footer-copy">
@@ -2295,20 +2299,20 @@ function calcCreditTiers(p) {
     .filter(l => l.type === 'loan')
     .reduce((s, l) => s + (l.value || 0), 0);
 
-  // Income-based standard: debt payments ≤ 40% of income; 10%/mo rate → slot × 10
-  const paymentSlot = Math.max(0, monthlyIncome * 0.40 - loanPayments);
+  // Income-based standard: debt payments ≤ 80% of income; 10%/mo rate → slot × 10
+  const paymentSlot = Math.max(0, monthlyIncome * 0.80 - loanPayments);
   const incomeBased = paymentSlot * 10;
 
-  // Asset-backed standard: 60% LTV on total assets
+  // Asset-backed standard: 120% LTV on total assets (game balance)
   const totalAssets = p.assets.reduce((s, a) => {
     if (a.type === 'stock') return s + (a.shares || 0) * (state.market[a.symbol] || a.sharePrice || 0);
     return s + (a.price || a.cost || a.value || 0);
   }, 0);
-  const assetBacked = Math.max(0, totalAssets * 0.60 - loanBalance);
+  const assetBacked = Math.max(0, totalAssets * 1.20 - loanBalance);
 
   // Standard limit: best of income-based or asset-backed + survival floor
   let standard = Math.max(incomeBased, assetBacked);
-  standard = Math.max(standard, monthlyIncome * 1.5); // early-game floor
+  standard = Math.max(standard, monthlyIncome * 3.0); // early-game floor (2× previous)
   standard = Math.floor(standard / 100) * 100;
 
   // Extended (high-risk) tier: up to 2.5× standard, but only when income > 0
@@ -3548,6 +3552,70 @@ function sellAsset(assetName, salePrice) {
   closeModal();
   renderGame();
   renderAction_EndTurn(`Sprzedano ${asset.name} za $${salePrice.toLocaleString()}`);
+}
+
+// ==================== RULES & MISSION MODAL ====================
+function showRulesModal() {
+  setModal('📖 O grze MoneyPath', `
+    <div style="line-height:1.7;font-size:14px;">
+
+      <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Słowo od twórcy</div>
+        <p style="margin:0 0 10px;">Cześć! Jestem <strong>Jakub Krawczyk</strong>, współzałożyciel <strong>Little Explorers sp. z o.o. — Szkoły Talentów</strong>.</p>
+        <p style="margin:0 0 10px;">Od lat pracuję z dziećmi i młodzieżą, ucząc ich — między innymi — jak mądrze myśleć o pieniądzach. MoneyPath powstało z jednej prostej obserwacji: <em>większość ludzi nigdy nie nauczyła się, jak działa wolność finansowa</em>.</p>
+        <p style="margin:0;">Tę grę stworzyłem, żebyś mógł to zmienić — bawiąc się razem z rodziną lub przyjaciółmi.</p>
+      </div>
+
+      <h3 style="margin:0 0 10px;color:var(--accent);">🎯 Cel gry</h3>
+      <p style="margin:0 0 6px;">Osiągnij <strong>wolność finansową</strong> i kup swoje <strong>marzenie</strong>. Wygrasz, gdy:</p>
+      <ol style="margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
+        <li>Twój <strong>dochód pasywny</strong> (z aktywów) przekroczy wszystkie miesięczne <strong>wydatki</strong></li>
+        <li>Trafisz na swój <strong>Freedom Track</strong> i wyląduj na swojej przestrzeni marzeń</li>
+        <li>Wykupisz marzenie za zebrane pieniądze</li>
+      </ol>
+
+      <h3 style="margin:0 0 10px;color:var(--accent);">⚙️ Jak grać</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">💰</span>
+          <span><strong>PAY</strong> — wypłata. Dostajesz pensję i dochód z aktywów, płacisz wydatki. Jeśli masz więcej przychodów pasywnych niż wydatków — wchodzisz na Freedom Track.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">🃏</span>
+          <span><strong>SMALL / BIG DEAL</strong> — kupujesz aktywa (nieruchomości, akcje, biznesy) generujące dochód pasywny. To klucz do wolności finansowej.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">💸</span>
+          <span><strong>SPLURGE</strong> — nieoczekiwany wydatek. Uszczupla gotówkę, ale uczy zarządzania rezerwą.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">❤️</span>
+          <span><strong>CHAR</strong> — darowizna. Opłacalna inwestycja — przez dwie tury rzucasz dwiema kostkami.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:18px;flex-shrink:0;">🚀</span>
+          <span><strong>Freedom Track</strong> — zewnętrzny tor dla finansowo wolnych. Dojdź do przestrzeni swojego marzenia i je kup!</span>
+        </div>
+      </div>
+
+      <h3 style="margin:0 0 10px;color:var(--accent);">💡 Klucz do wygranej</h3>
+      <p style="margin:0 0 16px;">Nie ścigaj się o gotówkę — ścigaj się o <strong>aktywa</strong>. Każda nieruchomość, akcja czy biznes to miesięczny dochód, który pracuje zamiast ciebie. Pożyczki mogą pomóc kupić aktywa szybciej — ale pamiętaj, że raty obciążają cashflow i utrudniają wolność finansową.</p>
+
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
+        <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiracja — Cashflow 101</div>
+        <p style="margin:0 0 8px;">MoneyPath zainspirowana jest grą <strong>Cashflow 101</strong> autorstwa <strong>Roberta Kiyosaki</strong>. To właśnie ta gra zmieniła moje własne myślenie o pieniądzach i zainspirowała do założenia Little Explorers.</p>
+        <p style="margin:0 0 8px;">Jeśli MoneyPath cię wciągnęło — <strong>gorąco zachęcam</strong> do sięgnięcia po oryginalną grę Cashflow 101. Jest głębsza, bardziej rozbudowana i pełna lekcji finansowych, których nie znajdziesz nigdzie indziej.</p>
+        <p style="margin:0;font-size:13px;color:var(--muted);">MoneyPath to niezależna praca twórcza — nie jest powiązana z ani zatwierdzona przez Rich Dad Company.</p>
+      </div>
+
+      <div style="text-align:center;padding:12px 0 4px;border-top:1px solid rgba(56,189,248,0.1);margin-top:4px;">
+        <div style="font-size:13px;color:var(--muted);">Miłej gry i do zobaczenia na wolności finansowej! 🏆</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers Szkoła Talentów</div>
+      </div>
+
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Zaczynam grać! 🎲</button>
+  `);
 }
 
 // ==================== INIT ====================
