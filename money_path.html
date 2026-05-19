@@ -1598,18 +1598,29 @@ const STOCK_MARKET_DEALS = [
 // Price history: array of {open, high, low, close} candles
 const stockHistory = {};
 
+// Deterministic PRNG — same seed → same chart every game session
+function makeSeededRand(seed) {
+  let s = (seed ^ 0xdeadbeef) >>> 0;
+  return () => {
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) >>> 0;
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) >>> 0;
+    return ((s ^ (s >>> 16)) >>> 0) / 0x100000000;
+  };
+}
+
 function initStockPrices() {
   STOCK_MARKET_DEALS.forEach(s => {
+    // Seed derived from symbol string — always produces the same 14 candles
+    const seed = s.symbol.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 0);
+    const rand = makeSeededRand(seed);
     let price = s.basePrice;
     stockHistory[s.symbol] = [];
-    // Generate 14 seed candles
     for (let i = 0; i < 14; i++) {
       const o = price;
-      const volatility = 0.08;
-      const move = 1 + (Math.random() - 0.5) * volatility * 2;
+      const move = 1 + (rand() - 0.5) * 0.16;
       const c = Math.max(1, Math.round(price * move));
-      const h = Math.round(Math.max(o, c) * (1 + Math.random() * 0.04));
-      const l = Math.round(Math.min(o, c) * (1 - Math.random() * 0.04));
+      const h = Math.round(Math.max(o, c) * (1 + rand() * 0.04));
+      const l = Math.round(Math.min(o, c) * (1 - rand() * 0.04));
       stockHistory[s.symbol].push({open:o, high:h, low:l, close:c});
       price = c;
     }
@@ -2270,6 +2281,55 @@ function confirmSellStock(idx) {
   showStockDealCard(state.currentCard);
 }
 
+// ==================== CREDIT LIMIT ENGINE ====================
+// Returns { standard, extended } — two borrowing tiers with different rates
+// Tier 1 Standard  : up to standard limit  → 10% interest, 10%/mo payment
+// Tier 2 High-Risk : up to extended limit  → 25% interest, 18%/mo payment
+function calcCreditTiers(p) {
+  const monthlyIncome = p.salary + p.passiveIncome;
+
+  const loanPayments = p.liabilities
+    .filter(l => l.type === 'loan')
+    .reduce((s, l) => s + (l.payment || 0), 0);
+  const loanBalance = p.liabilities
+    .filter(l => l.type === 'loan')
+    .reduce((s, l) => s + (l.value || 0), 0);
+
+  // Income-based standard: debt payments ≤ 40% of income; 10%/mo rate → slot × 10
+  const paymentSlot = Math.max(0, monthlyIncome * 0.40 - loanPayments);
+  const incomeBased = paymentSlot * 10;
+
+  // Asset-backed standard: 60% LTV on total assets
+  const totalAssets = p.assets.reduce((s, a) => {
+    if (a.type === 'stock') return s + (a.shares || 0) * (state.market[a.symbol] || a.sharePrice || 0);
+    return s + (a.price || a.cost || a.value || 0);
+  }, 0);
+  const assetBacked = Math.max(0, totalAssets * 0.60 - loanBalance);
+
+  // Standard limit: best of income-based or asset-backed + survival floor
+  let standard = Math.max(incomeBased, assetBacked);
+  standard = Math.max(standard, monthlyIncome * 1.5); // early-game floor
+  standard = Math.floor(standard / 100) * 100;
+
+  // Extended (high-risk) tier: up to 2.5× standard, but only when income > 0
+  const extended = monthlyIncome > 0
+    ? Math.floor(standard * 2.5 / 100) * 100
+    : standard;
+
+  return { standard, extended };
+}
+
+// Legacy helper kept for compatibility — returns standard limit only
+function calcCreditLimit(p) { return calcCreditTiers(p).standard; }
+
+// Return interest rate and monthly payment rate for a given loan amount
+function loanTermsForAmount(amount, tiers) {
+  if (amount <= tiers.standard) {
+    return { tier: 'standard', label: 'Standard',   interestRate: 0.10, monthlyRate: 0.10 };
+  }
+  return   { tier: 'extended', label: 'High-Risk ⚠️', interestRate: 0.25, monthlyRate: 0.18 };
+}
+
 // ==================== BANKRUPTCY ====================
 function checkSolvency() {
   const p = currentPlayer();
@@ -2282,21 +2342,65 @@ function checkSolvency() {
 
 function showBankruptcyModal(p) {
   const deficit = Math.abs(p.cash);
-  const loanAmount = Math.ceil(deficit / 100) * 100;
-  const repay = Math.round(loanAmount * 1.1);
+  const tiers   = calcCreditTiers(p);
+
+  function loanBtn(amount, tierKey) {
+    if (amount <= 0) return '';
+    const terms    = loanTermsForAmount(amount, tiers);
+    const repay    = Math.round(amount * (1 + terms.interestRate));
+    const payment  = Math.round(repay * terms.monthlyRate);
+    const cfAfter  = (p.salary + p.passiveIncome) - totalExpenses(p) - payment;
+    const cfColor  = cfAfter >= 0 ? 'var(--grn)' : 'var(--loss)';
+    const partial  = amount < deficit;
+    const isRisky  = tierKey === 'extended';
+    const btnClass = isRisky ? 'btn btn-secondary' : 'btn btn-primary';
+    const icon     = isRisky ? '⚠️' : '🏦';
+    return `
+      <button class="${btnClass}" onclick="emergencyLoan(${amount},${terms.interestRate},${terms.monthlyRate})">
+        <div style="font-size:15px;font-weight:900;">${icon} ${terms.label} LOAN${isRisky ? ' — HIGH RISK' : ''}</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:3px;">
+          Borrow $${amount.toLocaleString()} · repay $${repay.toLocaleString()} · +$${payment.toLocaleString()}/mo
+          ${isRisky ? `<span style="color:var(--loss);"> · ${Math.round(terms.interestRate*100)}% interest</span>` : ''}
+        </div>
+        <div style="font-size:11px;margin-top:3px;color:${cfColor};">Cashflow after: $${cfAfter.toLocaleString()}/mo${partial ? ' &nbsp;·&nbsp; <em>partial — also sell assets</em>' : ''}</div>
+      </button>`;
+  }
+
+  const neededAmount  = Math.ceil(deficit / 100) * 100;
+  const stdAmount     = Math.min(neededAmount, tiers.standard);
+  const extAmount     = Math.min(neededAmount, tiers.extended);
+
+  let loanSection = '';
+  if (tiers.extended <= 0) {
+    loanSection = `
+      <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:var(--loss);">🚫 No credit available</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Debt payments exceed 40% of income and no assets for collateral</div>
+      </div>`;
+  } else if (neededAmount <= tiers.standard) {
+    // Deficit fits entirely in standard tier
+    loanSection = loanBtn(stdAmount, 'standard');
+  } else if (neededAmount <= tiers.extended) {
+    // Deficit fits in extended tier — offer both options
+    loanSection = loanBtn(stdAmount, 'standard') + loanBtn(extAmount, 'extended');
+  } else {
+    // Deficit exceeds even extended limit — partial loans only
+    if (tiers.standard > 0) loanSection += loanBtn(tiers.standard, 'standard');
+    if (tiers.extended > tiers.standard) loanSection += loanBtn(tiers.extended, 'extended');
+  }
 
   setModal("⚠️ Account Below Zero", `
-    <div style="text-align:center;padding:8px 0 20px;">
-      <div style="font-size:52px;margin-bottom:10px;">💸</div>
-      <h2 style="color:var(--loss);margin-bottom:8px;">Cash Crisis</h2>
-      <p style="color:var(--muted);margin-bottom:6px;">${p.name}'s balance:</p>
-      <div style="font-size:32px;font-weight:900;color:var(--loss);">$${p.cash.toLocaleString()}</div>
+    <div style="text-align:center;padding:8px 0 16px;">
+      <div style="font-size:48px;margin-bottom:8px;">💸</div>
+      <h2 style="color:var(--loss);margin-bottom:6px;">Cash Crisis</h2>
+      <div style="font-size:30px;font-weight:900;color:var(--loss);">$${p.cash.toLocaleString()}</div>
+      <div style="display:flex;justify-content:center;gap:20px;margin-top:10px;font-size:11px;color:var(--muted);">
+        <span>Standard limit: <strong style="color:var(--accent);">$${tiers.standard.toLocaleString()}</strong></span>
+        <span>High-risk limit: <strong style="color:#f59e0b;">$${tiers.extended.toLocaleString()}</strong></span>
+      </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <button class="btn btn-primary" onclick="emergencyLoan(${loanAmount})">
-        <div style="font-size:15px;font-weight:900;">🏦 EMERGENCY LOAN</div>
-        <div style="font-size:12px;opacity:0.75;margin-top:3px;">Borrow $${loanAmount.toLocaleString()} · repay $${repay.toLocaleString()}</div>
-      </button>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${loanSection}
       <button class="btn btn-secondary" onclick="showSellStocksFromBankruptcy()">
         <div style="font-size:15px;font-weight:900;">📉 SELL ASSETS</div>
         <div style="font-size:12px;opacity:0.75;margin-top:3px;">Liquidate stocks, rentals or businesses</div>
@@ -2416,17 +2520,21 @@ function liquidateSell(idx) {
   }, 350);
 }
 
-function emergencyLoan(amount) {
+function emergencyLoan(amount, interestRate = 0.10, monthlyRate = 0.10) {
   const p = currentPlayer();
-  const repayAmount = Math.round(amount * 1.1);
+  const repayAmount = Math.round(amount * (1 + interestRate));
+  const payment     = Math.round(repayAmount * monthlyRate);
+  const isHighRisk  = interestRate > 0.10;
+  const loanName    = isHighRisk ? 'High-Risk Loan' : 'Emergency Loan';
   p.cash += amount;
-  p.liabilities.push({name: "Emergency Loan", value: repayAmount, payment: Math.round(repayAmount * 0.1), type: "loan"});
+  p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
   recalcPassive(p);
   renderGame();
   closeModal();
-  showNotif(`Emergency loan: $${amount.toLocaleString()} received. Repay: $${repayAmount.toLocaleString()}`, "warning");
+  const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
+  showNotif(`${loanName}: +$${amount.toLocaleString()} · repay $${repayAmount.toLocaleString()} · cashflow now $${cfAfter.toLocaleString()}/mo`, isHighRisk ? "error" : "warning");
   state.currentCard = null;
-  renderAction_EndTurn('Emergency loan taken — turn ends here.');
+  renderAction_EndTurn(`${loanName} taken — turn ends here.`);
 }
 
 function declareBankruptcy() {
@@ -2711,34 +2819,85 @@ function payLiability(liabilityIndex) {
 }
 
 function showTakeLoanModal() {
-  const p = currentPlayer();
-  const html = `<h2 style="margin-bottom:16px;">Take a Loan</h2>
-    <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1)); padding:14px; border-radius:10px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
-      <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Cash</div>
-      <div style="font-size:26px; font-weight:900; color:#fff;">$${p.cash.toLocaleString()}</div>
-    </div>
-    <p style="color:var(--muted); margin-bottom:16px; font-size:14px;">Borrow money at 10% interest (repay 110% of the loan amount).</p>
-    <div style="display:flex; gap:10px; margin-bottom:14px;">
-      <input type="number" id="loan-amount" min="100" step="100" placeholder="Loan amount" style="flex:1; padding:12px; border-radius:8px; border:1px solid rgba(56,189,248,0.2); background:rgba(4,12,28,0.9); color:#e2e8f0;">
+  const p      = currentPlayer();
+  const tiers  = calcCreditTiers(p);
+  const curCF  = (p.salary + p.passiveIncome) - totalExpenses(p);
+
+  const inputSection = tiers.extended > 0 ? `
+    <div style="display:flex;gap:10px;margin-bottom:10px;">
+      <input type="number" id="loan-amount" min="100" step="100" max="${tiers.extended}"
+        placeholder="Amount (max $${tiers.extended.toLocaleString()})"
+        oninput="updateLoanPreview()"
+        style="flex:1;padding:12px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;">
       <button class="btn btn-primary" onclick="confirmTakeLoan()">BORROW</button>
     </div>
-    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">CANCEL</button>`;
-  setModal("Loans", html);
-  document.getElementById("loan-amount").focus();
+    <div id="loan-preview" style="font-size:12px;color:var(--muted);min-height:36px;margin-bottom:10px;"></div>` : `
+    <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:var(--loss);">🚫 No credit available</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Grow your income or assets to unlock borrowing capacity</div>
+    </div>`;
+
+  setModal("Loans", `
+    <h2 style="margin-bottom:12px;">Take a Loan</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div style="background:rgba(14,165,233,0.08);padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.15);text-align:center;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Your cash</div>
+        <div style="font-size:18px;font-weight:900;">$${p.cash.toLocaleString()}</div>
+      </div>
+      <div style="background:rgba(14,165,233,0.08);padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.15);text-align:center;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Cashflow now</div>
+        <div style="font-size:18px;font-weight:900;color:${curCF>=0?'var(--grn)':'var(--loss)'};">$${curCF.toLocaleString()}/mo</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:12px;">
+      <div style="padding:8px 10px;border-radius:8px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);">
+        <div style="color:var(--accent);font-weight:700;margin-bottom:2px;">🏦 Standard limit</div>
+        <div style="font-size:16px;font-weight:900;">$${tiers.standard.toLocaleString()}</div>
+        <div style="color:var(--muted);margin-top:2px;">10% interest · 10%/mo</div>
+      </div>
+      <div style="padding:8px 10px;border-radius:8px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);">
+        <div style="color:#f59e0b;font-weight:700;margin-bottom:2px;">⚠️ High-risk limit</div>
+        <div style="font-size:16px;font-weight:900;">$${tiers.extended.toLocaleString()}</div>
+        <div style="color:var(--muted);margin-top:2px;">25% interest · 18%/mo</div>
+      </div>
+    </div>
+    ${inputSection}
+    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">CANCEL</button>`);
+  if (tiers.extended > 0) document.getElementById("loan-amount")?.focus();
+}
+
+function updateLoanPreview() {
+  const p      = currentPlayer();
+  const tiers  = calcCreditTiers(p);
+  const el     = document.getElementById("loan-preview");
+  if (!el) return;
+  const amount = parseInt(document.getElementById("loan-amount")?.value || "0", 10);
+  if (!amount || amount < 100) { el.textContent = ""; return; }
+  const terms   = loanTermsForAmount(amount, tiers);
+  const repay   = Math.round(amount * (1 + terms.interestRate));
+  const payment = Math.round(repay * terms.monthlyRate);
+  const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p) - payment;
+  const color   = terms.tier === 'extended' ? '#f59e0b' : 'var(--accent)';
+  el.innerHTML  = `<span style="color:${color};font-weight:700;">${terms.label}</span> &nbsp;·&nbsp; repay $${repay.toLocaleString()} &nbsp;·&nbsp; +$${payment.toLocaleString()}/mo &nbsp;·&nbsp; cashflow after: <strong style="color:${cfAfter>=0?'var(--grn)':'var(--loss)'};">$${cfAfter.toLocaleString()}/mo</strong>`;
 }
 
 function confirmTakeLoan() {
-  const p = currentPlayer();
+  const p      = currentPlayer();
+  const tiers  = calcCreditTiers(p);
   const amount = parseInt(document.getElementById("loan-amount").value, 10);
   if (Number.isNaN(amount) || amount < 100) { showNotif("Minimum amount: $100.", "error"); return; }
-  const repayAmount = Math.round(amount * 1.1);
+  if (amount > tiers.extended) { showNotif(`Maximum borrowing capacity: $${tiers.extended.toLocaleString()}.`, "error"); return; }
+  const terms      = loanTermsForAmount(amount, tiers);
+  const repayAmount = Math.round(amount * (1 + terms.interestRate));
+  const payment    = Math.round(repayAmount * terms.monthlyRate);
+  const loanName   = terms.tier === 'extended' ? 'High-Risk Loan' : 'Bank Loan';
   p.cash += amount;
-  p.liabilities.push({name:"Bank Loan", value:repayAmount, payment:Math.round(repayAmount*0.1), type:"loan"});
+  p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
   recalcPassive(p);
   renderGame();
   closeModal();
-  showNotif(`Borrowed $${amount.toLocaleString()} (repay: $${repayAmount.toLocaleString()})`, "success");
-  // Return to deal card if loan was taken during a deal
+  const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
+  showNotif(`${loanName}: +$${amount.toLocaleString()} · repay $${repayAmount.toLocaleString()} · cashflow $${cfAfter.toLocaleString()}/mo`, cfAfter >= 0 ? "success" : "warning");
   if (state.currentCard) {
     setTimeout(() => state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard(), 200);
   }
@@ -3577,19 +3736,28 @@ function handleServerMsg(msg) {
       break;
     }
 
+    case 'host_transferred': {
+      // This client is the new host — take over as Game Master
+      isHost = true;
+      // If it's not our turn, adopt the server's last known state (ours may be stale)
+      if (msg.state && !isMyTurn()) {
+        state = JSON.parse(JSON.stringify(msg.state));
+      }
+      // player_left will arrive next and handle index adjustment + beginTurn
+      break;
+    }
+
     case 'player_left': {
       if (!isOnline || !state.players || state.players.length === 0) {
         updateRoomUI(msg.players);
         showNotif(`${msg.playerName} left the game`, 'warning');
         break;
       }
-      // Remove disconnected player from local game state
+      // Remove disconnected player from game state
       const leftIdx = state.players.findIndex(p => p.name === msg.playerName);
       if (leftIdx !== -1) {
         state.players.splice(leftIdx, 1);
-        // Re-adjust my own index
         if (leftIdx < myPlayerIdx) myPlayerIdx--;
-        // Re-adjust current player index
         if (state.players.length === 0) break;
         if (leftIdx < state.currentPlayerIdx) {
           state.currentPlayerIdx--;
@@ -3599,11 +3767,21 @@ function handleServerMsg(msg) {
         if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
         _lastTurnIdx = state.currentPlayerIdx;
       }
-      showNotif(`⚠️ ${msg.playerName} disconnected — game continues`, 'warning');
+      // Build notification text
+      let notifText = `⚠️ ${msg.playerName} disconnected — game continues`;
+      if (msg.wasHost && msg.newHostName) {
+        if (isHost) {
+          notifText = `⭐ You are now the Game Master — ${msg.playerName} disconnected`;
+        } else {
+          notifText = `⚠️ ${msg.playerName} (host) disconnected — ${msg.newHostName} is now the host`;
+        }
+      }
+      showNotif(notifText, 'warning');
       renderGame();
       if (state.players.length <= 1) {
-        showNotif('You are the last player — you win!', 'cashflow');
+        showNotif('You are the last player standing — you win!', 'cashflow');
         isOnline = false;
+        beginTurn();
       } else if (isMyTurn()) {
         beginTurn();
       } else {

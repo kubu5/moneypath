@@ -107,6 +107,7 @@ wss.on('connection', ws => {
     if (!g) return;
 
     const left = g.players.find(p => p.ws === ws);
+    const wasHost = g.hostWs === ws;
     g.players = g.players.filter(p => p.ws !== ws);
 
     if (g.players.length === 0) {
@@ -115,16 +116,28 @@ wss.on('connection', ws => {
     }
 
     // Transfer host if the host disconnected
-    if (g.hostWs === ws) g.hostWs = g.players[0].ws;
+    let newHostName = null;
+    if (wasHost) {
+      g.hostWs = g.players[0].ws;
+      newHostName = g.players[0].name;
+      // Notify the new host first — send current game state so they can take over
+      send(g.hostWs, {
+        type:        'host_transferred',
+        newHostName: newHostName,
+        state:       g.state
+      });
+    }
 
     // Re-index remaining players
     g.players.forEach((p, i) => { p.idx = i; });
 
     broadcast(meta.gameId, {
-      type:       'player_left',
-      playerId:   meta.playerId,
-      playerName: left?.name || '?',
-      players:    g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+      type:        'player_left',
+      playerId:    meta.playerId,
+      playerName:  left?.name || '?',
+      wasHost:     wasHost,
+      newHostName: newHostName,
+      players:     g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
     });
   });
 });
