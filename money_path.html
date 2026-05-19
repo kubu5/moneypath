@@ -256,7 +256,7 @@ input:focus, select:focus {
 #game-screen {
   display: none;
   grid-template-columns: 240px minmax(480px,1fr) 460px;
-  height: 100vh;
+  height: calc(100vh - 44px);
 }
 
 #game-screen.active { display: grid; }
@@ -321,7 +321,7 @@ input:focus, select:focus {
   box-shadow: 0 0 60px rgba(0,212,255,0.1), 0 24px 64px rgba(0,0,0,0.6);
   image-rendering: crisp-edges;
   width: auto;
-  height: min(580px, calc(100vh - 170px));
+  height: min(580px, calc(100vh - 214px));
   max-width: min(900px, 100%);
   align-self: center;
 }
@@ -1177,7 +1177,7 @@ input:focus, select:focus {
     grid-template-columns: 1fr !important;
     grid-template-rows: auto auto auto auto !important;
     height: auto !important;
-    min-height: 100dvh;
+    min-height: calc(100dvh - 44px);
   }
 
   .left-panel {
@@ -1208,12 +1208,6 @@ input:focus, select:focus {
   #turn-who { font-size: 17px !important; }
   #turn-count { font-size: 20px !important; }
 
-  #global-theme-toggle {
-    top: 6px !important; right: 8px !important;
-    font-size: 10px !important;
-    padding: 5px 10px !important;
-  }
-
   .modal { width: 95vw !important; max-width: 95vw !important; max-height: 90dvh; overflow-y: auto; }
 
   .ac div[style*="grid-template-columns"] { grid-template-columns: 1fr 1fr !important; }
@@ -1221,37 +1215,45 @@ input:focus, select:focus {
 }
 
 /* ══════════════════════════════════════════
-   GLOBAL THEME TOGGLE + SCREEN FOOTER
+   TOP BAR (language + theme controls)
    ══════════════════════════════════════════ */
-#global-theme-toggle {
-  position: fixed; top: 14px; right: 16px; z-index: 99999;
-  padding: 7px 14px; border-radius: 20px;
-  border: 1.5px solid rgba(176,145,210,0.4);
-  background: rgba(255,255,255,0.88);
-  color: #9570b8; font-weight: 700; font-size: 12px;
-  cursor: pointer; backdrop-filter: blur(8px);
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+#top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+  height: 44px;
+  display: flex; align-items: center;
+  padding: 0 12px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border-bottom: 1px solid rgba(176,145,210,0.22);
+  box-shadow: 0 2px 12px rgba(149,112,184,0.10);
 }
-[data-theme="dark"] #global-theme-toggle {
-  background: rgba(8,20,40,0.88);
-  border-color: rgba(56,189,248,0.35);
-  color: #7dd3fc;
+[data-theme="dark"] #top-bar {
+  background: rgba(4,16,30,0.92);
+  border-bottom-color: rgba(56,189,248,0.18);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.30);
 }
-/* Language toggle — sits left of the theme button */
-#global-lang-toggle {
-  position: fixed; top: 14px; right: 100px; z-index: 99999;
-  padding: 7px 14px; border-radius: 20px;
-  border: 1.5px solid rgba(56,189,248,0.4);
-  background: rgba(255,255,255,0.88);
-  color: #0ea5e9; font-weight: 700; font-size: 12px;
-  cursor: pointer; backdrop-filter: blur(8px);
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+#top-bar .tb-brand {
+  font-family: 'Baloo 2', 'Nunito', sans-serif;
+  font-weight: 800; font-size: 15px;
+  background: linear-gradient(90deg,#9570b8,#4CAF7D);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-[data-theme="dark"] #global-lang-toggle {
-  background: rgba(8,20,40,0.88);
-  border-color: rgba(56,189,248,0.35);
-  color: #7dd3fc;
+#top-bar .tb-btn {
+  padding: 5px 13px; border-radius: 16px; border: 1.5px solid rgba(176,145,210,0.35);
+  background: transparent; color: #9570b8;
+  font-weight: 700; font-size: 12px; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap; flex-shrink: 0; margin-left: 6px;
 }
+#top-bar .tb-btn:hover { background: rgba(149,112,184,0.10); }
+[data-theme="dark"] #top-bar .tb-btn {
+  border-color: rgba(56,189,248,0.30); color: #7dd3fc;
+}
+[data-theme="dark"] #top-bar .tb-btn:hover { background: rgba(56,189,248,0.08); }
+body { padding-top: 44px; }
 
 .screen-footer-copy {
   margin-top: 14px;
@@ -1277,9 +1279,12 @@ input:focus, select:focus {
 </head>
 <body>
 
-<!-- Global controls — visible on all screens -->
-<button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
-<button id="global-lang-toggle" class="lang-btn" onclick="setLang(LANG==='pl'?'en':'pl')" title="Przełącz na Polski">🇵🇱 PL</button>
+<!-- Global top bar — language + theme controls -->
+<div id="top-bar">
+  <span class="tb-brand">MoneyPath</span>
+  <button class="tb-btn lang-btn" onclick="setLang(LANG==='pl'?'en':'pl')" title="Przełącz na Polski">🇵🇱 PL</button>
+  <button id="global-theme-toggle" class="tb-btn" onclick="toggleTheme()">🌙</button>
+</div>
 
 <!-- SETUP SCREEN -->
 <!-- ══════════════════════════════════════════
@@ -1409,25 +1414,24 @@ input:focus, select:focus {
     <div class="glass-premium setup-card">
       <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
         <div class="logo">MoneyPath</div>
-        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;" data-i18n="app.subtitle">Financial Freedom</div>
       </div>
 
-      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;" data-i18n="setup.title">
         New Game
       </h1>
-      <p class="subtitle">Build assets, manage debt, and buy your dream</p>
+      <p class="subtitle" data-i18n="setup.subtitle">Build assets, manage debt, and buy your dream</p>
 
       <div id="player-list"></div>
 
       <div style="display:flex; gap:12px; margin-top:24px;">
-        <button class="btn btn-add" style="flex:1; padding:14px;" onclick="addPlayer()">+ Add Player</button>
-        <button class="btn btn-primary" style="flex:2; padding:14px; font-size:16px;" onclick="startGame()">▶ Start Game</button>
+        <button class="btn btn-add" style="flex:1; padding:14px;" onclick="addPlayer()" data-i18n="setup.add_player">+ Add Player</button>
+        <button class="btn btn-primary" style="flex:2; padding:14px; font-size:16px;" onclick="startGame()" data-i18n="setup.start">▶ Start Game</button>
       </div>
-      <button class="btn btn-secondary" style="width:100%; padding:10px; margin-top:10px; font-size:13px;" onclick="goScreen('menu')">← Back to Menu</button>
+      <button class="btn btn-secondary" style="width:100%; padding:10px; margin-top:10px; font-size:13px;" onclick="goScreen('menu')" data-i18n="setup.back">← Back to Menu</button>
 
       <div class="disclaimer-box">
-        📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
-        Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+        📚 <span data-i18n="menu.disclaimer"><strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.</span>
       </div>
     </div>
     <div class="screen-footer-copy">
@@ -1657,6 +1661,119 @@ const STRINGS = {
     'fs.liabilities':        'Liabilities',
     'fs.stocks_funds':       'Stocks / Funds',
     'fs.curr_value':         'Curr. Value',
+    // Deal modal
+    'deal.title':            'Deal Opportunity',
+    'deal.choose':           name => `${name}, choose your deal`,
+    'deal.small':            'SMALL DEAL',
+    'deal.big':              'BIG DEAL',
+    'deal.small_sub':        'Stocks, rentals, business',
+    'deal.big_sub':          'Large investments',
+    'deal.size_small':       'Small Deal',
+    'deal.size_big':         'Big Deal',
+    'deal.stock_mkt_hd':     'SMALL DEAL · STOCK MARKET',
+    'deal.buy_shares':       'BUY SHARES',
+    'deal.sell_sym':         sym => `SELL ${sym}`,
+    'deal.pass':             'PASS',
+    'deal.price_share':      'Price / share',
+    'deal.normal_range':     'Normal range',
+    'deal.owned':            'Owned',
+    'deal.qty_buy':          'Quantity to buy',
+    'deal.total_cost_lbl':   'Total cost',
+    'deal.breakout_note':    high => `⚡ BREAKOUT — price above normal range ($${high})`,
+    'deal.crash_note':       low  => `⚡ CRASH — price below normal range ($${low})`,
+    'deal.need_more':        n => `Need $${n} more`,
+    // Notifications — stock & assets
+    'notif.bought_shares':   (q,sym) => `Purchased ${q} shares of ${sym}`,
+    'notif.bought_asset':    (title,cf) => `Purchased ${title}! +$${cf}/mo`,
+    'notif.acquired':        title => `Acquired: ${title}`,
+    'notif.sold_stock':      (qty,sym,price,pnl) => `Sold ${qty}× ${sym} @ $${price} · P&L ${pnl}`,
+    'notif.sold_liq_stock':  (qty,sym,proc) => `Sold ${qty}× ${sym} for $${proc}`,
+    'notif.sold_asset':      (name,proc) => `Sold ${name} for $${proc}`,
+    'notif.crisis_ok':       'Crisis resolved! Continue your turn.',
+    'notif.donated':         n => `Donated $${n}. Roll 2 dice for the next 3 turns.`,
+    'notif.layoff':          n => `Layoff! Lost one month's cash flow: $${n}.`,
+    'notif.ft_payday':       n => `Freedom Track payday: +$${n}`,
+    'notif.ft_income':       n => `Freedom Track +$${n}`,
+    'notif.splurge_paid':    n => `Paid $${n} for Splurge`,
+    'notif.no_sym_shares':   sym => `You don't own any ${sym} shares.`,
+    'notif.crash':           sym => `💥 CRASH: ${sym} collapsed — buy opportunity?`,
+    'notif.breakout':        sym => `🚀 BREAKOUT: ${sym} surged — sell opportunity?`,
+    'notif.dream_doubled':   (pname,icon,title,owner,cost) => `${pname} landed on ${icon} ${title}! Cost for ${owner} doubled → $${cost}!`,
+    'notif.loan_taken':      (name,amount,repay,cf) => `${name}: +$${amount} · repay $${repay} · cashflow $${cf}/mo`,
+    'notif.emergency_loan':  (name,amount,repay,cf) => `${name}: +$${amount} · repay $${repay} · cashflow now $${cf}/mo`,
+    'notif.no_winners':      'No Winners',
+    'notif.all_bankrupt':    'All players went bankrupt.',
+    'notif.must_be_free':    'You must be financially free to buy your dream.',
+    'notif.win_dream':       (name,icon,title) => `${name} bought ${icon} ${title} and achieved financial freedom!`,
+    // Loan names
+    'loan.name_bank':        'Bank Loan',
+    'loan.name_highrisk':    'High-Risk Loan',
+    'loan.name_emergency':   'Emergency Loan',
+    'loan.label_standard':   'Standard',
+    'loan.label_highrisk':   'High-Risk ⚠️',
+    'loan.taken_end':        name => `${name} taken — turn ends here.`,
+    'loan.preview_line':     (label,repay,payment,cf,cfColor) => `<span style="color:${cfColor};font-weight:700;">${label}</span> &nbsp;·&nbsp; repay $${repay} &nbsp;·&nbsp; +$${payment}/mo &nbsp;·&nbsp; cashflow after: <strong style="color:${cf>=0?'var(--grn)':'var(--loss)'};">$${cf.toLocaleString()}/mo</strong>`,
+    // Sell stocks modal
+    'sell.title':            'Sell Stocks',
+    'sell.subtitle':         'Sell at current market price — profit or loss.',
+    'sell.qty':              'Qty:',
+    'sell.per_share':        price => `@ $${price}/share`,
+    'sell.btn':              'SELL',
+    'sell.cancel':           'CANCEL',
+    // Sell deal stock
+    'sell_sym.subtitle':     'Sell at current market price — profit or loss.',
+    'sell_sym.qty':          'Qty:',
+    'sell_sym.sell_btn':     'SELL',
+    'sell_sym.cancel_btn':   'CANCEL',
+    // Liquidate
+    'liq.title':             'Liquidate Assets',
+    'liq.sell':              'SELL',
+    'liq.shares':            'shares',
+    'liq.back':              'BACK',
+    // Bankruptcy modal
+    'bankrupt.title':        '⚠️ Account Below Zero',
+    'bankrupt.crisis':       'Cash Crisis',
+    'bankrupt.std_limit':    'Standard limit:',
+    'bankrupt.hr_limit':     'High-risk limit:',
+    'bankrupt.no_credit':    '🚫 No credit available',
+    'bankrupt.no_credit_sub':'Debt payments exceed 40% of income and no assets for collateral',
+    'bankrupt.sell_btn':     '📉 SELL ASSETS',
+    'bankrupt.sell_sub':     'Liquidate stocks, rentals or businesses',
+    'bankrupt.declare_btn':  '💀 DECLARE BANKRUPTCY',
+    'bankrupt.declare_sub':  name => `Game over for ${name}`,
+    'bankrupt.partial':      'partial — also sell assets',
+    'bankrupt.borrow_line':  (amount,repay,payment) => `Borrow $${amount} · repay $${repay} · +$${payment}/mo`,
+    'bankrupt.cf_after':     cf => `Cashflow after: $${cf}/mo`,
+    // Charity
+    'charity.hd':            'CHARITY',
+    'charity.title_ac':      'Charity — roll two dice',
+    'charity.desc':          n => `Donate $${n} to roll 2 dice for the next 3 turns.`,
+    'charity.donate_btn':    n => `DONATE $${n}`,
+    'charity.pass':          'PASS',
+    // Splurge
+    'splurge.hd':            'SPLURGE',
+    'splurge.pay_btn':       'PAY',
+    // Freedom track / own dream landing
+    'freedom.hd':            '🌟 YOUR DREAM',
+    'freedom.dream_cost':    'Dream cost:',
+    'freedom.your_cash':     'Your cash:',
+    'freedom.passive':       'Passive income:',
+    'freedom.expenses':      'Monthly expenses:',
+    'freedom.free_msg':      '✅ You are financially free — passive income covers all expenses!',
+    'freedom.buy_btn':       '🏆 BUY YOUR DREAM',
+    'freedom.need_cash':     n => `Need $${n} more cash`,
+    'freedom.need_passive':  (pi,exp) => `Passive income $${pi}/mo must reach expenses $${exp}/mo`,
+    'freedom.payday_pct':    (pct,laps) => `${pct}% · ~${laps} paydays left`,
+    'freedom.not_ready':     (icon,title,missing,income) => `${icon} Landed on your dream! Not ready yet:<br><span style="color:var(--loss);font-size:13px;">${missing}</span>+$${income} collected`,
+    // Dream selection
+    'dream.selection_hd':    (n,total) => `Dream Selection ${n}/${total}`,
+    'dream.waiting_msg':     name => `Waiting for ${name}`,
+    'dream.to_choose':       'to choose their dream…',
+    'dream.choose_intro':    name => `${name} — choose your dream`,
+    'dream.choose_sub':      'Each player has a unique dream. You win by landing on your space when financially free.',
+    'dream.modal_title':     (n,total) => `Dream Selection — Player ${n} of ${total}`,
+    // Sell asset (from FS panel)
+    'notif.sold_asset_fn':   (name,price) => `Sold ${name} for $${price}`,
   },
   pl: {
     'app.subtitle':          'Wolność Finansowa',
@@ -1787,6 +1904,119 @@ const STRINGS = {
     'fs.liabilities':        'Pasywa',
     'fs.stocks_funds':       'Akcje / Fundusze',
     'fs.curr_value':         'Wartość',
+    // Deal modal
+    'deal.title':            'Okazja Inwestycyjna',
+    'deal.choose':           name => `${name}, wybierz swoją okazję`,
+    'deal.small':            'MAŁA OKAZJA',
+    'deal.big':              'DUŻA OKAZJA',
+    'deal.small_sub':        'Akcje, wynajem, biznes',
+    'deal.big_sub':          'Duże inwestycje',
+    'deal.size_small':       'Mała okazja',
+    'deal.size_big':         'Duża okazja',
+    'deal.stock_mkt_hd':     'MAŁA OKAZJA · RYNEK AKCJI',
+    'deal.buy_shares':       'KUP AKCJE',
+    'deal.sell_sym':         sym => `SPRZEDAJ ${sym}`,
+    'deal.pass':             'POMIŃ',
+    'deal.price_share':      'Cena / akcja',
+    'deal.normal_range':     'Normalny zakres',
+    'deal.owned':            'Posiadane',
+    'deal.qty_buy':          'Ilość do kupna',
+    'deal.total_cost_lbl':   'Całkowity koszt',
+    'deal.breakout_note':    high => `⚡ WYBICIE — cena powyżej normalnego zakresu ($${high})`,
+    'deal.crash_note':       low  => `⚡ KRACH — cena poniżej normalnego zakresu ($${low})`,
+    'deal.need_more':        n => `Potrzebujesz $${n} więcej`,
+    // Notifications — stock & assets
+    'notif.bought_shares':   (q,sym) => `Kupiono ${q} akcji ${sym}`,
+    'notif.bought_asset':    (title,cf) => `Zakupiono ${title}! +$${cf}/mies.`,
+    'notif.acquired':        title => `Zakupiono: ${title}`,
+    'notif.sold_stock':      (qty,sym,price,pnl) => `Sprzedano ${qty}× ${sym} @ $${price} · Wynik ${pnl}`,
+    'notif.sold_liq_stock':  (qty,sym,proc) => `Sprzedano ${qty}× ${sym} za $${proc}`,
+    'notif.sold_asset':      (name,proc) => `Sprzedano ${name} za $${proc}`,
+    'notif.crisis_ok':       'Kryzys zażegnany! Kontynuuj turę.',
+    'notif.donated':         n => `Przekazano $${n} na cele charytatywne. Przez 3 tury rzucasz dwiema kostkami.`,
+    'notif.layoff':          n => `Zwolnienie! Utracono miesięczny przepływ gotówki: $${n}.`,
+    'notif.ft_payday':       n => `Ścieżka wolności — wypłata: +$${n}`,
+    'notif.ft_income':       n => `Ścieżka wolności +$${n}`,
+    'notif.splurge_paid':    n => `Zapłacono $${n} za Zachciankę`,
+    'notif.no_sym_shares':   sym => `Nie posiadasz żadnych akcji ${sym}.`,
+    'notif.crash':           sym => `💥 KRACH: ${sym} runął — okazja do zakupu?`,
+    'notif.breakout':        sym => `🚀 WYBICIE: ${sym} wzrósł — okazja do sprzedaży?`,
+    'notif.dream_doubled':   (pname,icon,title,owner,cost) => `${pname} wylądował na ${icon} ${title}! Cena dla ${owner} podwojona → $${cost}!`,
+    'notif.loan_taken':      (name,amount,repay,cf) => `${name}: +$${amount} · spłata $${repay} · cash flow $${cf}/mies.`,
+    'notif.emergency_loan':  (name,amount,repay,cf) => `${name}: +$${amount} · spłata $${repay} · cash flow teraz $${cf}/mies.`,
+    'notif.no_winners':      'Brak Zwycięzców',
+    'notif.all_bankrupt':    'Wszyscy gracze zbankrutowali.',
+    'notif.must_be_free':    'Musisz być finansowo wolny, aby kupić swoje marzenie.',
+    'notif.win_dream':       (name,icon,title) => `${name} kupił ${icon} ${title} i osiągnął wolność finansową!`,
+    // Loan names
+    'loan.name_bank':        'Pożyczka bankowa',
+    'loan.name_highrisk':    'Pożyczka wysokiego ryzyka',
+    'loan.name_emergency':   'Pożyczka awaryjna',
+    'loan.label_standard':   'Standardowa',
+    'loan.label_highrisk':   'Wysokie ryzyko ⚠️',
+    'loan.taken_end':        name => `${name} pobrana — tura kończy się tutaj.`,
+    'loan.preview_line':     (label,repay,payment,cf,cfColor) => `<span style="color:${cfColor};font-weight:700;">${label}</span> &nbsp;·&nbsp; spłata $${repay} &nbsp;·&nbsp; +$${payment}/mies. &nbsp;·&nbsp; cash flow po: <strong style="color:${cf>=0?'var(--grn)':'var(--loss)'};">$${cf.toLocaleString()}/mies.</strong>`,
+    // Sell stocks modal
+    'sell.title':            'Sprzedaj Akcje',
+    'sell.subtitle':         'Sprzedaj po aktualnej cenie rynkowej — zysk lub strata.',
+    'sell.qty':              'Ilość:',
+    'sell.per_share':        price => `@ $${price}/akcja`,
+    'sell.btn':              'SPRZEDAJ',
+    'sell.cancel':           'ANULUJ',
+    // Sell deal stock
+    'sell_sym.subtitle':     'Sprzedaj po aktualnej cenie rynkowej — zysk lub strata.',
+    'sell_sym.qty':          'Ilość:',
+    'sell_sym.sell_btn':     'SPRZEDAJ',
+    'sell_sym.cancel_btn':   'ANULUJ',
+    // Liquidate
+    'liq.title':             'Upłynnij Aktywa',
+    'liq.sell':              'SPRZEDAJ',
+    'liq.shares':            'akcji',
+    'liq.back':              'WRÓĆ',
+    // Bankruptcy modal
+    'bankrupt.title':        '⚠️ Konto na Minusie',
+    'bankrupt.crisis':       'Kryzys Gotówkowy',
+    'bankrupt.std_limit':    'Limit standardowy:',
+    'bankrupt.hr_limit':     'Limit podwyższony:',
+    'bankrupt.no_credit':    '🚫 Brak zdolności kredytowej',
+    'bankrupt.no_credit_sub':'Raty długów przekraczają 40% dochodu i brak aktywów jako zabezpieczenie',
+    'bankrupt.sell_btn':     '📉 SPRZEDAJ AKTYWA',
+    'bankrupt.sell_sub':     'Upłynnij akcje, wynajem lub biznes',
+    'bankrupt.declare_btn':  '💀 OGŁOŚ BANKRUCTWO',
+    'bankrupt.declare_sub':  name => `Koniec gry dla ${name}`,
+    'bankrupt.partial':      'częściowe — sprzedaj też aktywa',
+    'bankrupt.borrow_line':  (amount,repay,payment) => `Pożycz $${amount} · spłata $${repay} · +$${payment}/mies.`,
+    'bankrupt.cf_after':     cf => `Cash flow po: $${cf}/mies.`,
+    // Charity
+    'charity.hd':            'DAROWIZNA',
+    'charity.title_ac':      'Darowizna — rzuć dwiema kostkami',
+    'charity.desc':          n => `Przekaż $${n} i przez 3 kolejne tury rzucaj dwiema kostkami.`,
+    'charity.donate_btn':    n => `PRZEKAŻ $${n}`,
+    'charity.pass':          'POMIŃ',
+    // Splurge
+    'splurge.hd':            'ZACHCIANKA',
+    'splurge.pay_btn':       'ZAPŁAĆ',
+    // Freedom track / own dream landing
+    'freedom.hd':            '🌟 TWOJE MARZENIE',
+    'freedom.dream_cost':    'Koszt marzenia:',
+    'freedom.your_cash':     'Twoja gotówka:',
+    'freedom.passive':       'Dochód pasywny:',
+    'freedom.expenses':      'Miesięczne wydatki:',
+    'freedom.free_msg':      '✅ Jesteś finansowo wolny — dochód pasywny pokrywa wszystkie wydatki!',
+    'freedom.buy_btn':       '🏆 KUP SWOJE MARZENIE',
+    'freedom.need_cash':     n => `Potrzebujesz jeszcze $${n} gotówki`,
+    'freedom.need_passive':  (pi,exp) => `Dochód pasywny $${pi}/mies. musi osiągnąć wydatki $${exp}/mies.`,
+    'freedom.payday_pct':    (pct,laps) => `${pct}% · ~${laps} wypłat zostało`,
+    'freedom.not_ready':     (icon,title,missing,income) => `${icon} Wylądowałeś na marzeniu! Jeszcze nie gotowy:<br><span style="color:var(--loss);font-size:13px;">${missing}</span>+$${income} zebrano`,
+    // Dream selection
+    'dream.selection_hd':    (n,total) => `Wybór marzenia ${n}/${total}`,
+    'dream.waiting_msg':     name => `Oczekiwanie na ${name}`,
+    'dream.to_choose':       'by wybrał swoje marzenie…',
+    'dream.choose_intro':    name => `${name} — wybierz swoje marzenie`,
+    'dream.choose_sub':      'Każdy gracz ma unikalne marzenie. Wygrasz, lądując na swoim polu, będąc finansowo wolnym.',
+    'dream.modal_title':     (n,total) => `Wybór marzenia — Gracz ${n} z ${total}`,
+    // Sell asset (from FS panel)
+    'notif.sold_asset_fn':   (name,price) => `Sprzedano ${name} za $${price}`,
   }
 };
 
@@ -2282,18 +2512,18 @@ function handleRatRaceSpace(space) {
 
 function handleDealChoice() {
   const p = currentPlayer();
-  setModal("Deal Opportunity", `
+  setModal(t('deal.title'), `
     <div style="text-align:center; padding:8px 0 24px;">
-      <h2 style="font-size:22px; margin-bottom:10px;">${p.name}, choose your deal</h2>
+      <h2 style="font-size:22px; margin-bottom:10px;">${t('deal.choose', p.name)}</h2>
       <p style="color:var(--muted); margin-bottom:28px;">Small Deals &lt; $${SMALL_DEAL_LIMIT.toLocaleString()}&nbsp;·&nbsp;Big Deals &gt; $${SMALL_DEAL_LIMIT.toLocaleString()}</p>
       <div style="display:flex; gap:16px; justify-content:center;">
         <button class="btn btn-primary" style="flex:1; padding:20px 12px; flex-direction:column;" onclick="drawSmallDeal();closeModal()">
-          <div style="font-size:18px; font-weight:900;">SMALL DEAL</div>
-          <div style="font-size:12px; opacity:0.7; margin-top:4px;">Stocks, rentals, business</div>
+          <div style="font-size:18px; font-weight:900;">${t('deal.small')}</div>
+          <div style="font-size:12px; opacity:0.7; margin-top:4px;">${t('deal.small_sub')}</div>
         </button>
         <button class="btn btn-invest" style="flex:1; padding:20px 12px;" onclick="drawBigDeal();closeModal()">
-          <div style="font-size:18px; font-weight:900;">BIG DEAL</div>
-          <div style="font-size:12px; opacity:0.7; margin-top:4px;">Large investments</div>
+          <div style="font-size:18px; font-weight:900;">${t('deal.big')}</div>
+          <div style="font-size:12px; opacity:0.7; margin-top:4px;">${t('deal.big_sub')}</div>
         </button>
       </div>
     </div>
@@ -2330,7 +2560,7 @@ function showDealCard() {
   const p = currentPlayer();
   updateCashBar();
   const canBuy = p.cash >= card.downpayment;
-  const dealSize = card.downpayment > SMALL_DEAL_LIMIT ? "Big Deal" : "Small Deal";
+  const dealSize = card.downpayment > SMALL_DEAL_LIMIT ? t('deal.size_big') : t('deal.size_small');
 
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
@@ -2396,9 +2626,9 @@ function getTrend(symbol) {
 }
 
 function getTrendLabel(symbol) {
-  const t = getTrend(symbol);
-  if (t === 'up')   return '<span class="breakout-badge up">▲ After rally</span>';
-  if (t === 'down') return '<span class="breakout-badge down">▼ After decline</span>';
+  const trend = getTrend(symbol);
+  if (trend === 'up')   return '<span class="breakout-badge up">▲ After rally</span>';
+  if (trend === 'down') return '<span class="breakout-badge down">▼ After decline</span>';
   return '<span class="breakout-badge normal">≈ Stable</span>';
 }
 
@@ -2433,15 +2663,15 @@ function showStockDealCard(card) {
   const stock = STOCK_MARKET_DEALS.find(s=>s.symbol===card.symbol);
   if (stock) {
     if (currentPrice > stock.rangeHigh) {
-      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; font-size:12px; color:#4ade80;">⚡ BREAKOUT — price above normal range ($${stock.rangeHigh})</div>`;
+      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; font-size:12px; color:#4ade80;">${t('deal.breakout_note', stock.rangeHigh)}</div>`;
     } else if (currentPrice < stock.rangeLow) {
-      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(251,63,95,0.1); border:1px solid rgba(251,63,95,0.3); border-radius:8px; font-size:12px; color:#fb7185;">⚡ CRASH — price below normal range ($${stock.rangeLow})</div>`;
+      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(251,63,95,0.1); border:1px solid rgba(251,63,95,0.3); border-radius:8px; font-size:12px; color:#fb7185;">${t('deal.crash_note', stock.rangeLow)}</div>`;
     }
   }
 
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">SMALL DEAL · STOCK MARKET</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">${t('deal.stock_mkt_hd')}</div>
       <div class="stock-card">
         <div class="stock-card-head">
           <div class="stock-icon">${card.symbol.slice(0,2)}</div>
@@ -2454,21 +2684,21 @@ function showStockDealCard(card) {
         ${breakoutNote}
         <div class="stock-chart" aria-label="Candlestick chart">${buildCandleChart(card.symbol)}</div>
         <div class="stock-stats">
-          <div class="stock-stat"><span style="color:var(--muted)">Price / share</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Normal range</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Owned</span><strong>${owned} shares</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Quantity to buy</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Total cost</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.price_share')}</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.normal_range')}</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.owned')}</span><strong>${owned} ${t('liq.shares')}</strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
+          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.total_cost_lbl')}</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
         </div>
         <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
           <span>💰 Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:17px;">$${p.cash.toLocaleString()}</strong></span>
-          ${!canBuy ? `<span style="color:var(--loss); font-size:12px;">Need $${(card.sharePrice - p.cash).toLocaleString()} more</span>` : ''}
+          ${!canBuy ? `<span style="color:var(--loss); font-size:12px;">${t('deal.need_more', (card.sharePrice - p.cash).toLocaleString())}</span>` : ''}
         </div>
         <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY SHARES</button>
-          ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">SELL ${card.symbol}</button>` : ''}
-          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">PASS</button>
+          <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_shares')}</button>
+          ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">${t('deal.sell_sym', card.symbol)}</button>` : ''}
+          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 ${t('game.take_loan').replace('🏦 ','')}</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
         </div>
       </div>
     </div>`;
@@ -2522,8 +2752,8 @@ function buyDeal() {
   checkFastTrack(p);
   renderGame();
   playBuy();
-  showNotif(card.isStockMarket ? `Purchased ${quantity} shares of ${card.symbol}` : `Purchased ${card.title}! +$${card.cashflow}/mo`, "success");
-  renderAction_EndTurn(`Acquired: ${card.title}`);
+  showNotif(card.isStockMarket ? t('notif.bought_shares', quantity, card.symbol) : t('notif.bought_asset', card.title, card.cashflow.toLocaleString()), "success");
+  renderAction_EndTurn(t('notif.acquired', card.title));
 }
 
 // ==================== SELL STOCKS ====================
@@ -2532,8 +2762,8 @@ function showSellStocksModal() {
   const stocks = p.assets.filter(a => a.type === 'stock' && a.shares > 0);
   if (!stocks.length) { showNotif(t('notif.no_stocks'), "info"); return; }
 
-  let html = `<h2 style="margin-bottom:6px;">Sell Stocks</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Sell at current market price — profit or loss.</p>
+  let html = `<h2 style="margin-bottom:6px;">${t('sell.title')}</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">${t('sell.subtitle')}</p>
     <div style="display:flex;flex-direction:column;gap:12px;">`;
 
   stocks.forEach((asset, i) => {
@@ -2548,21 +2778,21 @@ function showSellStocksModal() {
       <div style="padding:14px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <strong style="color:var(--accent);">${asset.symbol}</strong>
-          <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+          <span style="font-size:12px;">${asset.shares} ${t('liq.shares')} @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
           <span style="font-size:12px;color:${pnlColor};">P&amp;L ${pnlStr}</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <span style="color:var(--muted);font-size:13px;">Qty:</span>
+          <span style="color:var(--muted);font-size:13px;">${t('sell.qty')}</span>
           <input type="number" id="sell-qty-${i}" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
             style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
-          <span style="color:var(--muted);font-size:12px;">@ $${curPrice}/share</span>
-          <button class="btn btn-danger-act" style="margin-left:auto;padding:8px 16px;" onclick="confirmSellStock(${i})">SELL</button>
+          <span style="color:var(--muted);font-size:12px;">${t('sell.per_share', curPrice)}</span>
+          <button class="btn btn-danger-act" style="margin-left:auto;padding:8px 16px;" onclick="confirmSellStock(${i})">${t('sell.btn')}</button>
         </div>
       </div>`;
   });
 
-  html += `<button class="btn btn-secondary" onclick="closeModal()">CANCEL</button></div>`;
-  setModal("Sell Stocks", html);
+  html += `<button class="btn btn-secondary" onclick="closeModal()">${t('sell.cancel')}</button></div>`;
+  setModal(t('sell.title'), html);
 }
 
 function confirmSellStock(idx) {
@@ -2591,7 +2821,7 @@ function confirmSellStock(idx) {
   recalcPassive(p);
   closeModal();
   renderGame();
-  showNotif(`Sold ${qty}× ${asset.symbol} @ $${curPrice} · P&L ${pnlStr}`, pnl >= 0 ? "success" : "");
+  showNotif(t('notif.sold_stock', qty, asset.symbol, curPrice, pnlStr), pnl >= 0 ? "success" : "");
   showStockDealCard(state.currentCard);
 }
 
@@ -2671,12 +2901,12 @@ function showBankruptcyModal(p) {
     const icon     = isRisky ? '⚠️' : '🏦';
     return `
       <button class="${btnClass}" onclick="emergencyLoan(${amount},${terms.interestRate},${terms.monthlyRate})">
-        <div style="font-size:15px;font-weight:900;">${icon} ${terms.label} LOAN${isRisky ? ' — HIGH RISK' : ''}</div>
+        <div style="font-size:15px;font-weight:900;">${icon} ${terms.tier==='standard'?t('loan.label_standard'):t('loan.label_highrisk')} LOAN${isRisky ? ' — HIGH RISK' : ''}</div>
         <div style="font-size:12px;opacity:0.8;margin-top:3px;">
-          Borrow $${amount.toLocaleString()} · repay $${repay.toLocaleString()} · +$${payment.toLocaleString()}/mo
+          ${t('bankrupt.borrow_line', amount.toLocaleString(), repay.toLocaleString(), payment.toLocaleString())}
           ${isRisky ? `<span style="color:var(--loss);"> · ${Math.round(terms.interestRate*100)}% interest</span>` : ''}
         </div>
-        <div style="font-size:11px;margin-top:3px;color:${cfColor};">Cashflow after: $${cfAfter.toLocaleString()}/mo${partial ? ' &nbsp;·&nbsp; <em>partial — also sell assets</em>' : ''}</div>
+        <div style="font-size:11px;margin-top:3px;color:${cfColor};">${t('bankrupt.cf_after', cfAfter.toLocaleString())}${partial ? ` &nbsp;·&nbsp; <em>${t('bankrupt.partial')}</em>` : ''}</div>
       </button>`;
   }
 
@@ -2688,8 +2918,8 @@ function showBankruptcyModal(p) {
   if (tiers.extended <= 0) {
     loanSection = `
       <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;">
-        <div style="font-size:13px;font-weight:700;color:var(--loss);">🚫 No credit available</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Debt payments exceed 40% of income and no assets for collateral</div>
+        <div style="font-size:13px;font-weight:700;color:var(--loss);">${t('bankrupt.no_credit')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${t('bankrupt.no_credit_sub')}</div>
       </div>`;
   } else if (neededAmount <= tiers.standard) {
     // Deficit fits entirely in standard tier
@@ -2703,25 +2933,25 @@ function showBankruptcyModal(p) {
     if (tiers.extended > tiers.standard) loanSection += loanBtn(tiers.extended, 'extended');
   }
 
-  setModal("⚠️ Account Below Zero", `
+  setModal(t('bankrupt.title'), `
     <div style="text-align:center;padding:8px 0 16px;">
       <div style="font-size:48px;margin-bottom:8px;">💸</div>
-      <h2 style="color:var(--loss);margin-bottom:6px;">Cash Crisis</h2>
+      <h2 style="color:var(--loss);margin-bottom:6px;">${t('bankrupt.crisis')}</h2>
       <div style="font-size:30px;font-weight:900;color:var(--loss);">$${p.cash.toLocaleString()}</div>
       <div style="display:flex;justify-content:center;gap:20px;margin-top:10px;font-size:11px;color:var(--muted);">
-        <span>Standard limit: <strong style="color:var(--accent);">$${tiers.standard.toLocaleString()}</strong></span>
-        <span>High-risk limit: <strong style="color:#f59e0b;">$${tiers.extended.toLocaleString()}</strong></span>
+        <span>${t('bankrupt.std_limit')} <strong style="color:var(--accent);">$${tiers.standard.toLocaleString()}</strong></span>
+        <span>${t('bankrupt.hr_limit')} <strong style="color:#f59e0b;">$${tiers.extended.toLocaleString()}</strong></span>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${loanSection}
       <button class="btn btn-secondary" onclick="showSellStocksFromBankruptcy()">
-        <div style="font-size:15px;font-weight:900;">📉 SELL ASSETS</div>
-        <div style="font-size:12px;opacity:0.75;margin-top:3px;">Liquidate stocks, rentals or businesses</div>
+        <div style="font-size:15px;font-weight:900;">${t('bankrupt.sell_btn')}</div>
+        <div style="font-size:12px;opacity:0.75;margin-top:3px;">${t('bankrupt.sell_sub')}</div>
       </button>
       <button class="btn btn-danger-act" onclick="declareBankruptcy()">
-        <div style="font-size:15px;font-weight:900;">💀 DECLARE BANKRUPTCY</div>
-        <div style="font-size:12px;opacity:0.75;margin-top:3px;">Game over for ${p.name}</div>
+        <div style="font-size:15px;font-weight:900;">${t('bankrupt.declare_btn')}</div>
+        <div style="font-size:12px;opacity:0.75;margin-top:3px;">${t('bankrupt.declare_sub', p.name)}</div>
       </button>
     </div>`);
 }
@@ -2746,8 +2976,8 @@ function showLiquidateModal() {
     return;
   }
 
-  let html = `<h2 style="margin-bottom:6px;">Liquidate Assets</h2>
-    <p style="color:var(--loss);font-size:13px;margin-bottom:16px;">Balance: <strong>$${p.cash.toLocaleString()}</strong> · sell assets to cover deficit</p>
+  let html = `<h2 style="margin-bottom:6px;">${t('liq.title')}</h2>
+    <p style="color:var(--loss);font-size:13px;margin-bottom:16px;">${t('fs.current_cash')}: <strong>$${p.cash.toLocaleString()}</strong> · ${t('bankrupt.sell_sub').toLowerCase()}</p>
     <div style="display:flex;flex-direction:column;gap:10px;">`;
 
   sellable.forEach((asset, i) => {
@@ -2758,13 +2988,13 @@ function showLiquidateModal() {
         <div style="padding:12px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
             <strong style="color:var(--accent);">${asset.symbol}</strong>
-            <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+            <span style="font-size:12px;">${asset.shares} ${t('liq.shares')} @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <input type="number" id="liq-qty-${i}" min="1" max="${asset.shares}" value="${asset.shares}"
               style="width:72px;padding:5px 7px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
-            <span style="color:var(--muted);font-size:12px;">shares</span>
-            <button class="btn btn-danger-act" style="margin-left:auto;padding:7px 14px;" onclick="liquidateSell(${i})">SELL</button>
+            <span style="color:var(--muted);font-size:12px;">${t('liq.shares')}</span>
+            <button class="btn btn-danger-act" style="margin-left:auto;padding:7px 14px;" onclick="liquidateSell(${i})">${t('liq.sell')}</button>
           </div>
         </div>`;
     } else {
@@ -2778,15 +3008,15 @@ function showLiquidateModal() {
             </div>
             <div style="text-align:right;">
               <div style="font-size:14px;font-weight:900;color:var(--profit);">$${salePrice.toLocaleString()}</div>
-              <button class="btn btn-danger-act" style="margin-top:6px;padding:6px 12px;font-size:12px;" onclick="liquidateSell(${i})">SELL</button>
+              <button class="btn btn-danger-act" style="margin-top:6px;padding:6px 12px;font-size:12px;" onclick="liquidateSell(${i})">${t('liq.sell')}</button>
             </div>
           </div>
         </div>`;
     }
   });
 
-  html += `<button class="btn btn-secondary" onclick="closeModal();showBankruptcyModal(currentPlayer())">BACK</button></div>`;
-  setModal("Liquidate Assets", html);
+  html += `<button class="btn btn-secondary" onclick="closeModal();showBankruptcyModal(currentPlayer())">${t('liq.back')}</button></div>`;
+  setModal(t('liq.title'), html);
 }
 
 function liquidateSell(idx) {
@@ -2807,14 +3037,14 @@ function liquidateSell(idx) {
       asset.shares -= qty;
       asset.value = Math.round(asset.value * (asset.shares / (asset.shares + qty)));
     }
-    showNotif(`Sold ${qty}× ${asset.symbol} for $${proceeds.toLocaleString()}`, "success");
+    showNotif(t('notif.sold_liq_stock', qty, asset.symbol, proceeds.toLocaleString()), "success");
   } else {
     proceeds = asset.price || asset.cost || asset.value || 0;
     // Remove associated liability if any
     const liIdx = p.liabilities.findIndex(l => l.name === asset.name);
     if (liIdx !== -1) p.liabilities.splice(liIdx, 1);
     p.assets.splice(p.assets.indexOf(asset), 1);
-    showNotif(`Sold ${asset.name} for $${proceeds.toLocaleString()}`, "success");
+    showNotif(t('notif.sold_asset', asset.name, proceeds.toLocaleString()), "success");
   }
 
   p.cash += proceeds;
@@ -2824,7 +3054,7 @@ function liquidateSell(idx) {
   setTimeout(() => {
     if (p.cash < 0) showLiquidateModal();
     else {
-      showNotif("Crisis resolved! Continue your turn.", "success");
+      showNotif(t('notif.crisis_ok'), "success");
       if (state.currentCard) {
         state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard();
       } else {
@@ -2839,16 +3069,16 @@ function emergencyLoan(amount, interestRate = 0.10, monthlyRate = 0.10) {
   const repayAmount = Math.round(amount * (1 + interestRate));
   const payment     = Math.round(repayAmount * monthlyRate);
   const isHighRisk  = interestRate > 0.10;
-  const loanName    = isHighRisk ? 'High-Risk Loan' : 'Emergency Loan';
+  const loanName    = isHighRisk ? t('loan.name_highrisk') : t('loan.name_emergency');
   p.cash += amount;
   p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
   recalcPassive(p);
   renderGame();
   closeModal();
   const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
-  showNotif(`${loanName}: +$${amount.toLocaleString()} · repay $${repayAmount.toLocaleString()} · cashflow now $${cfAfter.toLocaleString()}/mo`, isHighRisk ? "error" : "warning");
+  showNotif(t('notif.emergency_loan', loanName, amount.toLocaleString(), repayAmount.toLocaleString(), cfAfter.toLocaleString()), isHighRisk ? "error" : "warning");
   state.currentCard = null;
-  renderAction_EndTurn(`${loanName} taken — turn ends here.`);
+  renderAction_EndTurn(t('loan.taken_end', loanName));
 }
 
 function declareBankruptcy() {
@@ -2859,8 +3089,8 @@ function declareBankruptcy() {
   if (state.players.length === 0) {
     document.getElementById("game-screen").classList.remove("active");
     document.getElementById("win-screen").classList.add("active");
-    document.getElementById("winner-name").textContent = "No Winners";
-    document.getElementById("winner-details").textContent = "All players went bankrupt.";
+    document.getElementById("winner-name").textContent = t('notif.no_winners');
+    document.getElementById("winner-details").textContent = t('notif.all_bankrupt');
     return;
   }
   if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
@@ -2898,13 +3128,13 @@ function handleCharity() {
   const canDonate = p.cash >= cost;
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#065f46,#10b981)">CHARITY</div>
-      <div class="ac-title">Charity — roll two dice</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#065f46,#10b981)">${t('charity.hd')}</div>
+      <div class="ac-title">${t('charity.title_ac')}</div>
       <div style="padding:20px;">
-        <p>Donate $${cost.toLocaleString()} to roll 2 dice for the next 3 turns.</p>
+        <p>${t('charity.desc', cost.toLocaleString())}</p>
         <div style="display:flex; gap:12px; margin-top:20px;">
-          <button class="btn btn-invest" onclick="donateToCharity(${cost})" ${canDonate?'':'disabled'}>DONATE $${cost.toLocaleString()}</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.charity_skipped'))">PASS</button>
+          <button class="btn btn-invest" onclick="donateToCharity(${cost})" ${canDonate?'':'disabled'}>${t('charity.donate_btn', cost.toLocaleString())}</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.charity_skipped'))">${t('charity.pass')}</button>
         </div>
       </div>
     </div>`;
@@ -2916,7 +3146,7 @@ function donateToCharity(cost) {
   p.charityTurnsLeft = 3;
   renderGame();
   if (!checkSolvency()) return;
-  renderAction_EndTurn(`Donated $${cost.toLocaleString()}. Roll 2 dice for the next 3 turns.`);
+  renderAction_EndTurn(t('notif.donated', cost.toLocaleString()));
 }
 
 function handleLayoff() {
@@ -2926,7 +3156,7 @@ function handleLayoff() {
   p.layoffTurnsLeft = 1;
   renderGame();
   if (!checkSolvency()) return;
-  renderAction_EndTurn(`Layoff! Lost one month's cash flow: $${lostCash.toLocaleString()}.`);
+  renderAction_EndTurn(t('notif.layoff', lostCash.toLocaleString()));
 }
 
 function getFastTrackIncome(p) {
@@ -2947,7 +3177,7 @@ function handleFastTrack() {
       // Someone else's dream — price doubles for the owner
       const oldCost = owner.dream.cost;
       owner.dream.cost = oldCost * 2;
-      showNotif(`${p.name} landed on ${dreamDef.icon} ${dreamDef.title}! Cost for ${owner.name} doubled → $${owner.dream.cost.toLocaleString()}!`, "error");
+      showNotif(t('notif.dream_doubled', p.name, dreamDef.icon, dreamDef.title, owner.name, owner.dream.cost.toLocaleString()), "error");
       collectFastTrackIncome(p);
       return;
     }
@@ -2972,7 +3202,7 @@ function collectFastTrackIncome(p) {
   renderFS();
   const dream = p.dream;
   if (!dream) {
-    renderAction_EndTurn(`Freedom Track payday: +$${income.toLocaleString()}`);
+    renderAction_EndTurn(t('notif.ft_payday', income.toLocaleString()));
     return;
   }
   const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
@@ -2982,7 +3212,7 @@ function collectFastTrackIncome(p) {
     <div style="margin:14px 0;">
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;">
         <span>${dream.icon} ${dream.title}</span>
-        <span>${progress}% · ~${lapsEst} paydays left</span>
+        <span>${t('freedom.payday_pct', progress, lapsEst)}</span>
       </div>
       <div style="height:10px;background:rgba(4,12,28,0.8);border-radius:999px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);">
         <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:width 0.5s;"></div>
@@ -2991,7 +3221,7 @@ function collectFastTrackIncome(p) {
         <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
       </div>
     </div>`;
-  renderAction_EndTurn(`Freedom Track +$${income.toLocaleString()}${progressBar}`);
+  renderAction_EndTurn(t('notif.ft_income', income.toLocaleString()) + progressBar);
 }
 
 function handleOwnDreamLanding(p) {
@@ -3002,20 +3232,20 @@ function handleOwnDreamLanding(p) {
   if (canAfford && isFinanciallyFree) {
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
-        <div class="ac-head" style="background:linear-gradient(90deg,#4c1d95,#7c3aed)">🌟 YOUR DREAM</div>
+        <div class="ac-head" style="background:linear-gradient(90deg,#4c1d95,#7c3aed)">${t('freedom.hd')}</div>
         <div class="ac-title">${dream.icon} ${dream.title}</div>
         <div style="padding:20px;">
           <p style="color:#c8e6ff;margin-bottom:14px;">${dream.desc}</p>
           <div style="padding:14px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;margin-bottom:18px;">
-            <div style="margin-bottom:6px;">Dream cost: <strong style="color:#a78bfa;">$${dream.cost.toLocaleString()}</strong></div>
-            <div style="margin-bottom:6px;">Your cash: <strong style="color:var(--profit);">$${p.cash.toLocaleString()}</strong></div>
-            <div style="margin-bottom:6px;">Passive income: <strong style="color:var(--profit);">$${p.passiveIncome.toLocaleString()}/mo</strong></div>
-            <div>Monthly expenses: <strong>$${totalExpenses(p).toLocaleString()}/mo</strong></div>
+            <div style="margin-bottom:6px;">${t('freedom.dream_cost')} <strong style="color:#a78bfa;">$${dream.cost.toLocaleString()}</strong></div>
+            <div style="margin-bottom:6px;">${t('freedom.your_cash')} <strong style="color:var(--profit);">$${p.cash.toLocaleString()}</strong></div>
+            <div style="margin-bottom:6px;">${t('freedom.passive')} <strong style="color:var(--profit);">$${p.passiveIncome.toLocaleString()}/mo</strong></div>
+            <div>${t('freedom.expenses')} <strong>$${totalExpenses(p).toLocaleString()}/mo</strong></div>
           </div>
           <div style="padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;margin-bottom:16px;font-size:13px;color:#4ade80;">
-            ✅ You are financially free — passive income covers all expenses!
+            ${t('freedom.free_msg')}
           </div>
-          <button class="btn btn-primary" style="width:100%;font-size:17px;padding:16px;" onclick="buyDream()">🏆 BUY YOUR DREAM</button>
+          <button class="btn btn-primary" style="width:100%;font-size:17px;padding:16px;" onclick="buyDream()">${t('freedom.buy_btn')}</button>
         </div>
       </div>`;
     return;
@@ -3027,8 +3257,8 @@ function handleOwnDreamLanding(p) {
   renderFS();
 
   let missing = [];
-  if (!canAfford) missing.push(`Need $${(dream.cost - p.cash).toLocaleString()} more cash`);
-  if (!isFinanciallyFree) missing.push(`Passive income $${p.passiveIncome.toLocaleString()}/mo must reach expenses $${totalExpenses(p).toLocaleString()}/mo`);
+  if (!canAfford) missing.push(t('freedom.need_cash', (dream.cost - p.cash).toLocaleString()));
+  if (!isFinanciallyFree) missing.push(t('freedom.need_passive', p.passiveIncome.toLocaleString(), totalExpenses(p).toLocaleString()));
 
   const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
   const progressBar = `
@@ -3041,16 +3271,16 @@ function handleOwnDreamLanding(p) {
       </div>
     </div>`;
 
-  renderAction_EndTurn(`${dream.icon} Landed on your dream! Not ready yet:<br><span style="color:var(--loss);font-size:13px;">${missing.join(' · ')}</span>+$${income.toLocaleString()} collected${progressBar}`);
+  renderAction_EndTurn(t('freedom.not_ready', dream.icon, dream.title, missing.join(' · '), income.toLocaleString()) + progressBar);
 }
 
 function buyDream() {
   const p = currentPlayer();
   const dream = p.dream;
   if (!dream || p.cash < dream.cost) { showNotif(t('notif.no_cash'), "error"); return; }
-  if (p.passiveIncome < totalExpenses(p)) { showNotif("You must be financially free to buy your dream.", "error"); return; }
+  if (p.passiveIncome < totalExpenses(p)) { showNotif(t('notif.must_be_free'), "error"); return; }
   p.cash -= dream.cost;
-  showWin(p, `${p.name} bought ${dream.icon} ${dream.title} and achieved financial freedom!`);
+  showWin(p, t('notif.win_dream', p.name, dream.icon, dream.title));
 }
 
 function showWin(p, details) {
@@ -3065,12 +3295,12 @@ function drawSplurge() {
   const card = SPLURGES[Math.floor(Math.random() * SPLURGES.length)];
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">SPLURGE</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">${t('splurge.hd')}</div>
       <div class="ac-title">${card.title}</div>
       <div style="padding:20px;">
         <p style="color:#fca5a5; margin-bottom:12px;">${card.desc}</p>
         <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:20px;">−$${card.cost.toLocaleString()}</div>
-        <button class="btn btn-danger-act" style="width:100%;" onclick="paySplurge(${card.cost})">PAY</button>
+        <button class="btn btn-danger-act" style="width:100%;" onclick="paySplurge(${card.cost})">${t('splurge.pay_btn')}</button>
       </div>
     </div>`;
 }
@@ -3080,7 +3310,7 @@ function paySplurge(cost) {
   p.cash -= cost;
   renderFS();
   if (!checkSolvency()) return;
-  renderAction_EndTurn(`Paid $${cost.toLocaleString()} for Splurge`);
+  renderAction_EndTurn(t('notif.splurge_paid', cost.toLocaleString()));
 }
 
 function renderAction_EndTurn(msg) {
@@ -3192,7 +3422,8 @@ function updateLoanPreview() {
   const payment = Math.round(repay * terms.monthlyRate);
   const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p) - payment;
   const color   = terms.tier === 'extended' ? '#f59e0b' : 'var(--accent)';
-  el.innerHTML  = `<span style="color:${color};font-weight:700;">${terms.label}</span> &nbsp;·&nbsp; repay $${repay.toLocaleString()} &nbsp;·&nbsp; +$${payment.toLocaleString()}/mo &nbsp;·&nbsp; cashflow after: <strong style="color:${cfAfter>=0?'var(--grn)':'var(--loss)'};">$${cfAfter.toLocaleString()}/mo</strong>`;
+  const lLabel = terms.tier === 'extended' ? t('loan.label_highrisk') : t('loan.label_standard');
+  el.innerHTML  = `<span style="color:${color};font-weight:700;">${lLabel}</span> &nbsp;·&nbsp; repay $${repay.toLocaleString()} &nbsp;·&nbsp; +$${payment.toLocaleString()}/mo &nbsp;·&nbsp; cashflow after: <strong style="color:${cfAfter>=0?'var(--grn)':'var(--loss)'};">$${cfAfter.toLocaleString()}/mo</strong>`;
 }
 
 function confirmTakeLoan() {
@@ -3204,14 +3435,14 @@ function confirmTakeLoan() {
   const terms      = loanTermsForAmount(amount, tiers);
   const repayAmount = Math.round(amount * (1 + terms.interestRate));
   const payment    = Math.round(repayAmount * terms.monthlyRate);
-  const loanName   = terms.tier === 'extended' ? 'High-Risk Loan' : 'Bank Loan';
+  const loanName   = terms.tier === 'extended' ? t('loan.name_highrisk') : t('loan.name_bank');
   p.cash += amount;
   p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
   recalcPassive(p);
   renderGame();
   closeModal();
   const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
-  showNotif(`${loanName}: +$${amount.toLocaleString()} · repay $${repayAmount.toLocaleString()} · cashflow $${cfAfter.toLocaleString()}/mo`, cfAfter >= 0 ? "success" : "warning");
+  showNotif(t('notif.loan_taken', loanName, amount.toLocaleString(), repayAmount.toLocaleString(), cfAfter.toLocaleString()), cfAfter >= 0 ? "success" : "warning");
   if (state.currentCard) {
     setTimeout(() => state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard(), 200);
   }
@@ -3227,7 +3458,7 @@ function showDealStockSell() {
   if (!card) return;
   const p = currentPlayer();
   const asset = p.assets.find(a => a.type === 'stock' && a.symbol === card.symbol && a.shares > 0);
-  if (!asset) { showNotif(`You don't own any ${card.symbol} shares.`, "info"); return; }
+  if (!asset) { showNotif(t('notif.no_sym_shares', card.symbol), "info"); return; }
 
   const curPrice = state.market[card.symbol] || card.sharePrice;
   const curVal = asset.shares * curPrice;
@@ -3235,26 +3466,26 @@ function showDealStockSell() {
   const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
   const pnlStr = `${pnl >= 0 ? '+' : ''}$${Math.abs(Math.round(pnl)).toLocaleString()}`;
 
-  const html = `<h2 style="margin-bottom:6px;">Sell ${card.symbol}</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Sell at current market price — profit or loss.</p>
+  const html = `<h2 style="margin-bottom:6px;">${t('deal.sell_sym', card.symbol)}</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">${t('sell_sym.subtitle')}</p>
     <div style="padding:14px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:12px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <strong style="color:var(--accent);">${asset.symbol}</strong>
-        <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+        <span style="font-size:12px;">${asset.shares} ${t('liq.shares')} @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
         <span style="font-size:12px;color:${pnlColor};">P&L ${pnlStr}</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <span style="color:var(--muted);font-size:13px;">Qty:</span>
+        <span style="color:var(--muted);font-size:13px;">${t('sell_sym.qty')}</span>
         <input type="number" id="deal-sell-qty" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
           style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
-        <span style="color:var(--muted);font-size:12px;">@ $${curPrice}/share</span>
+        <span style="color:var(--muted);font-size:12px;">${t('sell.per_share', curPrice)}</span>
       </div>
     </div>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-danger-act" style="flex:1;" onclick="confirmDealStockSell()">SELL</button>
-      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal();showStockDealCard(state.currentCard)">CANCEL</button>
+      <button class="btn btn-danger-act" style="flex:1;" onclick="confirmDealStockSell()">${t('sell_sym.sell_btn')}</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal();showStockDealCard(state.currentCard)">${t('sell_sym.cancel_btn')}</button>
     </div>`;
-  setModal(`Sell ${card.symbol}`, html);
+  setModal(t('deal.sell_sym', card.symbol), html);
 }
 
 function confirmDealStockSell() {
@@ -3279,7 +3510,7 @@ function confirmDealStockSell() {
   recalcPassive(p);
   closeModal();
   renderGame();
-  showNotif(`Sold ${qty}× ${card.symbol} @ $${curPrice} · P&L ${pnlStr}`, pnl >= 0 ? "success" : "");
+  showNotif(t('notif.sold_stock', qty, card.symbol, curPrice, pnlStr), pnl >= 0 ? "success" : "");
   showStockDealCard(state.currentCard);
 }
 
@@ -3299,12 +3530,12 @@ function updateMarketPrices() {
       // Crash — sharp drop, good buying opportunity
       move = 0.38 + Math.random() * 0.22;
       isBreakout = true;
-      showNotif(`💥 CRASH: ${sym} collapsed — buy opportunity?`, "error");
+      showNotif(t('notif.crash', sym), "error");
     } else if (roll < 0.20) {
       // Surge — sharp rise, good selling opportunity
       move = 1.6 + Math.random() * 1.0;
       isBreakout = true;
-      showNotif(`🚀 BREAKOUT: ${sym} surged — sell opportunity?`, "success");
+      showNotif(t('notif.breakout', sym), "success");
     } else {
       // Mild mean reversion when far from center
       const center = (s.rangeLow + s.rangeHigh) / 2;
@@ -3809,11 +4040,11 @@ function chooseDream(idx) {
     // Show a waiting message in the action area for non-choosers
     document.getElementById('action-area').innerHTML = `
       <div class="ac" style="text-align:center;">
-        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">Dream Selection ${idx+1}/${state.players.length}</div>
+        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${t('dream.selection_hd', idx+1, state.players.length)}</div>
         <div style="padding:32px 20px;">
           <div style="font-size:40px;margin-bottom:12px;">🌙</div>
-          <div style="font-size:16px;font-weight:700;">Waiting for <span style="color:${p.color};">${p.name}</span></div>
-          <div style="font-size:13px;color:var(--muted);margin-top:6px;">to choose their dream…</div>
+          <div style="font-size:16px;font-weight:700;">${t('dream.waiting_msg', p.name)}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;">${t('dream.to_choose')}</div>
         </div>
       </div>`;
     return;
@@ -3823,8 +4054,8 @@ function chooseDream(idx) {
   const available = FAST_TRACK_DREAMS.filter(d => !takenIds.includes(d.id));
 
   let html = `
-    <h2 style="margin-bottom:4px;font-size:19px;">${p.name} — choose your dream</h2>
-    <p style="color:var(--muted);font-size:12px;margin-bottom:18px;">Each player has a unique dream. You win by landing on your space when financially free.</p>
+    <h2 style="margin-bottom:4px;font-size:19px;">${t('dream.choose_intro', p.name)}</h2>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:18px;">${t('dream.choose_sub')}</p>
     <div style="display:flex;flex-direction:column;gap:10px;">`;
 
   available.forEach(dream => {
@@ -3839,7 +4070,7 @@ function chooseDream(idx) {
   });
 
   html += `</div>`;
-  setModal(`Dream Selection — Player ${idx+1} of ${state.players.length}`, html);
+  setModal(t('dream.modal_title', idx+1, state.players.length), html);
 }
 
 function selectDream(playerIdx, dreamId) {
@@ -3864,7 +4095,7 @@ function sellAsset(assetName, salePrice) {
   recalcPassive(p);
   closeModal();
   renderGame();
-  renderAction_EndTurn(`Sprzedano ${asset.name} za $${salePrice.toLocaleString()}`);
+  renderAction_EndTurn(t('notif.sold_asset', asset.name, salePrice.toLocaleString()));
 }
 
 // ==================== RULES & MISSION MODAL ====================
@@ -4404,7 +4635,7 @@ function initPanelsMobile() {
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
   const btn = document.getElementById('global-theme-toggle');
-  if (btn) btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
   localStorage.setItem('moneypath-theme', theme);
   drawBoard();
 }
