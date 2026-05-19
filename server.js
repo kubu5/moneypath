@@ -191,14 +191,28 @@ function handle(ws, msg) {
     }
 
     case 'state_update': {
+      // Host-only broadcast: only the host may push authoritative state to all players
       const meta = clientMeta.get(ws);
       if (!meta) return;
       const g = games.get(meta.gameId);
       if (!g || !g.started) return;
+      if (g.hostWs !== ws) return; // non-host must use player_action instead
 
       g.state = msg.state;
-      // Relay to all other players
       broadcast(meta.gameId, { type: 'state_update', state: msg.state }, ws);
+      break;
+    }
+
+    case 'player_action': {
+      // Non-host submits their state to the host for validation and re-broadcast
+      const meta = clientMeta.get(ws);
+      if (!meta) return;
+      const g = games.get(meta.gameId);
+      if (!g || !g.started) return;
+      if (g.hostWs === ws) return; // host should never send player_action to itself
+
+      // Route action state to host only
+      send(g.hostWs, { type: 'player_action', state: msg.state });
       break;
     }
 

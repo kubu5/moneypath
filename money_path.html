@@ -3673,6 +3673,24 @@ function handleServerMsg(msg) {
       break;
     }
 
+    case 'player_action': {
+      // Host receives a non-host player's state, adopts it, re-broadcasts to all
+      if (!isHost) break;
+      state = JSON.parse(JSON.stringify(msg.state));
+      _lastTurnIdx = state.currentPlayerIdx;
+      renderGame();
+      // Re-broadcast authoritative state to all non-host players
+      wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
+      // Handle our own turn transition if it just became the host's turn
+      if (isMyTurn()) {
+        setTimeout(() => showTurnConfirmation(currentPlayer(), () => beginTurn()), 500);
+      } else {
+        updateOnlineWaiting();
+        beginTurn(); // shows "waiting for X to play"
+      }
+      break;
+    }
+
     case 'error': {
       alert(msg.message);
       break;
@@ -3708,8 +3726,13 @@ function isMyTurn() {
 // ── State sync (call after any state mutation during your turn) ─
 function syncState() {
   if (!isOnline || _syncing) return;
-  if (!isMyTurn()) return; // only current player syncs
-  wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
+  if (isHost) {
+    // Host is the authority — broadcast to all players
+    wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
+  } else {
+    // Non-host submits state to host; host validates and re-broadcasts
+    wsSend({ type: 'player_action', state: JSON.parse(JSON.stringify(state)) });
+  }
 }
 
 /* ── Panel collapse ── */
