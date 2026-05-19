@@ -229,6 +229,11 @@ function handle(ws, msg) {
       break;
     }
 
+    case 'ping': {
+      send(ws, { type: 'pong' });
+      break;
+    }
+
     case 'chat': {
       const meta = clientMeta.get(ws);
       if (!meta) return;

@@ -1237,6 +1237,21 @@ input:focus, select:focus {
   border-color: rgba(56,189,248,0.35);
   color: #7dd3fc;
 }
+/* Language toggle — sits left of the theme button */
+#global-lang-toggle {
+  position: fixed; top: 14px; right: 100px; z-index: 99999;
+  padding: 7px 14px; border-radius: 20px;
+  border: 1.5px solid rgba(56,189,248,0.4);
+  background: rgba(255,255,255,0.88);
+  color: #0ea5e9; font-weight: 700; font-size: 12px;
+  cursor: pointer; backdrop-filter: blur(8px);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+[data-theme="dark"] #global-lang-toggle {
+  background: rgba(8,20,40,0.88);
+  border-color: rgba(56,189,248,0.35);
+  color: #7dd3fc;
+}
 
 .screen-footer-copy {
   margin-top: 14px;
@@ -1262,8 +1277,9 @@ input:focus, select:focus {
 </head>
 <body>
 
-<!-- Global theme toggle — visible on all screens -->
+<!-- Global controls — visible on all screens -->
 <button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+<button id="global-lang-toggle" class="lang-btn" onclick="setLang(LANG==='pl'?'en':'pl')" title="Przełącz na Polski">🇵🇱 PL</button>
 
 <!-- SETUP SCREEN -->
 <!-- ══════════════════════════════════════════
@@ -1274,27 +1290,26 @@ input:focus, select:focus {
     <div class="glass-premium setup-card">
       <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
         <div class="logo">MoneyPath</div>
-        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;" data-i18n="app.subtitle">Financial Freedom</div>
       </div>
-      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;">Choose Mode</h1>
-      <p class="subtitle" style="margin-bottom:28px;">Play locally on one screen, or compete with friends online</p>
+      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;" data-i18n="menu.title">Choose Mode</h1>
+      <p class="subtitle" style="margin-bottom:28px;" data-i18n="menu.subtitle">Play locally on one screen, or compete with friends online</p>
       <div style="display:flex; flex-direction:column; gap:12px;">
         <button class="btn btn-primary" style="padding:18px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('setup')">
           <span style="font-size:28px;">💻</span>
-          <span><strong>Play Local</strong><br><span style="font-size:12px; opacity:0.8;">Same device or screen share</span></span>
+          <span><strong data-i18n="menu.local">Play Local</strong><br><span style="font-size:12px; opacity:0.8;" data-i18n="menu.local_sub">Same device or screen share</span></span>
         </button>
         <button class="btn btn-invest" style="padding:18px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('online')">
           <span style="font-size:28px;">🌐</span>
-          <span><strong>Play Online</strong><br><span style="font-size:12px; opacity:0.8;">Each player on their own device</span></span>
+          <span><strong data-i18n="menu.online">Play Online</strong><br><span style="font-size:12px; opacity:0.8;" data-i18n="menu.online_sub">Each player on their own device</span></span>
         </button>
         <button class="btn btn-secondary" style="padding:14px 18px; font-size:14px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="showRulesModal()">
           <span style="font-size:24px;">📖</span>
-          <span><strong>Zasady i misja gry</strong><br><span style="font-size:12px; opacity:0.8;">Od autora · cel gry · inspiracje</span></span>
+          <span><strong data-i18n="menu.rules">Rules &amp; Mission</strong><br><span style="font-size:12px; opacity:0.8;" data-i18n="menu.rules_sub">About the game · goals · inspiration</span></span>
         </button>
       </div>
       <div class="disclaimer-box">
-        📚 <strong>MoneyPath</strong> to oryginalna edukacyjna gra planszowa zainspirowana ideą dochodu pasywnego i wolności finansowej.<br>
-        Nie jest powiązana z ani promowana przez Rich Dad Company ani grą Cashflow® 101.
+        📚 <span data-i18n="menu.disclaimer"><strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial freedom. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.</span>
       </div>
     </div>
     <div class="screen-footer-copy">
@@ -1317,28 +1332,28 @@ input:focus, select:focus {
       </div>
 
       <div style="margin-bottom:18px;">
-        <label style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;">Your Name</label>
-        <input id="online-player-name" type="text" placeholder="Enter your name" maxlength="20"
+        <label style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;" data-i18n="online.your_name">Your Name</label>
+        <input id="online-player-name" type="text" data-i18n-ph="online.name_ph" placeholder="Enter your name" maxlength="20"
           style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:15px; font-family:inherit; box-sizing:border-box;">
       </div>
 
       <div style="display:flex; gap:10px; margin-bottom:24px;">
-        <input id="online-game-name" type="text" placeholder="Game name (optional)" maxlength="30"
+        <input id="online-game-name" type="text" data-i18n-ph="online.game_name_ph" placeholder="Game name (optional)" maxlength="30"
           style="flex:1; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box;">
-        <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()">🎮 Create</button>
+        <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()" data-i18n="online.create">🎮 Create</button>
       </div>
 
       <div>
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-          <span style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted);">Available Games</span>
-          <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="refreshLobby()">🔄 Refresh</button>
+          <span style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted);" data-i18n="online.available">Available Games</span>
+          <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="refreshLobby()" data-i18n="online.refresh">🔄 Refresh</button>
         </div>
         <div id="lobby-list-items" style="min-height:70px;">
-          <div style="color:var(--muted); font-size:13px; text-align:center; padding:18px;">Checking for games...</div>
+          <div style="color:var(--muted); font-size:13px; text-align:center; padding:18px;" data-i18n="online.checking">Checking for games...</div>
         </div>
       </div>
 
-      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:18px;" onclick="goScreen('menu')">← Back</button>
+      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:18px;" onclick="goScreen('menu')" data-i18n="online.back">← Back</button>
     </div>
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
@@ -1360,23 +1375,23 @@ input:focus, select:focus {
       </div>
 
       <div style="text-align:center; margin-bottom:24px;">
-        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Share this code with friends</div>
+        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;" data-i18n="room.share_code">Share this code with friends</div>
         <div id="room-code-display" class="room-code-box" title="Click to copy" onclick="copyRoomCode()">·····</div>
-        <div id="copy-hint" style="font-size:11px; color:var(--muted); margin-top:6px;">Click code to copy</div>
+        <div id="copy-hint" style="font-size:11px; color:var(--muted); margin-top:6px;" data-i18n="room.click_copy">Click code to copy</div>
       </div>
 
       <div style="margin-bottom:20px;">
-        <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;">Players in room</div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;" data-i18n="room.players_in_room">Players in room</div>
         <div id="room-players-list" style="display:flex; flex-wrap:wrap; gap:8px; min-height:36px;"></div>
       </div>
 
-      <div id="room-status-msg" style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px; min-height:20px;">Waiting for more players...</div>
+      <div id="room-status-msg" style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px; min-height:20px;" data-i18n="room.waiting">Waiting for more players...</div>
 
-      <button id="room-start-btn" class="btn btn-primary" style="width:100%; padding:16px; font-size:15px; display:none;" onclick="startOnlineGame()">
+      <button id="room-start-btn" class="btn btn-primary" style="width:100%; padding:16px; font-size:15px; display:none;" onclick="startOnlineGame()" data-i18n="room.start">
         ▶ Start Game
       </button>
 
-      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:10px;" onclick="leaveRoom()">← Leave Room</button>
+      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:10px;" onclick="leaveRoom()" data-i18n="room.leave">← Leave Room</button>
     </div>
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
@@ -1428,7 +1443,7 @@ input:focus, select:focus {
   <!-- Left Panel -->
   <div class="left-panel" style="margin:8px 0 8px 8px; border-radius:16px; border:1px solid rgba(56,189,248,0.1);">
     <div class="panel-header" onclick="togglePanel('players')">
-      <span>👥 Players</span>
+      <span data-i18n="game.players_panel">👥 Players</span>
       <em id="players-toggle" class="panel-toggle">▲</em>
     </div>
     <div id="players-body" class="panel-body">
@@ -1444,7 +1459,7 @@ input:focus, select:focus {
         <div id="turn-track" style="color:var(--muted); font-size:12px; letter-spacing:1px; text-transform:uppercase; margin-top:2px;"></div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:10px; opacity:0.6; letter-spacing:2px; text-transform:uppercase;">Round</div>
+        <div style="font-size:10px; opacity:0.6; letter-spacing:2px; text-transform:uppercase;" data-i18n="game.round">Round</div>
         <div id="turn-count" style="font-size:28px; font-weight:900; color:var(--accent);">1</div>
       </div>
     </div>
@@ -1452,7 +1467,7 @@ input:focus, select:focus {
     <canvas id="boardCanvas" width="900" height="620"></canvas>
 
     <!-- Online: waiting for other player indicator -->
-    <div id="online-waiting-bar">⏳ Waiting for another player…</div>
+    <div id="online-waiting-bar" data-i18n="game.waiting_bar">⏳ Waiting for another player…</div>
 
     <!-- Sticky cash bar — always visible on mobile during decisions -->
     <div id="mobile-cash-bar">
@@ -1466,7 +1481,7 @@ input:focus, select:focus {
   <!-- Right Panel - Financial Statement -->
   <div class="right-panel" style="margin:8px 8px 8px 0; border-radius:16px; border:1px solid rgba(56,189,248,0.1);">
     <div class="panel-header" onclick="togglePanel('fs')">
-      <span>📊 Financial Statement</span>
+      <span data-i18n="game.fs_panel">📊 Financial Statement</span>
       <em id="fs-toggle" class="panel-toggle">▲</em>
     </div>
     <div id="fs-body" class="panel-body">
@@ -1479,12 +1494,12 @@ input:focus, select:focus {
 <div id="win-screen" class="screen">
   <div class="glass-premium" style="padding:60px 48px; text-align:center; max-width:520px; margin:auto;">
     <div style="font-size:64px; margin-bottom:16px;">🏆</div>
-    <h1 style="font-size:48px; background:linear-gradient(90deg,#22c55e,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:16px;">
+    <h1 style="font-size:48px; background:linear-gradient(90deg,#22c55e,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:16px;" data-i18n="win.freedom">
       FINANCIAL FREEDOM!
     </h1>
     <h2 id="winner-name" style="font-size:28px; margin-bottom:12px; color:#f0f8ff;"></h2>
     <p id="winner-details" style="color:var(--muted); font-size:16px;"></p>
-    <button class="btn btn-primary" style="margin-top:36px; padding:18px 48px; font-size:18px;" onclick="location.reload()">Play Again</button>
+    <button class="btn btn-primary" style="margin-top:36px; padding:18px 48px; font-size:18px;" onclick="location.reload()" data-i18n="win.play_again">Play Again</button>
   </div>
 </div>
 
@@ -1499,11 +1514,11 @@ input:focus, select:focus {
 <!-- TURN CONFIRMATION OVERLAY -->
 <div id="turn-confirm-overlay">
   <div class="turn-confirm-card">
-    <div style="font-size:11px; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:10px;">Next Player</div>
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:10px;" data-i18n="confirm.label">Next Player</div>
     <div id="turn-confirm-avatar" style="width:64px; height:64px; border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900; color:white; box-shadow:0 0 24px currentColor;"></div>
     <div id="turn-confirm-name" style="font-size:32px; font-weight:900; margin-bottom:6px;"></div>
     <div id="turn-confirm-profession" style="color:var(--muted); font-size:14px; margin-bottom:28px;"></div>
-    <button class="btn btn-primary" style="width:100%; font-size:17px; padding:16px;" id="turn-confirm-btn">
+    <button class="btn btn-primary" style="width:100%; font-size:17px; padding:16px;" id="turn-confirm-btn" data-i18n="confirm.start">
       START MY TURN →
     </button>
   </div>
@@ -1512,6 +1527,302 @@ input:focus, select:focus {
 <div class="notif" id="notif"></div>
 
 <script>
+// ==================== LANGUAGE / i18n ====================
+let LANG = localStorage.getItem('mp_lang') || 'en';
+
+const STRINGS = {
+  en: {
+    'app.subtitle':          'Financial Freedom',
+    // Menu
+    'menu.title':            'Choose Mode',
+    'menu.subtitle':         'Play locally on one screen, or compete with friends online',
+    'menu.local':            'Play Local',
+    'menu.local_sub':        'Same device or screen share',
+    'menu.online':           'Play Online',
+    'menu.online_sub':       'Each player on their own device',
+    'menu.rules':            'Rules & Mission',
+    'menu.rules_sub':        'About the game · goals · inspiration',
+    'menu.disclaimer':       '<strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial freedom. Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.',
+    // Online lobby
+    'online.your_name':      'Your Name',
+    'online.name_ph':        'Enter your name',
+    'online.game_name_ph':   'Game name (optional)',
+    'online.create':         '🎮 Create',
+    'online.available':      'Available Games',
+    'online.refresh':        '🔄 Refresh',
+    'online.back':           '← Back',
+    'online.no_games':       'No open games. Create one above!',
+    'online.checking':       'Checking for games...',
+    'online.loading':        'Loading…',
+    // Room
+    'room.share_code':       'Share this code with friends',
+    'room.click_copy':       'Click code to copy',
+    'room.copied':           'Copied!',
+    'room.players_in_room':  'Players in room',
+    'room.waiting':          'Waiting for more players...',
+    'room.start':            '▶ Start Game',
+    'room.leave':            '← Leave Room',
+    'room.need_more':        'Waiting for at least one more player…',
+    'room.n_ready':          n => `${n} players ready`,
+    // Setup
+    'setup.title':           'New Game',
+    'setup.subtitle':        'Build assets, manage debt, and buy your dream',
+    'setup.add_player':      '+ Add Player',
+    'setup.start':           '▶ Start Game',
+    'setup.back':            '← Back to Menu',
+    // Game panels
+    'game.round':            'Round',
+    'game.players_panel':    '👥 Players',
+    'game.fs_panel':         '📊 Financial Statement',
+    // Action area
+    'game.roll_dice':        'ROLL DICE',
+    'game.turn_complete':    '✓ Turn Complete',
+    'game.next_player':      'NEXT PLAYER →',
+    'game.pay_debt':         '💳 PAY DEBT',
+    'game.take_loan':        '🏦 TAKE LOAN',
+    'game.waiting_for':      name => `Waiting for ${name} to roll the dice…`,
+    'game.waiting_bar':      '⏳ Waiting for another player…',
+    'game.daily_grind':      '⚙️ DAILY GRIND',
+    'game.freedom_track':    '🚀 FREEDOM TRACK',
+    // Turn confirm overlay
+    'confirm.label':         'Next Player',
+    'confirm.start':         'START MY TURN →',
+    // Win
+    'win.freedom':           'FINANCIAL FREEDOM!',
+    'win.play_again':        'Play Again',
+    // Notifications
+    'notif.conn_error':      '⚠️ Connection error',
+    'notif.disconnected':    '⚠️ Disconnected from server',
+    'notif.reconnecting':    '🔄 Reconnecting…',
+    'notif.reconnected':     '✅ Connection restored',
+    'notif.no_cash':         'Not enough cash.',
+    'notif.no_liabilities':  'No liabilities to pay.',
+    'notif.paid_off':        (n,v) => `Paid off: ${n} — $${v}!`,
+    'notif.min_loan':        'Minimum amount: $100.',
+    'notif.max_loan':        m => `Maximum borrowing capacity: $${m}.`,
+    'notif.bankruptcy':      n => `${n} declared bankruptcy and is out of the game!`,
+    'notif.payday':          (sal,exp,net,sign) => `💰 Payday! Salary $${sal} · Expenses -$${exp} · Net ${sign}$${net}`,
+    'notif.freedom':         n => `🎉 ${n} escaped the Daily Grind!`,
+    'notif.no_stocks':       "You don't own any stocks.",
+    'notif.no_assets':       'No assets to sell.',
+    'notif.player_left':     n => `${n} left the game`,
+    'notif.new_host':        (o,h) => `⚠️ ${o} (host) disconnected — ${h} is now the host`,
+    'notif.you_host':        n => `⭐ You are now the Game Master — ${n} disconnected`,
+    'notif.last_player':     'You are the last player standing — you win!',
+    // Loan modal
+    'loan.title':            'Take a Loan',
+    'loan.your_cash':        'Your cash',
+    'loan.cashflow_now':     'Cashflow now',
+    'loan.standard_lbl':     '🏦 Standard limit',
+    'loan.standard_terms':   '10% interest · 10%/mo',
+    'loan.high_risk_lbl':    '⚠️ High-risk limit',
+    'loan.high_risk_terms':  '25% interest · 18%/mo',
+    'loan.no_credit':        '🚫 No credit available',
+    'loan.no_credit_sub':    'Grow your income or assets to unlock borrowing capacity',
+    'loan.borrow':           'BORROW',
+    'loan.cancel':           'CANCEL',
+    // Pay modal
+    'pay.title':             'Manage Debt',
+    'pay.header':            'Pay Liability',
+    'pay.need_more':         n => `Need $${n} more`,
+    'pay.cancel':            'CANCEL',
+    // Dream reveal
+    'dream.your_dream':      'Your Dream',
+    'dream.target':          'Target:',
+    'dream.land_to_win':     'Land on your dream space when financially free to win!',
+    'dream.lets_play':       "Let's Play! 🎲",
+    // Layoff
+    'turn.laid_off':         (n,t) => `${n} is laid off this turn. Turns remaining: ${t}`,
+    // Space messages
+    'space.payday':          'Landed on Payday — cash received!',
+    'space.nothing':         'Nothing special happens here.',
+    'space.deal_passed':     'Deal passed',
+    'space.charity_skipped': 'Charity skipped',
+    'space.crisis':          'Crisis resolved — assets liquidated.',
+    'space.baby':            'Baby! Monthly expenses increased by $350.',
+    // FS labels
+    'fs.current_cash':       'Current Cash',
+    'fs.income':             'Income',
+    'fs.dividends':          'Dividends / Interest',
+    'fs.real_estate':        'Real Estate / Business',
+    'fs.freedom_progress':   'Financial Freedom Progress',
+    'fs.passive':            'Passive:',
+    'fs.target':             'Target:',
+    'fs.expenses':           'Expenses',
+    'fs.taxes_living':       'Taxes + Living',
+    'fs.total_income':       'Total Income:',
+    'fs.total_expenses':     'Total Expenses:',
+    'fs.payday_lbl':         'Payday:',
+    'fs.assets':             'Assets',
+    'fs.liabilities':        'Liabilities',
+    'fs.stocks_funds':       'Stocks / Funds',
+    'fs.curr_value':         'Curr. Value',
+  },
+  pl: {
+    'app.subtitle':          'Wolność Finansowa',
+    // Menu
+    'menu.title':            'Wybierz tryb',
+    'menu.subtitle':         'Graj lokalnie na jednym ekranie lub rywalizuj z przyjaciółmi online',
+    'menu.local':            'Graj lokalnie',
+    'menu.local_sub':        'To samo urządzenie lub udostępnienie ekranu',
+    'menu.online':           'Graj online',
+    'menu.online_sub':       'Każdy gracz na swoim urządzeniu',
+    'menu.rules':            'Zasady i misja gry',
+    'menu.rules_sub':        'Od autora · cel gry · inspiracje',
+    'menu.disclaimer':       '<strong>MoneyPath</strong> to oryginalna edukacyjna gra planszowa zainspirowana ideą dochodu pasywnego i wolności finansowej. Nie jest powiązana z ani promowana przez Rich Dad Company ani grą Cashflow® 101.',
+    // Online lobby
+    'online.your_name':      'Twoje imię',
+    'online.name_ph':        'Wpisz swoje imię',
+    'online.game_name_ph':   'Nazwa gry (opcjonalnie)',
+    'online.create':         '🎮 Utwórz',
+    'online.available':      'Dostępne gry',
+    'online.refresh':        '🔄 Odśwież',
+    'online.back':           '← Wróć',
+    'online.no_games':       'Brak otwartych gier. Utwórz nową powyżej!',
+    'online.checking':       'Wyszukiwanie gier...',
+    'online.loading':        'Ładowanie…',
+    // Room
+    'room.share_code':       'Udostępnij ten kod znajomym',
+    'room.click_copy':       'Kliknij kod, aby skopiować',
+    'room.copied':           'Skopiowano!',
+    'room.players_in_room':  'Gracze w pokoju',
+    'room.waiting':          'Oczekiwanie na graczy...',
+    'room.start':            '▶ Rozpocznij grę',
+    'room.leave':            '← Opuść pokój',
+    'room.need_more':        'Oczekiwanie na jeszcze jednego gracza…',
+    'room.n_ready':          n => `${n} graczy gotowych`,
+    // Setup
+    'setup.title':           'Nowa gra',
+    'setup.subtitle':        'Buduj aktywa, zarządzaj długiem i kup swoje marzenie',
+    'setup.add_player':      '+ Dodaj gracza',
+    'setup.start':           '▶ Rozpocznij grę',
+    'setup.back':            '← Powrót do menu',
+    // Game panels
+    'game.round':            'Runda',
+    'game.players_panel':    '👥 Gracze',
+    'game.fs_panel':         '📊 Zestawienie finansowe',
+    // Action area
+    'game.roll_dice':        'RZUĆ KOSTKĄ',
+    'game.turn_complete':    '✓ Tura zakończona',
+    'game.next_player':      'NASTĘPNY GRACZ →',
+    'game.pay_debt':         '💳 SPŁAĆ DŁUG',
+    'game.take_loan':        '🏦 WEŹ POŻYCZKĘ',
+    'game.waiting_for':      name => `Oczekiwanie na ${name}…`,
+    'game.waiting_bar':      '⏳ Oczekiwanie na innego gracza…',
+    'game.daily_grind':      '⚙️ RAT RACE',
+    'game.freedom_track':    '🚀 ŚCIEŻKA WOLNOŚCI',
+    // Turn confirm overlay
+    'confirm.label':         'Następny gracz',
+    'confirm.start':         'ZACZYNAM TURĘ →',
+    // Win
+    'win.freedom':           'WOLNOŚĆ FINANSOWA!',
+    'win.play_again':        'Zagraj ponownie',
+    // Notifications
+    'notif.conn_error':      '⚠️ Błąd połączenia',
+    'notif.disconnected':    '⚠️ Rozłączono z serwerem',
+    'notif.reconnecting':    '🔄 Ponowne łączenie…',
+    'notif.reconnected':     '✅ Połączenie przywrócone',
+    'notif.no_cash':         'Za mało gotówki.',
+    'notif.no_liabilities':  'Brak zobowiązań do spłaty.',
+    'notif.paid_off':        (n,v) => `Spłacono: ${n} — $${v}!`,
+    'notif.min_loan':        'Minimalna kwota: $100.',
+    'notif.max_loan':        m => `Maksymalna zdolność kredytowa: $${m}.`,
+    'notif.bankruptcy':      n => `${n} ogłosił bankructwo i wypada z gry!`,
+    'notif.payday':          (sal,exp,net,sign) => `💰 Wypłata! Pensja $${sal} · Wydatki -$${exp} · Netto ${sign}$${net}`,
+    'notif.freedom':         n => `🎉 ${n} opuścił Rat Race!`,
+    'notif.no_stocks':       'Nie posiadasz żadnych akcji.',
+    'notif.no_assets':       'Brak aktywów do sprzedaży.',
+    'notif.player_left':     n => `${n} opuścił grę`,
+    'notif.new_host':        (o,h) => `⚠️ ${o} (host) rozłączył się — ${h} jest teraz hostem`,
+    'notif.you_host':        n => `⭐ Jesteś teraz Game Masterem — ${n} rozłączył się`,
+    'notif.last_player':     'Jesteś ostatnim graczem — wygrywasz!',
+    // Loan modal
+    'loan.title':            'Weź pożyczkę',
+    'loan.your_cash':        'Twoja gotówka',
+    'loan.cashflow_now':     'Cash flow teraz',
+    'loan.standard_lbl':     '🏦 Limit standardowy',
+    'loan.standard_terms':   '10% odsetek · 10%/mies.',
+    'loan.high_risk_lbl':    '⚠️ Limit podwyższony',
+    'loan.high_risk_terms':  '25% odsetek · 18%/mies.',
+    'loan.no_credit':        '🚫 Brak zdolności kredytowej',
+    'loan.no_credit_sub':    'Zwiększ przychody lub aktywa, aby odblokować kredyt',
+    'loan.borrow':           'POŻYCZ',
+    'loan.cancel':           'ANULUJ',
+    // Pay modal
+    'pay.title':             'Zarządzaj długiem',
+    'pay.header':            'Spłać zobowiązanie',
+    'pay.need_more':         n => `Potrzebujesz $${n} więcej`,
+    'pay.cancel':            'ANULUJ',
+    // Dream reveal
+    'dream.your_dream':      'Twoje marzenie',
+    'dream.target':          'Cel:',
+    'dream.land_to_win':     'Wyląduj na polu marzenia będąc finansowo wolnym, aby wygrać!',
+    'dream.lets_play':       'Zaczynam grać! 🎲',
+    // Turn confirm overlay
+    'confirm.label':         'Następny gracz',
+    'confirm.start':         'ZACZYNAM TURĘ →',
+    // Layoff
+    'turn.laid_off':         (n,turns) => `${n} jest na urlopie. Zostało tur: ${turns}`,
+    // Space messages
+    'space.payday':          'Wypłata — gotówka otrzymana!',
+    'space.nothing':         'Nic szczególnego się nie dzieje.',
+    'space.deal_passed':     'Okazja pominięta',
+    'space.charity_skipped': 'Darowizna pominięta',
+    'space.crisis':          'Kryzys rozwiązany — aktywa upłynnione.',
+    'space.baby':            'Dziecko! Miesięczne wydatki wzrosły o $350.',
+    // FS labels
+    'fs.current_cash':       'Gotówka',
+    'fs.income':             'Przychody',
+    'fs.dividends':          'Dywidendy / Odsetki',
+    'fs.real_estate':        'Nieruchomości / Biznes',
+    'fs.freedom_progress':   'Postęp wolności finansowej',
+    'fs.passive':            'Pasywne:',
+    'fs.target':             'Cel:',
+    'fs.expenses':           'Wydatki',
+    'fs.taxes_living':       'Podatki + utrzymanie',
+    'fs.total_income':       'Łączne przychody:',
+    'fs.total_expenses':     'Łączne wydatki:',
+    'fs.payday_lbl':         'Wypłata:',
+    'fs.assets':             'Aktywa',
+    'fs.liabilities':        'Pasywa',
+    'fs.stocks_funds':       'Akcje / Fundusze',
+    'fs.curr_value':         'Wartość',
+  }
+};
+
+function t(key, ...args) {
+  const dict = STRINGS[LANG] || STRINGS.en;
+  const str  = dict[key] ?? STRINGS.en[key] ?? key;
+  return typeof str === 'function' ? str(...args) : str;
+}
+
+function setLang(lang) {
+  LANG = lang;
+  localStorage.setItem('mp_lang', lang);
+  document.documentElement.lang = lang;
+  applyLang();
+}
+
+function applyLang() {
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPh);
+  });
+  // Language toggle buttons: show the OTHER language as the option
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.textContent = LANG === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL';
+    btn.title = LANG === 'pl' ? 'Switch to English' : 'Przełącz na Polski';
+  });
+  // Re-render dynamic game UI if game screen is active
+  if (document.getElementById('game-screen')?.classList.contains('active')) renderGame();
+  // Refresh action area text for online waiting bar
+  const wb = document.getElementById('online-waiting-bar');
+  if (wb && !wb.style.display?.includes('none')) wb.textContent = t('game.waiting_bar');
+}
+
 // ==================== GAME DATA ====================
 const PROFESSIONS = [
   {name:"Schoolteacher",        salary:3800, taxes:680,  mortgage:820,  studentLoan:200, carLoan:110, creditCards:90,  retailPayment:80,  otherExpenses:1350, startCash:1100, homeMortgageLiability:0, studentLoanLiability:18000, carLoanLiability:5200,  creditCardLiability:2100, retailDebt:1200},
@@ -1843,11 +2154,10 @@ function beginTurn() {
   if (isOnline && !isMyTurn()) {
     document.getElementById("action-area").innerHTML = `
       <div class="ac" style="text-align:center;">
-        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${p.onFastTrack ? '🚀 FREEDOM TRACK' : '⚙️ DAILY GRIND'}</div>
+        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind')}</div>
         <div style="padding:32px 20px;">
           <div style="font-size:40px;margin-bottom:12px;">⏳</div>
-          <div style="font-size:17px;font-weight:700;">Waiting for <span style="color:${p.color};">${p.name}</span></div>
-          <div style="font-size:13px;color:var(--muted);margin-top:6px;">to roll the dice…</div>
+          <div style="font-size:17px;font-weight:700;">${t('game.waiting_for', p.name)}</div>
         </div>
       </div>`;
     return;
@@ -1855,16 +2165,16 @@ function beginTurn() {
 
   if (p.layoffTurnsLeft > 0) {
     p.layoffTurnsLeft--;
-    renderAction_EndTurn(`${p.name} is laid off this turn. Turns remaining: ${p.layoffTurnsLeft}`);
+    renderAction_EndTurn(t('turn.laid_off', p.name, p.layoffTurnsLeft));
     return;
   }
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${p.onFastTrack ? '🚀 FREEDOM TRACK' : '⚙️ DAILY GRIND'}</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind')}</div>
       <div class="ac-title">${p.name} — <span style="color:var(--muted);font-size:15px;">${p.profession}</span></div>
       <div style="padding:28px; text-align:center;">
         <div class="dice-row" id="die-result"><span class="die-face">?</span></div>
-        <button id="roll-button" class="btn btn-primary" style="font-size:17px; padding:15px 52px; margin-top:8px;" onclick="rollDice()">ROLL DICE</button>
+        <button id="roll-button" class="btn btn-primary" style="font-size:17px; padding:15px 52px; margin-top:8px;" onclick="rollDice()">${t('game.roll_dice')}</button>
       </div>
     </div>`;
 }
@@ -1953,7 +2263,7 @@ async function rollDice() {
     if (space.type !== "payday") {
       handleRatRaceSpace(space);
     } else {
-      renderAction_EndTurn("Landed on Payday — cash received!");
+      renderAction_EndTurn(t('space.payday'));
     }
   }
   drawBoard();
@@ -1967,7 +2277,7 @@ function handleRatRaceSpace(space) {
   else if (space.type === "baby")    handleBaby();
   else if (space.type === "charity") handleCharity();
   else if (space.type === "layoff")  handleLayoff();
-  else renderAction_EndTurn("Nothing special happens here.");
+  else renderAction_EndTurn(t('space.nothing'));
 }
 
 function handleDealChoice() {
@@ -2039,7 +2349,7 @@ function showDealCard() {
         <div style="display:flex; gap:12px; flex-wrap:wrap;">
           <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY DEAL</button>
           <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Deal passed')" style="flex:1;">PASS</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">PASS</button>
         </div>
       </div>
     </div>`;
@@ -2158,7 +2468,7 @@ function showStockDealCard(card) {
           <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY SHARES</button>
           ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">SELL ${card.symbol}</button>` : ''}
           <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Deal passed')" style="flex:1;">PASS</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">PASS</button>
         </div>
       </div>
     </div>`;
@@ -2175,7 +2485,7 @@ function buyDeal() {
   const totalCost = card.isStockMarket ? quantity * currentPrice : card.downpayment;
 
   if (p.cash < totalCost) {
-    showNotif("Not enough cash.", "error");
+    showNotif(t('notif.no_cash'), "error");
     return;
   }
   p.cash -= totalCost;
@@ -2220,7 +2530,7 @@ function buyDeal() {
 function showSellStocksModal() {
   const p = currentPlayer();
   const stocks = p.assets.filter(a => a.type === 'stock' && a.shares > 0);
-  if (!stocks.length) { showNotif("You don't own any stocks.", "info"); return; }
+  if (!stocks.length) { showNotif(t('notif.no_stocks'), "info"); return; }
 
   let html = `<h2 style="margin-bottom:6px;">Sell Stocks</h2>
     <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Sell at current market price — profit or loss.</p>
@@ -2420,7 +2730,7 @@ function showSellStocksFromBankruptcy() {
   closeModal();
   const p = currentPlayer();
   if (!p.assets.length) {
-    showNotif("No assets to sell.", "info");
+    showNotif(t('notif.no_assets'), "info");
     setTimeout(() => showBankruptcyModal(p), 300);
     return;
   }
@@ -2431,7 +2741,7 @@ function showLiquidateModal() {
   const p = currentPlayer();
   const sellable = p.assets.filter(a => a.type === 'stock' ? a.shares > 0 : true);
   if (!sellable.length) {
-    showNotif("No assets to sell.", "info");
+    showNotif(t('notif.no_assets'), "info");
     setTimeout(() => showBankruptcyModal(p), 300);
     return;
   }
@@ -2518,7 +2828,7 @@ function liquidateSell(idx) {
       if (state.currentCard) {
         state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard();
       } else {
-        renderAction_EndTurn('Crisis resolved — assets liquidated.');
+        renderAction_EndTurn(t('space.crisis'));
       }
     }
   }, 350);
@@ -2544,7 +2854,7 @@ function emergencyLoan(amount, interestRate = 0.10, monthlyRate = 0.10) {
 function declareBankruptcy() {
   const p = currentPlayer();
   closeModal();
-  showNotif(`${p.name} declared bankruptcy and is out of the game!`, "error");
+  showNotif(t('notif.bankruptcy', p.name), "error");
   state.players.splice(state.currentPlayerIdx, 1);
   if (state.players.length === 0) {
     document.getElementById("game-screen").classList.remove("active");
@@ -2572,14 +2882,14 @@ function handlePayday() {
   renderFS();
   // Notyfikacja widoczna niezależnie od tego czy staje czy przekracza
   const sign = cf >= 0 ? '+' : '';
-  showNotif(`💰 Payday! Salary $${salary.toLocaleString()} · Expenses -$${expenses.toLocaleString()} · Net ${sign}$${cf.toLocaleString()}`, cf >= 0 ? "success" : "error");
+  showNotif(t('notif.payday', salary.toLocaleString(), expenses.toLocaleString(), cf.toLocaleString(), sign), cf >= 0 ? "success" : "error");
 }
 
 function handleBaby() {
   const p = currentPlayer();
   p.otherExpenses += 350;
   renderGame();
-  renderAction_EndTurn("Baby! Monthly expenses increased by $350.");
+  renderAction_EndTurn(t('space.baby'));
 }
 
 function handleCharity() {
@@ -2594,7 +2904,7 @@ function handleCharity() {
         <p>Donate $${cost.toLocaleString()} to roll 2 dice for the next 3 turns.</p>
         <div style="display:flex; gap:12px; margin-top:20px;">
           <button class="btn btn-invest" onclick="donateToCharity(${cost})" ${canDonate?'':'disabled'}>DONATE $${cost.toLocaleString()}</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Charity skipped')">PASS</button>
+          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.charity_skipped'))">PASS</button>
         </div>
       </div>
     </div>`;
@@ -2737,7 +3047,7 @@ function handleOwnDreamLanding(p) {
 function buyDream() {
   const p = currentPlayer();
   const dream = p.dream;
-  if (!dream || p.cash < dream.cost) { showNotif("Not enough cash.", "error"); return; }
+  if (!dream || p.cash < dream.cost) { showNotif(t('notif.no_cash'), "error"); return; }
   if (p.passiveIncome < totalExpenses(p)) { showNotif("You must be financially free to buy your dream.", "error"); return; }
   p.cash -= dream.cost;
   showWin(p, `${p.name} bought ${dream.icon} ${dream.title} and achieved financial freedom!`);
@@ -2779,22 +3089,22 @@ function renderAction_EndTurn(msg) {
   const hasLiabilities = p.liabilities && p.liabilities.length > 0;
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-title" style="color:var(--accent);">✓ Turn Complete</div>
+      <div class="ac-title" style="color:var(--accent);">${t('game.turn_complete')}</div>
       <div style="padding:20px 30px; text-align:center; font-size:16px; color:#c8e6ff;">${msg}</div>
       <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
-        ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">💳 PAY DEBT</button>` : ''}
-        <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">🏦 TAKE LOAN</button>
-        <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">NEXT PLAYER →</button>
+        ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
+        <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
+        <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
       </div>
     </div>`;
 }
 
 function showPayLiabilityModal() {
   const p = currentPlayer();
-  if (!p.liabilities || !p.liabilities.length) { showNotif("No liabilities to pay.", "info"); return; }
-  let html = `<h2 style="margin-bottom:16px;">Pay Liability</h2>
+  if (!p.liabilities || !p.liabilities.length) { showNotif(t('notif.no_liabilities'), "info"); return; }
+  let html = `<h2 style="margin-bottom:16px;">${t('pay.header')}</h2>
     <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1)); padding:14px; border-radius:10px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
-      <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Cash</div>
+      <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('fs.current_cash')}</div>
       <div style="font-size:26px; font-weight:900; color:#fff;">$${p.cash.toLocaleString()}</div>
     </div>
     <div style="display:flex; flex-direction:column; gap:10px;">`;
@@ -2802,24 +3112,24 @@ function showPayLiabilityModal() {
     const canPay = p.cash >= l.value;
     html += `<button class="btn ${canPay?'btn-primary':'btn-secondary'}" onclick="payLiability(${i})" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
       <span>${l.name}</span>
-      <span>${canPay ? `$${l.value.toLocaleString()}` : `Need $${(l.value-p.cash).toLocaleString()} more`}</span>
+      <span>${canPay ? `$${l.value.toLocaleString()}` : t('pay.need_more', (l.value-p.cash).toLocaleString())}</span>
     </button>`;
   });
-  html += `<button class="btn btn-secondary" onclick="closeModal()">CANCEL</button></div>`;
-  setModal("Manage Debt", html);
+  html += `<button class="btn btn-secondary" onclick="closeModal()">${t('loan.cancel')}</button></div>`;
+  setModal(t('pay.title'), html);
 }
 
 function payLiability(liabilityIndex) {
   const p = currentPlayer();
   if (!p.liabilities || !p.liabilities[liabilityIndex]) return;
   const liability = p.liabilities[liabilityIndex];
-  if (p.cash < liability.value) { showNotif("Not enough cash.", "error"); return; }
+  if (p.cash < liability.value) { showNotif(t('notif.no_cash'), "error"); return; }
   p.cash -= liability.value;
   const removed = p.liabilities.splice(liabilityIndex, 1)[0];
   recalcPassive(p);
   renderGame();
   closeModal();
-  showNotif(`Paid off: ${removed.name} — $${removed.value.toLocaleString()}!`, "success");
+  showNotif(t('notif.paid_off', removed.name, removed.value.toLocaleString()), "success");
 }
 
 function showTakeLoanModal() {
@@ -2833,40 +3143,40 @@ function showTakeLoanModal() {
         placeholder="Amount (max $${tiers.extended.toLocaleString()})"
         oninput="updateLoanPreview()"
         style="flex:1;padding:12px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;">
-      <button class="btn btn-primary" onclick="confirmTakeLoan()">BORROW</button>
+      <button class="btn btn-primary" onclick="confirmTakeLoan()">${t('loan.borrow')}</button>
     </div>
     <div id="loan-preview" style="font-size:12px;color:var(--muted);min-height:36px;margin-bottom:10px;"></div>` : `
     <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;margin-bottom:14px;">
-      <div style="font-size:13px;font-weight:700;color:var(--loss);">🚫 No credit available</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Grow your income or assets to unlock borrowing capacity</div>
+      <div style="font-size:13px;font-weight:700;color:var(--loss);">${t('loan.no_credit')}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">${t('loan.no_credit_sub')}</div>
     </div>`;
 
-  setModal("Loans", `
-    <h2 style="margin-bottom:12px;">Take a Loan</h2>
+  setModal(t('loan.title'), `
+    <h2 style="margin-bottom:12px;">${t('loan.title')}</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
       <div style="background:rgba(14,165,233,0.08);padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.15);text-align:center;">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Your cash</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">${t('loan.your_cash')}</div>
         <div style="font-size:18px;font-weight:900;">$${p.cash.toLocaleString()}</div>
       </div>
       <div style="background:rgba(14,165,233,0.08);padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.15);text-align:center;">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Cashflow now</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">${t('loan.cashflow_now')}</div>
         <div style="font-size:18px;font-weight:900;color:${curCF>=0?'var(--grn)':'var(--loss)'};">$${curCF.toLocaleString()}/mo</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:12px;">
       <div style="padding:8px 10px;border-radius:8px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);">
-        <div style="color:var(--accent);font-weight:700;margin-bottom:2px;">🏦 Standard limit</div>
+        <div style="color:var(--accent);font-weight:700;margin-bottom:2px;">${t('loan.standard_lbl')}</div>
         <div style="font-size:16px;font-weight:900;">$${tiers.standard.toLocaleString()}</div>
-        <div style="color:var(--muted);margin-top:2px;">10% interest · 10%/mo</div>
+        <div style="color:var(--muted);margin-top:2px;">${t('loan.standard_terms')}</div>
       </div>
       <div style="padding:8px 10px;border-radius:8px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);">
-        <div style="color:#f59e0b;font-weight:700;margin-bottom:2px;">⚠️ High-risk limit</div>
+        <div style="color:#f59e0b;font-weight:700;margin-bottom:2px;">${t('loan.high_risk_lbl')}</div>
         <div style="font-size:16px;font-weight:900;">$${tiers.extended.toLocaleString()}</div>
-        <div style="color:var(--muted);margin-top:2px;">25% interest · 18%/mo</div>
+        <div style="color:var(--muted);margin-top:2px;">${t('loan.high_risk_terms')}</div>
       </div>
     </div>
     ${inputSection}
-    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">CANCEL</button>`);
+    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">${t('loan.cancel')}</button>`);
   if (tiers.extended > 0) document.getElementById("loan-amount")?.focus();
 }
 
@@ -2889,8 +3199,8 @@ function confirmTakeLoan() {
   const p      = currentPlayer();
   const tiers  = calcCreditTiers(p);
   const amount = parseInt(document.getElementById("loan-amount").value, 10);
-  if (Number.isNaN(amount) || amount < 100) { showNotif("Minimum amount: $100.", "error"); return; }
-  if (amount > tiers.extended) { showNotif(`Maximum borrowing capacity: $${tiers.extended.toLocaleString()}.`, "error"); return; }
+  if (Number.isNaN(amount) || amount < 100) { showNotif(t('notif.min_loan'), "error"); return; }
+  if (amount > tiers.extended) { showNotif(t('notif.max_loan', tiers.extended.toLocaleString()), "error"); return; }
   const terms      = loanTermsForAmount(amount, tiers);
   const repayAmount = Math.round(amount * (1 + terms.interestRate));
   const payment    = Math.round(repayAmount * terms.monthlyRate);
@@ -3079,7 +3389,7 @@ function checkFastTrack(p) {
     p.onFastTrack = true;
     p.position = 0;
     p.visualPosition = 0;
-    showNotif(`🎉 ${p.name} escaped the Daily Grind!`, "success");
+    showNotif(t('notif.freedom', p.name), "success");
   }
 }
 
@@ -3165,48 +3475,48 @@ function renderFS() {
   document.getElementById("fs-display").innerHTML = `
     <div class="fs-paper">
       <div style="background:linear-gradient(135deg,rgba(14,165,233,0.25),rgba(6,182,212,0.15)); padding:16px; border-radius:12px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
-        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px;">Current Cash</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px;">${t('fs.current_cash')}</div>
         <div style="font-size:30px; font-weight:900; color:${p.cash>=0?'var(--profit)':'var(--loss)'};">${money(p.cash)}</div>
       </div>
 
-      <div class="fs-section-title">Income</div>
+      <div class="fs-section-title">${t('fs.income')}</div>
       ${row(`${p.profession}`, money(p.salary))}
-      ${row("Dividends / Interest", money(investmentAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
-      ${row("Real Estate / Business", money(businessAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+      ${row(t('fs.dividends'), money(investmentAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+      ${row(t('fs.real_estate'), money(businessAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
 
       <div class="fs-summary">
-        <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Financial Freedom Progress</div>
+        <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">${t('fs.freedom_progress')}</div>
         <div class="fs-progress"><div class="fs-progress-fill" style="width:${progress}%"></div></div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted);">
-          <span>Passive: <strong style="color:var(--profit);">${money(p.passiveIncome)}</strong></span>
-          <span>Target: <strong style="color:var(--loss);">${money(expenses)}</strong></span>
+          <span>${t('fs.passive')} <strong style="color:var(--profit);">${money(p.passiveIncome)}</strong></span>
+          <span>${t('fs.target')} <strong style="color:var(--loss);">${money(expenses)}</strong></span>
         </div>
       </div>
 
-      <div class="fs-section-title">Expenses</div>
-      ${row("Taxes + Living", money(p.taxes + p.otherExpenses))}
+      <div class="fs-section-title">${t('fs.expenses')}</div>
+      ${row(t('fs.taxes_living'), money(p.taxes + p.otherExpenses))}
       ${p.liabilities.filter(l=>l.payment>0).map(l=>row(l.name, money(l.payment), "subtle")).join("")}
 
       <div class="fs-summary">
         <div class="fs-mini">
-          <span>Total Income:</span><span>${money(totalIncome)}</span>
-          <span>Total Expenses:</span><span>${money(-expenses)}</span>
-          <span style="font-size:14px; font-weight:900;">Payday:</span><span style="font-size:14px; font-weight:900; color:${cf>=0?'var(--profit)':'var(--loss)'};">${money(cf)}</span>
+          <span>${t('fs.total_income')}</span><span>${money(totalIncome)}</span>
+          <span>${t('fs.total_expenses')}</span><span>${money(-expenses)}</span>
+          <span style="font-size:14px; font-weight:900;">${t('fs.payday_lbl')}</span><span style="font-size:14px; font-weight:900; color:${cf>=0?'var(--profit)':'var(--loss)'};">${money(cf)}</span>
         </div>
       </div>
 
       <div class="fs-grid">
         <div>
-          <div class="fs-section-title">Assets</div>
-          ${row("Stocks / Funds","Curr. Value")}
+          <div class="fs-section-title">${t('fs.assets')}</div>
+          ${row(t('fs.stocks_funds'), t('fs.curr_value'))}
           ${stockRows}
-          ${row("Real Estate / Business","Cost")}
+          ${row(t('fs.real_estate'),"Cost")}
           ${assetRows}
         </div>
         <div>
-          <div class="fs-section-title">Liabilities</div>
+          <div class="fs-section-title">${t('fs.liabilities')}</div>
           ${fixedLiabilities.map(l=>row(l.name, money(l.value))).join("")}
-          ${row("Real Estate / Business","Debt")}
+          ${row(t('fs.real_estate'),"Debt")}
           ${bizLiabRows}
         </div>
       </div>
@@ -3559,16 +3869,15 @@ function sellAsset(assetName, salePrice) {
 
 // ==================== RULES & MISSION MODAL ====================
 function showRulesModal() {
-  setModal('📖 O grze MoneyPath', `
+  const isPL = LANG === 'pl';
+  const content = isPL ? `
     <div style="line-height:1.7;font-size:14px;">
-
       <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
         <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Słowo od twórcy</div>
         <p style="margin:0 0 10px;">Cześć! Jestem <strong>Jakub Krawczyk</strong>, współzałożyciel <strong>Little Explorers sp. z o.o. — Szkoły Talentów</strong>.</p>
         <p style="margin:0 0 10px;">Od lat pracuję z dziećmi i młodzieżą, ucząc ich — między innymi — jak mądrze myśleć o pieniądzach. MoneyPath powstało z jednej prostej obserwacji: <em>większość ludzi nigdy nie nauczyła się, jak działa wolność finansowa</em>.</p>
         <p style="margin:0;">Tę grę stworzyłem, żebyś mógł to zmienić — bawiąc się razem z rodziną lub przyjaciółmi.</p>
       </div>
-
       <h3 style="margin:0 0 10px;color:var(--accent);">🎯 Cel gry</h3>
       <p style="margin:0 0 6px;">Osiągnij <strong>wolność finansową</strong> i kup swoje <strong>marzenie</strong>. Wygrasz, gdy:</p>
       <ol style="margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
@@ -3576,53 +3885,71 @@ function showRulesModal() {
         <li>Trafisz na swój <strong>Freedom Track</strong> i wyląduj na swojej przestrzeni marzeń</li>
         <li>Wykupisz marzenie za zebrane pieniądze</li>
       </ol>
-
       <h3 style="margin:0 0 10px;color:var(--accent);">⚙️ Jak grać</h3>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="font-size:18px;flex-shrink:0;">💰</span>
-          <span><strong>PAY</strong> — wypłata. Dostajesz pensję i dochód z aktywów, płacisz wydatki. Jeśli masz więcej przychodów pasywnych niż wydatków — wchodzisz na Freedom Track.</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="font-size:18px;flex-shrink:0;">🃏</span>
-          <span><strong>SMALL / BIG DEAL</strong> — kupujesz aktywa (nieruchomości, akcje, biznesy) generujące dochód pasywny. To klucz do wolności finansowej.</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="font-size:18px;flex-shrink:0;">💸</span>
-          <span><strong>SPLURGE</strong> — nieoczekiwany wydatek. Uszczupla gotówkę, ale uczy zarządzania rezerwą.</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="font-size:18px;flex-shrink:0;">❤️</span>
-          <span><strong>CHAR</strong> — darowizna. Opłacalna inwestycja — przez dwie tury rzucasz dwiema kostkami.</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="font-size:18px;flex-shrink:0;">🚀</span>
-          <span><strong>Freedom Track</strong> — zewnętrzny tor dla finansowo wolnych. Dojdź do przestrzeni swojego marzenia i je kup!</span>
-        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💰</span><span><strong>PAY</strong> — wypłata. Dostajesz pensję i dochód z aktywów, płacisz wydatki. Jeśli pasywny dochód ≥ wydatki — wchodzisz na Freedom Track.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🃏</span><span><strong>DEAL</strong> — kupujesz aktywa (nieruchomości, akcje, biznesy) generujące dochód pasywny.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💸</span><span><strong>SPLURGE</strong> — nieoczekiwany wydatek. Uczy zarządzania rezerwą gotówkową.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">❤️</span><span><strong>CHAR</strong> — darowizna. Przez 3 tury rzucasz dwiema kostkami.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🚀</span><span><strong>Freedom Track</strong> — tor dla finansowo wolnych. Dotrzyj do przestrzeni marzenia i je kup!</span></div>
       </div>
-
       <h3 style="margin:0 0 10px;color:var(--accent);">💡 Klucz do wygranej</h3>
-      <p style="margin:0 0 16px;">Nie ścigaj się o gotówkę — ścigaj się o <strong>aktywa</strong>. Każda nieruchomość, akcja czy biznes to miesięczny dochód, który pracuje zamiast ciebie. Pożyczki mogą pomóc kupić aktywa szybciej — ale pamiętaj, że raty obciążają cashflow i utrudniają wolność finansową.</p>
-
+      <p style="margin:0 0 16px;">Nie ścigaj się o gotówkę — ścigaj się o <strong>aktywa</strong>. Pożyczki mogą przyspieszyć zakup aktywów — ale raty obciążają cashflow.</p>
       <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
         <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiracja — Cashflow 101</div>
-        <p style="margin:0 0 8px;">MoneyPath zainspirowana jest grą <strong>Cashflow 101</strong> autorstwa <strong>Roberta Kiyosaki</strong>. To właśnie ta gra zmieniła moje własne myślenie o pieniądzach i zainspirowała do założenia Little Explorers.</p>
-        <p style="margin:0 0 8px;">Jeśli MoneyPath cię wciągnęło — <strong>gorąco zachęcam</strong> do sięgnięcia po oryginalną grę Cashflow 101. Jest głębsza, bardziej rozbudowana i pełna lekcji finansowych, których nie znajdziesz nigdzie indziej.</p>
-        <p style="margin:0;font-size:13px;color:var(--muted);">MoneyPath to niezależna praca twórcza — nie jest powiązana z ani zatwierdzona przez Rich Dad Company.</p>
+        <p style="margin:0 0 8px;">MoneyPath zainspirowana jest grą <strong>Cashflow 101</strong> Roberta Kiyosaki. Jeśli gra cię wciągnęła — <strong>gorąco zachęcam</strong> do oryginalnej wersji. Jest głębsza i pełna lekcji finansowych.</p>
+        <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath to niezależna praca twórcza — nie jest powiązana z Rich Dad Company.</p>
       </div>
-
-      <div style="text-align:center;padding:12px 0 4px;border-top:1px solid rgba(56,189,248,0.1);margin-top:4px;">
+      <div style="text-align:center;padding:10px 0 2px;border-top:1px solid rgba(56,189,248,0.1);">
         <div style="font-size:13px;color:var(--muted);">Miłej gry i do zobaczenia na wolności finansowej! 🏆</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers Szkoła Talentów</div>
       </div>
-
     </div>
     <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Zaczynam grać! 🎲</button>
-  `);
+  ` : `
+    <div style="line-height:1.7;font-size:14px;">
+      <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">A word from the creator</div>
+        <p style="margin:0 0 10px;">Hi! I'm <strong>Jakub Krawczyk</strong>, co-founder of <strong>Little Explorers — School of Talents</strong>.</p>
+        <p style="margin:0 0 10px;">I've spent years working with children and young people, teaching them — among other things — how to think wisely about money. MoneyPath grew from one simple observation: <em>most people were never taught how financial freedom works</em>.</p>
+        <p style="margin:0;">I built this game so you can change that — by playing together with family or friends.</p>
+      </div>
+      <h3 style="margin:0 0 10px;color:var(--accent);">🎯 Goal</h3>
+      <p style="margin:0 0 6px;">Achieve <strong>financial freedom</strong> and buy your <strong>dream</strong>. You win when:</p>
+      <ol style="margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
+        <li>Your <strong>passive income</strong> (from assets) exceeds all monthly <strong>expenses</strong></li>
+        <li>You reach the <strong>Freedom Track</strong> and land on your dream space</li>
+        <li>You buy your dream with accumulated cash</li>
+      </ol>
+      <h3 style="margin:0 0 10px;color:var(--accent);">⚙️ How to play</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💰</span><span><strong>PAYDAY</strong> — collect your salary and asset income, pay expenses. If passive income ≥ expenses you move to the Freedom Track.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🃏</span><span><strong>DEAL</strong> — buy assets (real estate, stocks, businesses) that generate passive income. This is the key to freedom.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💸</span><span><strong>SPLURGE</strong> — unexpected expense. Teaches the value of a cash reserve.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">❤️</span><span><strong>CHARITY</strong> — donate. Roll 2 dice for the next 3 turns.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🚀</span><span><strong>Freedom Track</strong> — the outer track for financially-free players. Reach your dream space and buy it!</span></div>
+      </div>
+      <h3 style="margin:0 0 10px;color:var(--accent);">💡 Key to winning</h3>
+      <p style="margin:0 0 16px;">Don't chase cash — chase <strong>assets</strong>. Every property, stock or business means monthly income that works while you sleep. Loans can speed up asset purchases — but repayments reduce cashflow.</p>
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
+        <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiration — Cashflow 101</div>
+        <p style="margin:0 0 8px;">MoneyPath is inspired by <strong>Cashflow 101</strong> by <strong>Robert Kiyosaki</strong>. That game changed my own thinking about money and inspired me to start Little Explorers.</p>
+        <p style="margin:0 0 8px;">If MoneyPath hooked you — <strong>I strongly encourage</strong> you to try the original Cashflow 101. It goes deeper and is packed with financial lessons you won't find anywhere else.</p>
+        <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath is an independent creative work — not affiliated with or endorsed by Rich Dad Company.</p>
+      </div>
+      <div style="text-align:center;padding:10px 0 2px;border-top:1px solid rgba(56,189,248,0.1);">
+        <div style="font-size:13px;color:var(--muted);">Enjoy the game — see you on the Freedom Track! 🏆</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers School of Talents</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Let's Play! 🎲</button>
+  `;
+  setModal(isPL ? '📖 O grze MoneyPath' : '📖 About MoneyPath', content);
 }
 
 // ==================== INIT ====================
 renderSetup();
+applyLang(); // apply saved/default language on first load
 
 // ── THEME TOGGLE ──
 // ==================== ONLINE MULTIPLAYER ====================
@@ -3642,14 +3969,67 @@ function goScreen(name) {
   if (name === 'online') refreshLobby();
 }
 
-// ── WebSocket helpers ─────────────────────────────────────────
+// ── WebSocket connection — heartbeat + auto-reconnect ─────────
+let _heartbeatTimer  = null;
+let _reconnectTimer  = null;
+let _reconnectDelay  = 1500;   // ms, doubles each attempt up to MAX
+let _wsOnOpen        = null;   // callback for the current connectWS call
+const WS_MAX_DELAY   = 30000;
+const WS_PING_EVERY  = 25000;  // keep-alive interval (< typical 30-60s server timeout)
+
+function startHeartbeat() {
+  stopHeartbeat();
+  _heartbeatTimer = setInterval(() => {
+    if (wsConn && wsConn.readyState === 1) wsSend({ type: 'ping' });
+    else stopHeartbeat();
+  }, WS_PING_EVERY);
+}
+
+function stopHeartbeat() {
+  if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+}
+
 function connectWS(onOpen) {
+  _wsOnOpen = onOpen;
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   wsConn = new WebSocket(`${proto}//${location.host}`);
-  wsConn.onopen    = onOpen;
-  wsConn.onmessage = e => { try { handleServerMsg(JSON.parse(e.data)); } catch(ex) { console.error(ex); } };
-  wsConn.onerror   = () => showNotif('⚠️ Connection error', 'loss');
-  wsConn.onclose   = () => { if (isOnline) showNotif('⚠️ Disconnected from server', 'loss'); };
+
+  wsConn.onopen = () => {
+    _reconnectDelay = 1500; // reset backoff on successful connect
+    startHeartbeat();
+    if (_wsOnOpen) _wsOnOpen();
+  };
+
+  wsConn.onmessage = e => {
+    try { handleServerMsg(JSON.parse(e.data)); } catch(ex) { console.error(ex); }
+  };
+
+  wsConn.onerror = () => showNotif(t('notif.conn_error'), 'loss');
+
+  wsConn.onclose = () => {
+    stopHeartbeat();
+    const wasInGame = isOnline;
+    const wasInRoom = document.getElementById('room-screen')?.classList.contains('active');
+    if (wasInGame || wasInRoom) {
+      showNotif(t('notif.disconnected'), 'loss');
+      scheduleReconnect();
+    }
+  };
+}
+
+function scheduleReconnect() {
+  if (_reconnectTimer) return; // already scheduled
+  _reconnectTimer = setTimeout(() => {
+    _reconnectTimer = null;
+    showNotif(t('notif.reconnecting'), 'info');
+    connectWS(() => {
+      showNotif(t('notif.reconnected'), 'success');
+      // If we were mid-game as a non-host, re-send our last state so the host
+      // can re-include us in the next broadcast cycle
+      if (isOnline && !isHost) syncState();
+    });
+    _reconnectDelay = Math.min(_reconnectDelay * 2, WS_MAX_DELAY);
+  }, _reconnectDelay);
 }
 
 function wsSend(obj) {
@@ -3659,12 +4039,12 @@ function wsSend(obj) {
 // ── Lobby ─────────────────────────────────────────────────────
 async function refreshLobby() {
   const el = document.getElementById('lobby-list-items');
-  el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px;">Loading…</div>';
+  el.innerHTML = `<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px;">${t('online.loading')}</div>`;
   try {
     const r  = await fetch('/api/lobby');
     const gs = await r.json();
     if (gs.length === 0) {
-      el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px;">No open games. Create one above!</div>';
+      el.innerHTML = `<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px;">${t('online.no_games')}</div>`;
       return;
     }
     el.innerHTML = gs.map(g => `
@@ -3722,7 +4102,7 @@ function updateRoomUI(players) {
       ${p.idx===0?'<span style="font-size:10px;color:var(--accent);">HOST</span>':''}
     </div>`).join('');
   document.getElementById('room-status-msg').textContent =
-    players.length < 2 ? 'Waiting for at least one more player…' : `${players.length} players ready`;
+    players.length < 2 ? t('room.need_more') : t('room.n_ready', players.length);
   const btn = document.getElementById('room-start-btn');
   if (btn) btn.style.display = (isHost && players.length >= 2) ? 'block' : 'none';
 }
@@ -3730,8 +4110,8 @@ function updateRoomUI(players) {
 function copyRoomCode() {
   const code = document.getElementById('room-code-display').textContent;
   navigator.clipboard?.writeText(code).then(() => {
-    document.getElementById('copy-hint').textContent = '✅ Copied!';
-    setTimeout(() => { document.getElementById('copy-hint').textContent = 'Click code to copy'; }, 2000);
+    document.getElementById('copy-hint').textContent = '✅ ' + t('room.copied');
+    setTimeout(() => { document.getElementById('copy-hint').textContent = t('room.click_copy'); }, 2000);
   });
 }
 
@@ -3821,7 +4201,7 @@ function handleServerMsg(msg) {
     case 'player_left': {
       if (!isOnline || !state.players || state.players.length === 0) {
         updateRoomUI(msg.players);
-        showNotif(`${msg.playerName} left the game`, 'warning');
+        showNotif(t('notif.player_left', msg.playerName), 'warning');
         break;
       }
       // Remove disconnected player from game state
@@ -3842,15 +4222,15 @@ function handleServerMsg(msg) {
       let notifText = `⚠️ ${msg.playerName} disconnected — game continues`;
       if (msg.wasHost && msg.newHostName) {
         if (isHost) {
-          notifText = `⭐ You are now the Game Master — ${msg.playerName} disconnected`;
+          notifText = t('notif.you_host', msg.playerName);
         } else {
-          notifText = `⚠️ ${msg.playerName} (host) disconnected — ${msg.newHostName} is now the host`;
+          notifText = t('notif.new_host', msg.playerName, msg.newHostName);
         }
       }
       showNotif(notifText, 'warning');
       renderGame();
       if (state.players.length <= 1) {
-        showNotif('You are the last player standing — you win!', 'cashflow');
+        showNotif(t('notif.last_player'), 'cashflow');
         isOnline = false;
         beginTurn();
       } else if (isMyTurn()) {
@@ -3873,15 +4253,15 @@ function handleServerMsg(msg) {
       // Dreams are pre-assigned by host — show each player their own dream
       const myDream = state.players[myPlayerIdx]?.dream;
       if (myDream) {
-        setModal('Your Dream', `
+        setModal(t('dream.your_dream'), `
           <div style="text-align:center;padding:16px 8px;">
             <div style="font-size:56px;margin-bottom:10px;">${myDream.icon}</div>
             <h2 style="margin-bottom:4px;">${myDream.title}</h2>
             <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">${myDream.desc}</p>
-            <p style="font-size:15px;">Target: <strong style="color:var(--accent);">$${myDream.cost.toLocaleString()}</strong></p>
-            <p style="font-size:12px;color:var(--muted);margin-top:8px;">Land on your dream space when financially free to win!</p>
+            <p style="font-size:15px;">${t('dream.target')} <strong style="color:var(--accent);">$${myDream.cost.toLocaleString()}</strong></p>
+            <p style="font-size:12px;color:var(--muted);margin-top:8px;">${t('dream.land_to_win')}</p>
             <button class="btn btn-primary" style="margin-top:18px;width:100%;font-size:16px;padding:14px;"
-              onclick="closeModal(); beginTurn();">Let's Play! 🎲</button>
+              onclick="closeModal(); beginTurn();">${t('dream.lets_play')}</button>
           </div>`);
       } else {
         beginTurn();
@@ -3943,6 +4323,8 @@ function handleServerMsg(msg) {
       }
       break;
     }
+
+    case 'pong': break; // heartbeat reply — connection is alive
 
     case 'error': {
       alert(msg.message);
