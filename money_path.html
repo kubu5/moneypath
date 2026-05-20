@@ -2657,6 +2657,13 @@ function dreamDesc(d)  { const s=STRINGS[LANG]; const k='dream.'+d.id+'.desc';  
 // Helper: get translated deal title / desc (falls back to English data)
 function dealTitle(c)  { if(!c.key) return c.title; const s=STRINGS[LANG]; const k='deal.'+c.key+'.title'; return (s&&s[k])||STRINGS.en[k]||c.title; }
 function dealDesc(c)   { if(!c.key) return c.desc;  const s=STRINGS[LANG]; const k='deal.'+c.key+'.desc';  return (s&&s[k])||STRINGS.en[k]||c.desc;  }
+// Helper: get translated name of a stored asset (uses asset.key saved at purchase)
+function assetDisplayName(asset) {
+  if (!asset.key) return asset.name;
+  const s = STRINGS[LANG];
+  const k = 'deal.' + asset.key + '.title';
+  return (s && s[k]) || STRINGS.en[k] || asset.name;
+}
 // Helper: get translated splurge title / desc
 function splurgeTitle(c){ if(!c.key) return c.title; const s=STRINGS[LANG]; const k='splurge.'+c.key+'.title'; return (s&&s[k])||STRINGS.en[k]||c.title; }
 function splurgeDesc(c) { if(!c.key) return c.desc;  const s=STRINGS[LANG]; const k='splurge.'+c.key+'.desc';  return (s&&s[k])||STRINGS.en[k]||c.desc;  }
@@ -3208,7 +3215,8 @@ function buyDeal() {
       existing.value += totalCost;
     } else {
       p.assets.push({
-        name: card.title, value: totalCost, cashflow: 0,
+        name: card.title, key: card.key || null,
+        value: totalCost, cashflow: 0,
         type: "stock", symbol: card.symbol,
         shares: quantity, sharePrice: currentPrice,
         rangeLow: card.rangeLow, rangeHigh: card.rangeHigh
@@ -3216,12 +3224,13 @@ function buyDeal() {
     }
   } else {
     p.assets.push({
-      name: card.title, value: totalCost, cashflow: card.cashflow,
+      name: card.title, key: card.key || null,
+      value: totalCost, cashflow: card.cashflow,
       type: card.type, rangeLow: card.rangeLow, rangeHigh: card.rangeHigh
     });
     if (card.type === "rental" || card.type === "business") {
       p.liabilities.push({
-        name: card.title,
+        name: card.title, key: card.key || null,
         value: Math.max(0, card.price - card.downpayment),
         payment: 0, type: card.type
       });
@@ -3232,8 +3241,9 @@ function buyDeal() {
   checkFastTrack(p);
   renderGame();
   playBuy();
-  showNotif(card.isStockMarket ? t('notif.bought_shares', quantity, card.symbol) : t('notif.bought_asset', card.title, card.cashflow.toLocaleString()), "success");
-  renderAction_EndTurn(t('notif.acquired', card.title));
+  const _displayName = dealTitle(card);
+  showNotif(card.isStockMarket ? t('notif.bought_shares', quantity, card.symbol) : t('notif.bought_asset', _displayName, card.cashflow.toLocaleString()), "success");
+  renderAction_EndTurn(t('notif.acquired', _displayName));
 }
 
 // ==================== SELL STOCKS ====================
@@ -3483,7 +3493,7 @@ function showLiquidateModal() {
         <div style="padding:12px;background:rgba(4,12,28,0.7);border:1px solid rgba(251,63,95,0.2);border-radius:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div>
-              <strong style="color:#e2e8f0;">${asset.name}</strong>
+              <strong style="color:#e2e8f0;">${assetDisplayName(asset)}</strong>
               <div style="font-size:12px;color:var(--muted);margin-top:2px;">${asset.type} · cashflow $${(asset.cashflow||0).toLocaleString()}/mo</div>
             </div>
             <div style="text-align:right;">
@@ -3524,7 +3534,7 @@ function liquidateSell(idx) {
     const liIdx = p.liabilities.findIndex(l => l.name === asset.name);
     if (liIdx !== -1) p.liabilities.splice(liIdx, 1);
     p.assets.splice(p.assets.indexOf(asset), 1);
-    showNotif(t('notif.sold_asset', asset.name, proceeds.toLocaleString()), "success");
+    showNotif(t('notif.sold_asset', assetDisplayName(asset), proceeds.toLocaleString()), "success");
   }
 
   p.cash += proceeds;
@@ -4172,7 +4182,7 @@ function renderFS() {
   const emptyRows = n => Array.from({length:n},()=>`<div class="fs-empty"></div>`).join("");
 
   const assetRows = businessAssets.length
-    ? businessAssets.map(a=>row(`${a.name} (+${money(a.cashflow)}/mo)`, money(a.value))).join("")
+    ? businessAssets.map(a=>row(`${assetDisplayName(a)} (+${money(a.cashflow)}/mo)`, money(a.value))).join("")
     : emptyRows(2);
 
   const stockRows = investmentAssets.length
@@ -4182,14 +4192,14 @@ function renderFS() {
         const pnl = curVal - a.value;
         const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
         return row(
-          a.symbol ? `${a.symbol} · ${a.shares} ${t('liq.shares')} @ $${curPrice}` : a.name,
+          a.symbol ? `${a.symbol} · ${a.shares} ${t('liq.shares')} @ $${curPrice}` : assetDisplayName(a),
           `<span style="color:${pnlColor};">${money(curVal)}</span>`
         );
       }).join("")
     : emptyRows(2);
 
   const bizLiabRows = businessLiabilities.length
-    ? businessLiabilities.map(l=>row(l.name, money(l.value))).join("")
+    ? businessLiabilities.map(l=>row(assetDisplayName(l), money(l.value))).join("")
     : emptyRows(3);
 
   document.getElementById("fs-display").innerHTML = `
@@ -4584,7 +4594,7 @@ function sellAsset(assetName, salePrice) {
   recalcPassive(p);
   closeModal();
   renderGame();
-  renderAction_EndTurn(t('notif.sold_asset', asset.name, salePrice.toLocaleString()));
+  renderAction_EndTurn(t('notif.sold_asset', assetDisplayName(asset), salePrice.toLocaleString()));
 }
 
 // ==================== RULES & MISSION MODAL ====================
