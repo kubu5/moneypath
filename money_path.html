@@ -1413,13 +1413,26 @@ input:focus, select:focus {
     right: 0 !important;
     bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
     z-index: 900 !important;
-    padding: 0 10px 10px !important;
-    max-height: 65dvh !important;
-    overflow-y: auto !important;
-    pointer-events: none !important;
-    -webkit-overflow-scrolling: touch !important;
+    padding: 0 8px 8px !important;
+    /* No max-height here — let the inner .ac-scroll handle scroll */
+    overflow: visible !important;
+    pointer-events: none !important;  /* pass-through when empty */
+  }
+  /* When content present: container itself must be scrollable */
+  #action-area:not(:empty) {
+    pointer-events: auto !important;
   }
   #action-area > * { pointer-events: auto !important; }
+
+  /* Inner scrollable wrapper inside every action card */
+  .ac {
+    border-radius: 20px 20px 16px 16px !important;
+    box-shadow: 0 -4px 32px rgba(0,0,0,0.45) !important;
+    max-height: 72dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
 
   /* Gradient scrim behind action cards */
   #action-area:not(:empty)::before {
@@ -1427,17 +1440,41 @@ input:focus, select:focus {
     position: fixed;
     left: 0; right: 0;
     bottom: calc(56px + env(safe-area-inset-bottom, 0px));
-    height: 100px;
-    background: linear-gradient(to bottom, transparent, rgba(4,12,28,0.75));
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(4,12,28,0.7));
     pointer-events: none;
     z-index: -1;
   }
 
-  /* Action cards look like sheets */
-  .ac {
-    border-radius: 20px 20px 16px 16px !important;
-    box-shadow: 0 -4px 32px rgba(0,0,0,0.45) !important;
+  /* ── Stock card compact on mobile ── */
+  .stock-card {
+    padding: 12px 14px !important;
   }
+  .stock-card-head {
+    grid-template-columns: 48px 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  .stock-icon {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+  }
+  .stock-title { font-size: 17px !important; }
+  .stock-subtitle { font-size: 11px !important; margin-top: 3px !important; }
+  .stock-chart {
+    height: 80px !important;
+    margin: 8px 0 !important;
+    padding: 6px 8px !important;
+  }
+  .stock-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px 10px !important;
+    margin: 8px 0 10px !important;
+    font-size: 11px !important;
+  }
+  .stock-stat { padding-bottom: 4px !important; }
 
   /* Dice */
   .dice-row { min-height: 48px !important; font-size: 38px !important; }
