@@ -142,12 +142,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 12px;
 }
 .logo img {
-  height: 48px;
-  max-width: 220px;
+  height: 40px;
   object-fit: contain;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35));
+}
+.logo-text {
+  font-size: 30px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #38bdf8, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
 }
 
 /* ===== SETUP ===== */
@@ -819,6 +827,11 @@ input:focus, select:focus {
 :root .logo img {
   filter: drop-shadow(0 2px 8px rgba(149,112,184,0.3));
 }
+:root .logo-text {
+  background: linear-gradient(90deg, var(--pur-d), var(--sal-d));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
 /* Turn banner */
 :root .turn-banner {
@@ -1019,6 +1032,7 @@ input:focus, select:focus {
   border-bottom: 1px solid rgba(56,189,248,0.3);
 }
 [data-theme="dark"] .logo img { filter: drop-shadow(0 2px 12px rgba(56,189,248,0.45)); }
+[data-theme="dark"] .logo-text { background: linear-gradient(90deg,#38bdf8,#22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 [data-theme="dark"] .turn-banner {
   background: linear-gradient(90deg, rgba(6,20,44,0.95), rgba(12,36,72,0.85));
   border: 1px solid rgba(56,189,248,0.2);
@@ -1547,11 +1561,19 @@ input:focus, select:focus {
   flex: 1;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 #top-bar .tb-brand img {
-  height: 28px;
+  height: 24px;
   object-fit: contain;
   filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+}
+#top-bar .tb-brand-text {
+  font-family: 'Baloo 2', 'Nunito', sans-serif;
+  font-weight: 800; font-size: 14px;
+  background: linear-gradient(90deg,#9570b8,#4CAF7D);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  white-space: nowrap;
 }
 #top-bar .tb-btn {
   padding: 5px 13px; border-radius: 16px; border: 1.5px solid rgba(176,145,210,0.35);
@@ -1595,7 +1617,7 @@ body { padding-top: 44px; }
 
 <!-- Global top bar — language + theme controls -->
 <div id="top-bar">
-  <span class="tb-brand"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"></span>
+  <span class="tb-brand"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="tb-brand-text">MoneyPath</span></span>
   <button class="tb-btn lang-btn" onclick="setLang(LANG==='pl'?'en':'pl')" title="Przełącz na Polski">🇵🇱 PL</button>
   <button id="global-theme-toggle" class="tb-btn" onclick="toggleTheme()">🌙</button>
 </div>
@@ -1608,7 +1630,7 @@ body { padding-top: 44px; }
   <div class="setup-container">
     <div class="glass-premium setup-card">
       <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
-        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"></div>
+        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="logo-text">MoneyPath</span></div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;" data-i18n="app.subtitle">Financial Freedom</div>
       </div>
       <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;" data-i18n="menu.title">Choose Mode</h1>
@@ -1646,7 +1668,7 @@ body { padding-top: 44px; }
   <div class="setup-container">
     <div class="glass-premium setup-card">
       <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
-        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"></div>
+        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="logo-text">MoneyPath</span></div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">🌐 Online Lobby</div>
       </div>
 
@@ -1695,7 +1717,7 @@ body { padding-top: 44px; }
   <div class="setup-container">
     <div class="glass-premium setup-card">
       <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
-        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"></div>
+        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="logo-text">MoneyPath</span></div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">⏳ Waiting Room</div>
       </div>
 
@@ -1733,7 +1755,7 @@ body { padding-top: 44px; }
   <div class="setup-container">
     <div class="glass-premium setup-card">
       <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
-        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"></div>
+        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="logo-text">MoneyPath</span></div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;" data-i18n="app.subtitle">Financial Freedom</div>
       </div>
 
