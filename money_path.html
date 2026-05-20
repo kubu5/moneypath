@@ -1170,48 +1170,191 @@ input:focus, select:focus {
 /* ══════════════════════════════════════════
    MOBILE / RESPONSIVE
    ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   MOBILE PANEL CONTROLS (always present)
+   ══════════════════════════════════════════ */
+#mobile-backdrop {
+  display: none;
+  position: fixed; inset: 44px 0 64px 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 1099;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s;
+}
+#mobile-backdrop.mob-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+#mobile-bottom-nav {
+  display: none; /* shown via JS when game is active on mobile */
+}
+.mob-nav-btn {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  background: none; border: none;
+  cursor: pointer; padding: 8px 4px;
+  color: var(--muted);
+  transition: color 0.15s, background 0.15s;
+  font-family: inherit;
+}
+.mob-nav-btn .mob-nav-ico { font-size: 22px; line-height: 1; }
+.mob-nav-btn .mob-nav-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.mob-nav-btn.mob-active { color: var(--accent); }
+.mob-nav-btn:active { background: rgba(149,112,184,0.10); }
+[data-theme="dark"] .mob-nav-btn.mob-active { color: #38bdf8; }
+
 @media (max-width: 820px) {
-  body { overflow-y: auto !important; }
+  body { overflow: hidden !important; }
 
+  /* Game screen — single column, fixed height */
   #game-screen {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto auto !important;
-    height: auto !important;
-    min-height: calc(100dvh - 44px);
+    display: block !important;
+    height: calc(100dvh - 44px) !important;
+    position: relative !important;
+    overflow: hidden !important;
   }
 
+  /* ── Left panel (Players) — slide in from left ── */
   .left-panel {
-    margin: 8px 8px 0 8px !important;
-    border-radius: 12px !important;
+    position: fixed !important;
+    top: 44px !important; bottom: 64px !important;
+    left: 0 !important;
+    width: 87.5vw !important;
     max-height: none !important;
+    margin: 0 !important;
+    border-radius: 0 20px 20px 0 !important;
+    border-right: none !important;
+    z-index: 1100 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94),
+                box-shadow 0.32s !important;
+    overflow-y: auto !important;
+    box-shadow: none !important;
   }
+  .left-panel.mob-open {
+    transform: translateX(0) !important;
+    box-shadow: 6px 0 40px rgba(0,0,0,0.55) !important;
+  }
+
+  /* ── Right panel (Finance) — slide in from right ── */
   .right-panel {
-    margin: 0 8px 8px 8px !important;
-    border-radius: 12px !important;
+    position: fixed !important;
+    top: 44px !important; bottom: 64px !important;
+    right: 0 !important;
+    width: 87.5vw !important;
     max-height: none !important;
+    margin: 0 !important;
+    border-radius: 20px 0 0 20px !important;
+    border-left: none !important;
+    z-index: 1100 !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94),
+                box-shadow 0.32s !important;
+    overflow-y: auto !important;
+    box-shadow: none !important;
+  }
+  .right-panel.mob-open {
+    transform: translateX(0) !important;
+    box-shadow: -6px 0 40px rgba(0,0,0,0.55) !important;
   }
 
+  /* ── Backdrop — only visible on mobile ── */
+  #mobile-backdrop { display: block !important; }
+
+  /* ── Bottom nav — visible only when game is active (set via JS) ── */
+  #mobile-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important; left: 0 !important; right: 0 !important;
+    height: 64px !important;
+    z-index: 1200 !important;
+    background: rgba(255,255,255,0.97) !important;
+    border-top: 1.5px solid rgba(176,145,210,0.22) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+  }
+  [data-theme="dark"] #mobile-bottom-nav {
+    background: rgba(4,16,30,0.97) !important;
+    border-top-color: rgba(56,189,248,0.18) !important;
+  }
+
+  /* ── Center panel — board only ── */
   .center-panel {
-    padding: 8px !important;
-    overflow: visible !important;
+    width: 100% !important;
+    height: calc(100dvh - 44px - 64px) !important;
+    padding: 6px 8px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
   }
 
-  #mobile-cash-bar { display: flex !important; }
-
+  /* Canvas fills available space */
   #boardCanvas {
     width: 100% !important;
     height: auto !important;
-    border-radius: 12px;
+    max-height: none !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    border-radius: 12px !important;
+    align-self: stretch !important;
   }
 
-  .turn-banner { padding: 10px 12px !important; }
-  #turn-who { font-size: 17px !important; }
+  /* Turn banner compact */
+  .turn-banner {
+    padding: 8px 12px !important;
+    margin-bottom: 6px !important;
+    flex-shrink: 0 !important;
+  }
+  #turn-who { font-size: 16px !important; }
   #turn-count { font-size: 20px !important; }
 
-  .modal { width: 95vw !important; max-width: 95vw !important; max-height: 90dvh; overflow-y: auto; }
+  /* Online waiting bar */
+  #online-waiting-bar { flex-shrink: 0 !important; margin-bottom: 4px !important; }
 
+  /* Hide legacy mobile cash bar — cash is in action overlay */
+  #mobile-cash-bar { display: none !important; }
+
+  /* ── Action area — fixed bottom-sheet overlay above bottom nav ── */
+  #action-area {
+    position: fixed !important;
+    left: 0 !important; right: 0 !important;
+    bottom: 64px !important;
+    z-index: 900 !important;
+    padding: 0 8px 8px !important;
+    max-height: 62dvh !important;
+    overflow-y: auto !important;
+    pointer-events: none !important;
+  }
+  #action-area > * { pointer-events: auto !important; }
+  #action-area:not(:empty)::before {
+    content: "";
+    display: block;
+    position: fixed;
+    left: 0; right: 0;
+    bottom: 64px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(4,12,28,0.6));
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Dice row smaller */
+  .dice-row { min-height: 50px !important; font-size: 36px !important; }
+
+  /* Modal full-width on mobile */
+  .modal { width: 95vw !important; max-width: 95vw !important; max-height: 88dvh !important; overflow-y: auto !important; }
+
+  /* Grid layouts in deal cards collapse to 2-col */
   .ac div[style*="grid-template-columns"] { grid-template-columns: 1fr 1fr !important; }
   .btn { font-size: 13px !important; padding: 11px 14px !important; }
+
+  /* ac cards — reduce padding on mobile */
+  .ac-title { padding: 10px 14px !important; font-size: 17px !important; }
 }
 
 /* ══════════════════════════════════════════
@@ -1528,6 +1671,25 @@ body { padding-top: 44px; }
   </div>
 </div>
 
+<!-- Mobile backdrop — dims board when a side panel is open -->
+<div id="mobile-backdrop" onclick="closeMobilePanel()"></div>
+
+<!-- Mobile bottom navigation — shown only during game (via JS) -->
+<div id="mobile-bottom-nav">
+  <button class="mob-nav-btn" id="mob-btn-players" onclick="toggleMobilePanel('left')">
+    <span class="mob-nav-ico">👥</span>
+    <span class="mob-nav-lbl" data-i18n="mob.players">Players</span>
+  </button>
+  <button class="mob-nav-btn mob-active" id="mob-btn-board" onclick="closeMobilePanel()">
+    <span class="mob-nav-ico">🎲</span>
+    <span class="mob-nav-lbl" data-i18n="mob.board">Board</span>
+  </button>
+  <button class="mob-nav-btn" id="mob-btn-finance" onclick="toggleMobilePanel('right')">
+    <span class="mob-nav-ico">📊</span>
+    <span class="mob-nav-lbl" data-i18n="mob.finance">Finance</span>
+  </button>
+</div>
+
 <div class="notif" id="notif"></div>
 
 <script>
@@ -1588,6 +1750,8 @@ const STRINGS = {
     'game.waiting_bar':      '⏳ Waiting for another player…',
     'game.daily_grind':      '⚙️ DAILY GRIND',
     'game.freedom_track':    '🚀 FREEDOM TRACK',
+    'game.daily_grind_lbl':  'DAILY GRIND',
+    'game.freedom_lbl':      'FREEDOM TRACK',
     // Turn confirm overlay
     'confirm.label':         'Next Player',
     'confirm.start':         'START MY TURN →',
@@ -1774,6 +1938,31 @@ const STRINGS = {
     'dream.modal_title':     (n,total) => `Dream Selection — Player ${n} of ${total}`,
     // Sell asset (from FS panel)
     'notif.sold_asset_fn':   (name,price) => `Sold ${name} for $${price}`,
+    // Liability type labels (used in FS and expense rows)
+    'liab.home':             'Housing Lease/Mortgage',
+    'liab.student':          'Student Loans',
+    'liab.car':              'Transport Loan',
+    'liab.credit':           'Credit Cards / BNPL',
+    'liab.retail':           'Subscriptions & Retail',
+    // Players sidebar
+    'player.active':         'ACTIVE',
+    'player.cash_lbl':       '💵 Cash:',
+    'player.per_mo':         '/mo',
+    'player.no_dream':       '— no dream set',
+    // Mobile navigation
+    'mob.players':           'Players',
+    'mob.board':             'Board',
+    'mob.finance':           'Finance',
+    // Deal card labels
+    'deal.down_payment':     'Down Payment',
+    'deal.monthly_cf':       'Monthly Cash Flow',
+    'deal.buy_deal':         'BUY DEAL',
+    'deal.your_cash_lbl':    '💰 Your Cash:',
+    'deal.choose_sub':       n => `Small Deals &lt; $${n}&nbsp;·&nbsp;Big Deals &gt; $${n}`,
+    // Extra liability types
+    'liab.loan':             'Personal Loan',
+    'liab.rental':           'Rental Mortgage',
+    'liab.business':         'Business Loan',
   },
   pl: {
     'app.subtitle':          'Wolność Finansowa',
@@ -1826,8 +2015,10 @@ const STRINGS = {
     'game.take_loan':        '🏦 WEŹ POŻYCZKĘ',
     'game.waiting_for':      name => `Oczekiwanie na ${name}…`,
     'game.waiting_bar':      '⏳ Oczekiwanie na innego gracza…',
-    'game.daily_grind':      '⚙️ RAT RACE',
+    'game.daily_grind':      '⚙️ KIERAT',
     'game.freedom_track':    '🚀 ŚCIEŻKA WOLNOŚCI',
+    'game.daily_grind_lbl':  'KIERAT',
+    'game.freedom_lbl':      'ŚC. WOLNOŚCI',
     // Turn confirm overlay
     'confirm.label':         'Następny gracz',
     'confirm.start':         'ZACZYNAM TURĘ →',
@@ -1846,7 +2037,7 @@ const STRINGS = {
     'notif.max_loan':        m => `Maksymalna zdolność kredytowa: $${m}.`,
     'notif.bankruptcy':      n => `${n} ogłosił bankructwo i wypada z gry!`,
     'notif.payday':          (sal,exp,net,sign) => `💰 Wypłata! Pensja $${sal} · Wydatki -$${exp} · Netto ${sign}$${net}`,
-    'notif.freedom':         n => `🎉 ${n} opuścił Rat Race!`,
+    'notif.freedom':         n => `🎉 ${n} osiągnął wolność finansową!`,
     'notif.no_stocks':       'Nie posiadasz żadnych akcji.',
     'notif.no_assets':       'Brak aktywów do sprzedaży.',
     'notif.player_left':     n => `${n} opuścił grę`,
@@ -2017,6 +2208,31 @@ const STRINGS = {
     'dream.modal_title':     (n,total) => `Wybór marzenia — Gracz ${n} z ${total}`,
     // Sell asset (from FS panel)
     'notif.sold_asset_fn':   (name,price) => `Sprzedano ${name} za $${price}`,
+    // Liability type labels
+    'liab.home':             'Kredyt hipoteczny',
+    'liab.student':          'Kredyty studenckie',
+    'liab.car':              'Kredyt samochodowy',
+    'liab.credit':           'Karty kredytowe / BNPL',
+    'liab.retail':           'Subskrypcje i raty',
+    // Players sidebar
+    'player.active':         'AKTYWNY',
+    'player.cash_lbl':       '💵 Gotówka:',
+    'player.per_mo':         '/mies.',
+    'player.no_dream':       '— brak marzenia',
+    // Mobile navigation
+    'mob.players':           'Gracze',
+    'mob.board':             'Plansza',
+    'mob.finance':           'Finanse',
+    // Deal card labels
+    'deal.down_payment':     'Wkład własny',
+    'deal.monthly_cf':       'Mies. przepływ',
+    'deal.buy_deal':         'KUP',
+    'deal.your_cash_lbl':    '💰 Gotówka:',
+    'deal.choose_sub':       n => `Małe deale &lt; $${n}&nbsp;·&nbsp;Duże deale &gt; $${n}`,
+    // Extra liability types
+    'liab.loan':             'Pożyczka osobista',
+    'liab.rental':           'Kredyt na wynajem',
+    'liab.business':         'Kredyt firmowy',
   }
 };
 
@@ -2047,7 +2263,10 @@ function applyLang() {
     btn.title = LANG === 'pl' ? 'Switch to English' : 'Przełącz na Polski';
   });
   // Re-render dynamic game UI if game screen is active
-  if (document.getElementById('game-screen')?.classList.contains('active')) renderGame();
+  if (document.getElementById('game-screen')?.classList.contains('active')) {
+    renderGame();
+    drawBoard(); // refresh canvas text (board labels are language-specific)
+  }
   // Refresh action area text for online waiting bar
   const wb = document.getElementById('online-waiting-bar');
   if (wb && !wb.style.display?.includes('none')) wb.textContent = t('game.waiting_bar');
@@ -2515,7 +2734,7 @@ function handleDealChoice() {
   setModal(t('deal.title'), `
     <div style="text-align:center; padding:8px 0 24px;">
       <h2 style="font-size:22px; margin-bottom:10px;">${t('deal.choose', p.name)}</h2>
-      <p style="color:var(--muted); margin-bottom:28px;">Small Deals &lt; $${SMALL_DEAL_LIMIT.toLocaleString()}&nbsp;·&nbsp;Big Deals &gt; $${SMALL_DEAL_LIMIT.toLocaleString()}</p>
+      <p style="color:var(--muted); margin-bottom:28px;">${t('deal.choose_sub', SMALL_DEAL_LIMIT.toLocaleString())}</p>
       <div style="display:flex; gap:16px; justify-content:center;">
         <button class="btn btn-primary" style="flex:1; padding:20px 12px; flex-direction:column;" onclick="drawSmallDeal();closeModal()">
           <div style="font-size:18px; font-weight:900;">${t('deal.small')}</div>
@@ -2569,15 +2788,15 @@ function showDealCard() {
       <div style="padding:20px;">
         <p style="color:#c8e6ff; margin-bottom:12px;">${card.desc}</p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; padding:14px; background:rgba(4,12,28,0.6); border-radius:10px; border:1px solid rgba(56,189,248,0.12);">
-          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Down Payment</div><div style="font-size:20px; font-weight:900; color:var(--accent);">$${card.downpayment.toLocaleString()}</div></div>
-          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Monthly Cash Flow</div><div style="font-size:20px; font-weight:900; color:var(--profit);">+$${card.cashflow}/mo</div></div>
+          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.down_payment')}</div><div style="font-size:20px; font-weight:900; color:var(--accent);">$${card.downpayment.toLocaleString()}</div></div>
+          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.monthly_cf')}</div><div style="font-size:20px; font-weight:900; color:var(--profit);">+$${card.cashflow}${t('player.per_mo')}</div></div>
         </div>
         <div style="margin-bottom:20px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:14px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-          <span>💰 Your Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:18px;">$${p.cash.toLocaleString()}</strong></span>
-          ${canBuy ? '' : `<span style="color:var(--loss); font-size:13px;">Need $${(card.downpayment - p.cash).toLocaleString()} more</span>`}
+          <span>${t('deal.your_cash_lbl')} <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:18px;">$${p.cash.toLocaleString()}</strong></span>
+          ${canBuy ? '' : `<span style="color:var(--loss); font-size:13px;">${t('deal.need_more', (card.downpayment - p.cash).toLocaleString())}</span>`}
         </div>
         <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY DEAL</button>
+          <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_deal')}</button>
           <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
           <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">PASS</button>
         </div>
@@ -3636,7 +3855,7 @@ function renderGame() {
 function updateTurnBanner() {
   const p = currentPlayer();
   document.getElementById("turn-who").innerHTML = `<span style="color:${p.color}">${p.name}</span>`;
-  document.getElementById("turn-track").textContent = p.onFastTrack ? "🚀 FREEDOM TRACK" : "⚙️ DAILY GRIND";
+  document.getElementById("turn-track").textContent = p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind');
   document.getElementById("turn-count").textContent = state.turn;
 }
 
@@ -3650,17 +3869,24 @@ function renderSidebar() {
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
           <div style="width:8px; height:8px; border-radius:50%; background:${p.color}; box-shadow:0 0 6px ${p.color};"></div>
           <strong style="color:${p.color}; font-size:14px;">${p.name}</strong>
-          ${isActive ? '<span style="margin-left:auto; font-size:10px; color:var(--accent); letter-spacing:1px;">ACTIVE</span>' : ''}
+          ${isActive ? `<span style="margin-left:auto; font-size:10px; color:var(--accent); letter-spacing:1px;">${t('player.active')}</span>` : ''}
         </div>
         <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">${p.profession}</div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text);">
-          <span>💵 Cash: <strong style="color:${p.cash>=0?'var(--profit)':'var(--loss)'}; font-size:15px;">$${p.cash.toLocaleString()}</strong></span>
-          <span style="color:${cf>=0?'var(--profit)':'var(--loss)'};">${cf>=0?'+':''}$${cf.toLocaleString()}/mo</span>
+          <span>${t('player.cash_lbl')} <strong style="color:${p.cash>=0?'var(--profit)':'var(--loss)'}; font-size:15px;">$${p.cash.toLocaleString()}</strong></span>
+          <span style="color:${cf>=0?'var(--profit)':'var(--loss)'};">${cf>=0?'+':''}$${cf.toLocaleString()}${t('player.per_mo')}</span>
         </div>
-        <div style="font-size:11px; color:var(--accent); margin-top:4px;">${p.dream ? p.dream.icon + ' ' + p.dream.title + ' · $' + p.dream.cost.toLocaleString() : '— no dream'}</div>
+        <div style="font-size:11px; color:var(--accent); margin-top:4px;">${p.dream ? p.dream.icon + ' ' + p.dream.title + ' · $' + p.dream.cost.toLocaleString() : t('player.no_dream')}</div>
       </div>`;
   }).join('');
   updateCashBar();
+}
+
+// Translate a liability by its type key, falling back to its stored name
+function liabName(l) {
+  const key = 'liab.' + l.type;
+  const s = STRINGS[LANG];
+  return (s && s[key]) ? s[key] : (STRINGS.en[key] || l.name);
 }
 
 function renderFS() {
@@ -3693,7 +3919,7 @@ function renderFS() {
         const pnl = curVal - a.value;
         const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
         return row(
-          a.symbol ? `${a.symbol} · ${a.shares} shares @ $${curPrice}` : a.name,
+          a.symbol ? `${a.symbol} · ${a.shares} ${t('liq.shares')} @ $${curPrice}` : a.name,
           `<span style="color:${pnlColor};">${money(curVal)}</span>`
         );
       }).join("")
@@ -3726,7 +3952,7 @@ function renderFS() {
 
       <div class="fs-section-title">${t('fs.expenses')}</div>
       ${row(t('fs.taxes_living'), money(p.taxes + p.otherExpenses))}
-      ${p.liabilities.filter(l=>l.payment>0).map(l=>row(l.name, money(l.payment), "subtle")).join("")}
+      ${p.liabilities.filter(l=>l.payment>0).map(l=>row(liabName(l), money(l.payment), "subtle")).join("")}
 
       <div class="fs-summary">
         <div class="fs-mini">
@@ -3900,7 +4126,7 @@ function drawRatRaceRing(ctx, activePositions) {
   ctx.fillStyle = isDark ? "#d1e8f7" : "#9570b8";
   ctx.font = "bold 14px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("DAILY GRIND", cx, cy+40);
+  ctx.fillText(t('game.daily_grind_lbl'), cx, cy+40);
 }
 
 function drawPlayerToken(ctx, x, y, color, label) {
@@ -3983,14 +4209,14 @@ function drawBoard() {
     drawBoardTile(ctx, tile, FAST_TRACK_SPACES[i % FAST_TRACK_SPACES.length], active);
   });
 
-  drawCardDeck(ctx, 116, 166, 118, 70, "SMALL DEAL", "rgba(56,189,248,0.85)");
-  drawCardDeck(ctx, 116, 342, 118, 70, "BIG DEAL",   "rgba(34,197,94,0.85)");
-  drawCardDeck(ctx, 668, 342, 104, 70, "SPLURGES",    "rgba(251,63,95,0.82)");
+  drawCardDeck(ctx, 116, 166, 118, 70, t('deal.small'), "rgba(56,189,248,0.85)");
+  drawCardDeck(ctx, 116, 342, 118, 70, t('deal.big'),   "rgba(34,197,94,0.85)");
+  drawCardDeck(ctx, 668, 342, 104, 70, t('splurge.hd'), "rgba(251,63,95,0.82)");
 
   ctx.fillStyle = isDark ? "rgba(56,189,248,0.6)" : "rgba(149,112,184,0.8)";
   ctx.font = "bold 11px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("FREEDOM TRACK", 450, 92);
+  ctx.fillText(t('game.freedom_lbl'), 450, 92);
 
   drawRatRaceRing(ctx, ratPositions);
 
@@ -4194,10 +4420,51 @@ let _syncing    = false;   // prevents sync loops
 let _lastTurnIdx = -1;     // detects whose turn just started
 
 // ── Screen navigation ────────────────────────────────────────
+// ── Mobile panel helpers ──────────────────────────────────────
+let _mobileOpenPanel = null;
+
+function openMobilePanel(side) {
+  closeMobilePanel(true);
+  _mobileOpenPanel = side;
+  const panel = side === 'left'
+    ? document.querySelector('.left-panel')
+    : document.querySelector('.right-panel');
+  const backdrop = document.getElementById('mobile-backdrop');
+  if (panel)    panel.classList.add('mob-open');
+  if (backdrop) backdrop.classList.add('mob-open');
+  // Update nav button active states
+  document.getElementById('mob-btn-players')?.classList.toggle('mob-active', side === 'left');
+  document.getElementById('mob-btn-board')?.classList.remove('mob-active');
+  document.getElementById('mob-btn-finance')?.classList.toggle('mob-active', side === 'right');
+}
+
+function closeMobilePanel(skipNavReset) {
+  document.querySelector('.left-panel')?.classList.remove('mob-open');
+  document.querySelector('.right-panel')?.classList.remove('mob-open');
+  document.getElementById('mobile-backdrop')?.classList.remove('mob-open');
+  _mobileOpenPanel = null;
+  if (!skipNavReset) {
+    document.getElementById('mob-btn-players')?.classList.remove('mob-active');
+    document.getElementById('mob-btn-board')?.classList.add('mob-active');
+    document.getElementById('mob-btn-finance')?.classList.remove('mob-active');
+  }
+}
+
+function toggleMobilePanel(side) {
+  if (_mobileOpenPanel === side) {
+    closeMobilePanel();
+  } else {
+    openMobilePanel(side);
+  }
+}
+
 function goScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(name + '-screen').classList.add('active');
   if (name === 'online') refreshLobby();
+  const mbn = document.getElementById('mobile-bottom-nav');
+  if (mbn) mbn.style.display = (name === 'game') ? '' : 'none';
+  closeMobilePanel();
 }
 
 // ── WebSocket connection — heartbeat + auto-reconnect ─────────
