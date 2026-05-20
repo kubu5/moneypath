@@ -2613,8 +2613,7 @@ const STOCK_MARKET_DEALS = [
   {key:"stock_robox", title:"ROBOX Robotics",    symbol:"ROBOX", desc:"Automation names sell off after a weak quarter.", basePrice:9, rangeLow:5, rangeHigh:35, cashflow:0, type:"stock", sector:"Robotics"}
 ];
 
-// Price history: array of {open, high, low, close} candles
-const stockHistory = {};
+// stockHistory lives inside state.stockHistory so it syncs via WebSocket to all online players
 
 // Deterministic PRNG — same seed → same chart every game session
 function makeSeededRand(seed) {
@@ -2627,19 +2626,20 @@ function makeSeededRand(seed) {
 }
 
 function initStockPrices() {
+  if (!state.stockHistory) state.stockHistory = {};
   STOCK_MARKET_DEALS.forEach(s => {
     // Seed derived from symbol string — always produces the same 14 candles
     const seed = s.symbol.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 0);
     const rand = makeSeededRand(seed);
     let price = s.basePrice;
-    stockHistory[s.symbol] = [];
+    state.stockHistory[s.symbol] = [];
     for (let i = 0; i < 14; i++) {
       const o = price;
       const move = 1 + (rand() - 0.5) * 0.16;
       const c = Math.max(1, Math.round(price * move));
       const h = Math.round(Math.max(o, c) * (1 + rand() * 0.04));
       const l = Math.round(Math.min(o, c) * (1 - rand() * 0.04));
-      stockHistory[s.symbol].push({open:o, high:h, low:l, close:c});
+      state.stockHistory[s.symbol].push({open:o, high:h, low:l, close:c});
       price = c;
     }
     state.market[s.symbol] = price;
@@ -2697,7 +2697,8 @@ let state = {
   turn: 1,
   currentCard: null,
   loansThisTurn: 0,   // max 1 loan per turn
-  market: {}
+  market: {},
+  stockHistory: {}    // synced via WebSocket so all online players share charts
 };
 
 let playerDreams = {};
@@ -3097,7 +3098,7 @@ function showDealCard() {
 }
 
 function buildCandleChart(symbol) {
-  const history = (stockHistory[symbol] || []).slice(-14);
+  const history = ((state.stockHistory && state.stockHistory[symbol]) || []).slice(-14);
   if (!history.length) return '<div style="color:var(--muted);text-align:center;width:100%;line-height:100px;">No data</div>';
 
   const allPrices = history.flatMap(c => [c.high, c.low]);
@@ -3126,7 +3127,7 @@ function buildCandleChart(symbol) {
 }
 
 function getTrend(symbol) {
-  const h = stockHistory[symbol] || [];
+  const h = (state.stockHistory && state.stockHistory[symbol]) || [];
   if (h.length < 3) return 'normal';
   const last = h.slice(-5);
   const ups = last.filter(c => c.close >= c.open).length;
@@ -4123,9 +4124,10 @@ function updateMarketPrices() {
 
     state.market[sym] = close;
 
-    if (!stockHistory[sym]) stockHistory[sym] = [];
-    stockHistory[sym].push({open, high, low, close, breakout: isBreakout});
-    if (stockHistory[sym].length > 22) stockHistory[sym].shift();
+    if (!state.stockHistory) state.stockHistory = {};
+    if (!state.stockHistory[sym]) state.stockHistory[sym] = [];
+    state.stockHistory[sym].push({open, high, low, close, breakout: isBreakout});
+    if (state.stockHistory[sym].length > 22) state.stockHistory[sym].shift();
   });
   renderFS();
   drawBoard();
