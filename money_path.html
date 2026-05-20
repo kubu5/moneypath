@@ -1,7 +1,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MoneyPath — Financial Freedom</title>
 <!--
   MoneyPath — Educational Financial Board Game
@@ -1377,15 +1377,20 @@ input:focus, select:focus {
     background: transparent !important;
   }
 
-  /* Board canvas fills all remaining vertical space */
+  /* Board canvas: scale uniformly, never stretch */
   #boardCanvas {
-    width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    flex: 1 1 0 !important;
+    /* Width is the smaller of: full parent width, or the width that gives
+       height = (viewport − top-bar − turn-banner − bottom-nav).
+       Canvas intrinsic size is 900 × 620 → ratio = 900/620 ≈ 1.4516        */
+    width: min(100%, calc((100dvh - 195px) * 900 / 620)) !important;
+    height: auto !important;          /* height derived from width × ratio   */
+    aspect-ratio: 900 / 620 !important; /* belt-and-suspenders for flex      */
+    flex: none !important;            /* do NOT grow/shrink to fill flex space */
+    align-self: center !important;
     min-height: 0 !important;
     border-radius: 14px !important;
     display: block !important;
+    margin: 0 auto !important;
   }
 
   /* Turn banner — compact app-style */
@@ -4766,6 +4771,13 @@ function showRulesModal() {
 // ==================== INIT ====================
 renderSetup();
 applyLang(); // apply saved/default language on first load
+
+// ── BLOCK PINCH-ZOOM (mobile) ──
+// Meta viewport alone is ignored by some browsers; JS listener is the reliable fallback.
+document.addEventListener('touchmove', function(e) {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
 
 // ── THEME TOGGLE ──
 // ==================== ONLINE MULTIPLAYER ====================
