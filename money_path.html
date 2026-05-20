@@ -2047,6 +2047,13 @@ const STRINGS = {
     'bankrupt.partial':      'partial — also sell assets',
     'bankrupt.borrow_line':  (amount,repay,payment) => `Borrow $${amount} · repay $${repay} · +$${payment}/mo`,
     'bankrupt.cf_after':     cf => `Cashflow after: $${cf}/mo`,
+    'bankrupt.no_history':   '🚫 No Credit — No history',
+    'bankrupt.no_history_sub': 'You have no liabilities or assets. Bank refuses standard credit.',
+    'bankrupt.usury_lbl':    '⛔ Emergency Usury Loan',
+    'bankrupt.usury_terms':  '100% interest · 20%/mo',
+    'loan.limit_reached':    'You already took a loan this turn.',
+    'liq.purchase_price':    'purchase price',
+    'bankrupt.deal_forfeited': 'Deal forfeited — crisis takes priority.',
     // Charity
     'charity.hd':            'CHARITY',
     'charity.title_ac':      'Charity — roll two dice',
@@ -2367,6 +2374,13 @@ const STRINGS = {
     'bankrupt.partial':      'częściowe — sprzedaj też aktywa',
     'bankrupt.borrow_line':  (amount,repay,payment) => `Pożycz $${amount} · spłata $${repay} · +$${payment}/mies.`,
     'bankrupt.cf_after':     cf => `Cash flow po: $${cf}/mies.`,
+    'bankrupt.no_history':   '🚫 Brak kredytu — brak historii',
+    'bankrupt.no_history_sub': 'Nie masz zobowiązań ani aktywów. Bank odmawia standardowego kredytu.',
+    'bankrupt.usury_lbl':    '⛔ Pożyczka Awaryjna (Lichwa)',
+    'bankrupt.usury_terms':  '100% odsetek · 20%/mies.',
+    'loan.limit_reached':    'Już wzięłeś pożyczkę w tej turze.',
+    'liq.purchase_price':    'cena zakupu',
+    'bankrupt.deal_forfeited': 'Oferta przepada — kryzys ma priorytet.',
     // Charity
     'charity.hd':            'DAROWIZNA',
     'charity.title_ac':      'Darowizna — rzuć dwiema kostkami',
@@ -2505,6 +2519,7 @@ function applyLang() {
   if (document.getElementById('game-screen')?.classList.contains('active')) {
     renderGame();
     drawBoard(); // refresh canvas text (board labels are language-specific)
+    if (typeof _rerenderAction === 'function') _rerenderAction(); // re-render action area
   }
   // Refresh action area text for online waiting bar
   const wb = document.getElementById('online-waiting-bar');
@@ -2681,6 +2696,7 @@ let state = {
   currentPlayerIdx: 0,
   turn: 1,
   currentCard: null,
+  loansThisTurn: 0,   // max 1 loan per turn
   market: {}
 };
 
@@ -2863,20 +2879,24 @@ function monthlyCashflow(p) {
 }
 
 function beginTurn() {
+  state.loansThisTurn = 0;  // reset loan counter for new turn
   renderGame();
   updateOnlineWaiting();
   const p = currentPlayer();
 
   // Online: show waiting state when it's not my turn
   if (isOnline && !isMyTurn()) {
-    document.getElementById("action-area").innerHTML = `
-      <div class="ac" style="text-align:center;">
-        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind')}</div>
-        <div style="padding:32px 20px;">
-          <div style="font-size:40px;margin-bottom:12px;">⏳</div>
-          <div style="font-size:17px;font-weight:700;">${t('game.waiting_for', p.name)}</div>
-        </div>
-      </div>`;
+    setAction(() => {
+      const _p = currentPlayer();
+      document.getElementById("action-area").innerHTML = `
+        <div class="ac" style="text-align:center;">
+          <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${_p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind')}</div>
+          <div style="padding:32px 20px;">
+            <div style="font-size:40px;margin-bottom:12px;">⏳</div>
+            <div style="font-size:17px;font-weight:700;">${t('game.waiting_for', _p.name)}</div>
+          </div>
+        </div>`;
+    });
     return;
   }
 
@@ -2885,15 +2905,18 @@ function beginTurn() {
     renderAction_EndTurn(t('turn.laid_off', p.name, p.layoffTurnsLeft));
     return;
   }
-  document.getElementById("action-area").innerHTML = `
-    <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind')}</div>
-      <div class="ac-title">${p.name} — <span style="color:var(--muted);font-size:15px;">${p.profKey ? profName(p.profKey) : p.profession}</span></div>
-      <div style="padding:28px; text-align:center;">
-        <div class="dice-row" id="die-result"><span class="die-face">?</span></div>
-        <button id="roll-button" class="btn btn-primary" style="font-size:17px; padding:15px 52px; margin-top:8px;" onclick="rollDice()">${t('game.roll_dice')}</button>
-      </div>
-    </div>`;
+  setAction(() => {
+    const _p = currentPlayer();
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#1e3a8a,#2563eb)">${_p.onFastTrack ? t('game.freedom_track') : t('game.daily_grind')}</div>
+        <div class="ac-title">${_p.name} — <span style="color:var(--muted);font-size:15px;">${_p.profKey ? profName(_p.profKey) : _p.profession}</span></div>
+        <div style="padding:28px; text-align:center;">
+          <div class="dice-row" id="die-result"><span class="die-face">?</span></div>
+          <button id="roll-button" class="btn btn-primary" style="font-size:17px; padding:15px 52px; margin-top:8px;" onclick="rollDice()">${t('game.roll_dice')}</button>
+        </div>
+      </div>`;
+  });
 }
 
 function formatDice(values, rolling=false) {
@@ -3044,32 +3067,33 @@ function showDealCard() {
   const card = state.currentCard;
   if (card.isStockMarket) { showStockDealCard(card); return; }
 
-  const p = currentPlayer();
   updateCashBar();
-  const canBuy = p.cash >= card.downpayment;
-  const dealSize = card.downpayment > SMALL_DEAL_LIMIT ? t('deal.size_big') : t('deal.size_small');
-
-  document.getElementById("action-area").innerHTML = `
-    <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#1e40af,#3b82f6)">${dealSize.toUpperCase()}</div>
-      <div class="ac-title">${dealTitle(card)}</div>
-      <div style="padding:20px;">
-        <p style="color:#c8e6ff; margin-bottom:12px;">${dealDesc(card)}</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; padding:14px; background:rgba(4,12,28,0.6); border-radius:10px; border:1px solid rgba(56,189,248,0.12);">
-          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.down_payment')}</div><div style="font-size:20px; font-weight:900; color:var(--accent);">$${card.downpayment.toLocaleString()}</div></div>
-          <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.monthly_cf')}</div><div style="font-size:20px; font-weight:900; color:var(--profit);">+$${card.cashflow}${t('player.per_mo')}</div></div>
+  setAction(() => {
+    const p = currentPlayer();
+    const canBuy = p.cash >= card.downpayment;
+    const dealSize = card.downpayment > SMALL_DEAL_LIMIT ? t('deal.size_big') : t('deal.size_small');
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#1e40af,#3b82f6)">${dealSize.toUpperCase()}</div>
+        <div class="ac-title">${dealTitle(card)}</div>
+        <div style="padding:20px;">
+          <p style="color:#c8e6ff; margin-bottom:12px;">${dealDesc(card)}</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; padding:14px; background:rgba(4,12,28,0.6); border-radius:10px; border:1px solid rgba(56,189,248,0.12);">
+            <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.down_payment')}</div><div style="font-size:20px; font-weight:900; color:var(--accent);">$${card.downpayment.toLocaleString()}</div></div>
+            <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.monthly_cf')}</div><div style="font-size:20px; font-weight:900; color:var(--profit);">+$${card.cashflow}${t('player.per_mo')}</div></div>
+          </div>
+          <div style="margin-bottom:20px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:14px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+            <span>${t('deal.your_cash_lbl')} <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:18px;">$${p.cash.toLocaleString()}</strong></span>
+            ${canBuy ? '' : `<span style="color:var(--loss); font-size:13px;">${t('deal.need_more', (card.downpayment - p.cash).toLocaleString())}</span>`}
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_deal')}</button>
+            <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
+            <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
+          </div>
         </div>
-        <div style="margin-bottom:20px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:14px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-          <span>${t('deal.your_cash_lbl')} <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:18px;">$${p.cash.toLocaleString()}</strong></span>
-          ${canBuy ? '' : `<span style="color:var(--loss); font-size:13px;">${t('deal.need_more', (card.downpayment - p.cash).toLocaleString())}</span>`}
-        </div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_deal')}</button>
-          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
-        </div>
-      </div>
-    </div>`;
+      </div>`;
+  });
 }
 
 function buildCandleChart(symbol) {
@@ -3156,41 +3180,45 @@ function showStockDealCard(card) {
     }
   }
 
-  document.getElementById("action-area").innerHTML = `
-    <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">${t('deal.stock_mkt_hd')}</div>
-      <div class="stock-card">
-        <div class="stock-card-head">
-          <div class="stock-icon">${card.symbol.slice(0,2)}</div>
-          <div>
-            <div class="stock-title">${card.symbol} ${trendBadge}</div>
-            <div class="stock-subtitle">${card.sector} · ${card.title}</div>
+  setAction(() => {
+    const p   = currentPlayer();
+    const canBuy = p.cash >= card.sharePrice;
+    const owned  = sharesOwned(p, card.symbol);
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">${t('deal.stock_mkt_hd')}</div>
+        <div class="stock-card">
+          <div class="stock-card-head">
+            <div class="stock-icon">${card.symbol.slice(0,2)}</div>
+            <div>
+              <div class="stock-title">${card.symbol} ${trendBadge}</div>
+              <div class="stock-subtitle">${card.sector} · ${card.title}</div>
+            </div>
+          </div>
+          <p style="color:#c8e6ff; font-size:13px; margin-bottom:8px;">${dealDesc(card)}</p>
+          ${breakoutNote}
+          <div class="stock-chart" aria-label="Candlestick chart">${buildCandleChart(card.symbol)}</div>
+          <div class="stock-stats">
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.price_share')}</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.normal_range')}</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.owned')}</span><strong>${owned} ${t('liq.shares')}</strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.total_cost_lbl')}</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
+          </div>
+          <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+            <span>💰 Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:17px;">$${p.cash.toLocaleString()}</strong></span>
+            ${!canBuy ? `<span style="color:var(--loss); font-size:12px;">${t('deal.need_more', (card.sharePrice - p.cash).toLocaleString())}</span>` : ''}
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_shares')}</button>
+            ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">${t('deal.sell_sym', card.symbol)}</button>` : ''}
+            <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
+            <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
           </div>
         </div>
-        <p style="color:#c8e6ff; font-size:13px; margin-bottom:8px;">${dealDesc(card)}</p>
-        ${breakoutNote}
-        <div class="stock-chart" aria-label="Candlestick chart">${buildCandleChart(card.symbol)}</div>
-        <div class="stock-stats">
-          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.price_share')}</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.normal_range')}</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.owned')}</span><strong>${owned} ${t('liq.shares')}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">${t('deal.total_cost_lbl')}</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
-        </div>
-        <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-          <span>💰 Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:17px;">$${p.cash.toLocaleString()}</strong></span>
-          ${!canBuy ? `<span style="color:var(--loss); font-size:12px;">${t('deal.need_more', (card.sharePrice - p.cash).toLocaleString())}</span>` : ''}
-        </div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_shares')}</button>
-          ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">${t('deal.sell_sym', card.symbol)}</button>` : ''}
-          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
-        </div>
-      </div>
-    </div>`;
-
-  updateStockBuyCost(card.symbol);
+      </div>`;
+    updateStockBuyCost(card.symbol);
+  });
 }
 
 function buyDeal() {
@@ -3378,6 +3406,9 @@ function showBankruptcyModal(p) {
   const deficit = Math.abs(p.cash);
   const tiers   = calcCreditTiers(p);
 
+  // ── Detect "no-history" bankrupt: no liabilities AND no assets
+  const hasNoHistory = p.liabilities.length === 0 && p.assets.length === 0;
+
   function loanBtn(amount, tierKey) {
     if (amount <= 0) return '';
     const terms    = loanTermsForAmount(amount, tiers);
@@ -3400,12 +3431,46 @@ function showBankruptcyModal(p) {
       </button>`;
   }
 
+  // Usury loan button (100% interest, 20%/mo) — only option when player has no history
+  function usuryloanBtn(amount) {
+    if (amount <= 0) return '';
+    const interestRate = 1.00;  // 100%
+    const monthlyRate  = 0.20;
+    const repay    = Math.round(amount * (1 + interestRate));
+    const payment  = Math.round(repay * monthlyRate);
+    const cfAfter  = (p.salary + p.passiveIncome) - totalExpenses(p) - payment;
+    const cfColor  = cfAfter >= 0 ? 'var(--grn)' : 'var(--loss)';
+    return `
+      <button class="btn btn-secondary" onclick="emergencyLoan(${amount},${interestRate},${monthlyRate})" style="border-color:rgba(239,68,68,0.5);">
+        <div style="font-size:15px;font-weight:900;color:var(--loss);">${t('bankrupt.usury_lbl')}</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:3px;">
+          ${t('bankrupt.borrow_line', amount.toLocaleString(), repay.toLocaleString(), payment.toLocaleString())}
+          <span style="color:var(--loss);"> · 100% interest</span>
+        </div>
+        <div style="font-size:11px;margin-top:3px;color:${cfColor};">${t('bankrupt.cf_after', cfAfter.toLocaleString())}</div>
+      </button>`;
+  }
+
   const neededAmount  = Math.ceil(deficit / 100) * 100;
   const stdAmount     = Math.min(neededAmount, tiers.standard);
   const extAmount     = Math.min(neededAmount, tiers.extended);
 
+  // ── Already took a loan this turn — block all loan options
   let loanSection = '';
-  if (tiers.extended <= 0) {
+  if (state.loansThisTurn >= 1) {
+    loanSection = `
+      <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:var(--loss);">🚫 ${t('loan.limit_reached')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${t('bankrupt.sell_sub')}</div>
+      </div>`;
+  } else if (hasNoHistory) {
+    // No liabilities, no assets — bank refuses standard credit, offers usury only
+    loanSection = `
+      <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:700;color:var(--loss);">${t('bankrupt.no_history')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${t('bankrupt.no_history_sub')}</div>
+      </div>` + usuryloanBtn(neededAmount);
+  } else if (tiers.extended <= 0) {
     loanSection = `
       <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;">
         <div style="font-size:13px;font-weight:700;color:var(--loss);">${t('bankrupt.no_credit')}</div>
@@ -3472,13 +3537,14 @@ function showLiquidateModal() {
 
   sellable.forEach((asset, i) => {
     if (asset.type === 'stock') {
-      const curPrice = state.market[asset.symbol] || asset.sharePrice || 1;
-      const curVal = asset.shares * curPrice;
+      // Bankruptcy: sell at purchase price (sharePrice), not current market
+      const purchasePrice = asset.sharePrice || 1;
+      const purchaseVal   = asset.shares * purchasePrice;
       html += `
         <div style="padding:12px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
             <strong style="color:var(--accent);">${asset.symbol}</strong>
-            <span style="font-size:12px;">${asset.shares} ${t('liq.shares')} @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+            <span style="font-size:12px;">${asset.shares} ${t('liq.shares')} @ $${purchasePrice} <span style="color:var(--muted);">(${t('liq.purchase_price')})</span> = <strong>$${purchaseVal.toLocaleString()}</strong></span>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <input type="number" id="liq-qty-${i}" min="1" max="${asset.shares}" value="${asset.shares}"
@@ -3488,16 +3554,17 @@ function showLiquidateModal() {
           </div>
         </div>`;
     } else {
-      const salePrice = asset.price || asset.cost || asset.value || 0;
+      // Bankruptcy: sell at invested amount (downpayment = asset.value), not market price
+      const salePrice = asset.value || 0;
       html += `
         <div style="padding:12px;background:rgba(4,12,28,0.7);border:1px solid rgba(251,63,95,0.2);border-radius:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div>
               <strong style="color:#e2e8f0;">${assetDisplayName(asset)}</strong>
-              <div style="font-size:12px;color:var(--muted);margin-top:2px;">${asset.type} · cashflow $${(asset.cashflow||0).toLocaleString()}/mo</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">${asset.type} · cashflow $${(asset.cashflow||0).toLocaleString()}/mo · <span style="color:var(--muted);">${t('liq.purchase_price')}</span></div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:14px;font-weight:900;color:var(--profit);">$${salePrice.toLocaleString()}</div>
+              <div style="font-size:14px;font-weight:900;color:var(--accent);">$${salePrice.toLocaleString()}</div>
               <button class="btn btn-danger-act" style="margin-top:6px;padding:6px 12px;font-size:12px;" onclick="liquidateSell(${i})">${t('liq.sell')}</button>
             </div>
           </div>
@@ -3519,17 +3586,19 @@ function liquidateSell(idx) {
   if (asset.type === 'stock') {
     const qtyInput = document.getElementById(`liq-qty-${idx}`);
     const qty = Math.max(1, Math.min(asset.shares, parseInt(qtyInput?.value, 10) || asset.shares));
-    const curPrice = state.market[asset.symbol] || asset.sharePrice || 1;
-    proceeds = qty * curPrice;
+    // Bankruptcy: sell at purchase price, not current market price
+    const purchasePrice = asset.sharePrice || 1;
+    proceeds = qty * purchasePrice;
     if (qty >= asset.shares) {
       p.assets.splice(p.assets.indexOf(asset), 1);
     } else {
       asset.shares -= qty;
-      asset.value = Math.round(asset.value * (asset.shares / (asset.shares + qty)));
+      asset.value = (asset.shares) * purchasePrice;
     }
     showNotif(t('notif.sold_liq_stock', qty, asset.symbol, proceeds.toLocaleString()), "success");
   } else {
-    proceeds = asset.price || asset.cost || asset.value || 0;
+    // Bankruptcy: sell at invested amount (downpayment), not market price
+    proceeds = asset.value || 0;
     // Remove associated liability if any
     const liIdx = p.liabilities.findIndex(l => l.name === asset.name);
     if (liIdx !== -1) p.liabilities.splice(liIdx, 1);
@@ -3545,11 +3614,9 @@ function liquidateSell(idx) {
     if (p.cash < 0) showLiquidateModal();
     else {
       showNotif(t('notif.crisis_ok'), "success");
-      if (state.currentCard) {
-        state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard();
-      } else {
-        renderAction_EndTurn(t('space.crisis'));
-      }
+      // Bankruptcy always takes priority — forfeit any deal that was pending
+      state.currentCard = null;
+      renderAction_EndTurn(t('space.crisis'));
     }
   }, 350);
 }
@@ -3562,6 +3629,7 @@ function emergencyLoan(amount, interestRate = 0.10, monthlyRate = 0.10) {
   const loanName    = isHighRisk ? t('loan.name_highrisk') : t('loan.name_emergency');
   p.cash += amount;
   p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
+  state.loansThisTurn++;
   recalcPassive(p);
   renderGame();
   closeModal();
@@ -3614,21 +3682,22 @@ function handleBaby() {
 }
 
 function handleCharity() {
-  const p = currentPlayer();
-  const cost = Math.max(100, Math.round(monthlyCashflow(p) * 0.1));
-  const canDonate = p.cash >= cost;
-  document.getElementById("action-area").innerHTML = `
-    <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#065f46,#10b981)">${t('charity.hd')}</div>
-      <div class="ac-title">${t('charity.title_ac')}</div>
-      <div style="padding:20px;">
-        <p>${t('charity.desc', cost.toLocaleString())}</p>
-        <div style="display:flex; gap:12px; margin-top:20px;">
-          <button class="btn btn-invest" onclick="donateToCharity(${cost})" ${canDonate?'':'disabled'}>${t('charity.donate_btn', cost.toLocaleString())}</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.charity_skipped'))">${t('charity.pass')}</button>
+  const _cost = Math.max(100, Math.round(monthlyCashflow(currentPlayer()) * 0.1));
+  setAction(() => {
+    const canDonate = currentPlayer().cash >= _cost;
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#065f46,#10b981)">${t('charity.hd')}</div>
+        <div class="ac-title">${t('charity.title_ac')}</div>
+        <div style="padding:20px;">
+          <p>${t('charity.desc', _cost.toLocaleString())}</p>
+          <div style="display:flex; gap:12px; margin-top:20px;">
+            <button class="btn btn-invest" onclick="donateToCharity(${_cost})" ${canDonate?'':'disabled'}>${t('charity.donate_btn', _cost.toLocaleString())}</button>
+            <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.charity_skipped'))">${t('charity.pass')}</button>
+          </div>
         </div>
-      </div>
-    </div>`;
+      </div>`;
+  });
 }
 
 function donateToCharity(cost) {
@@ -3721,24 +3790,27 @@ function handleOwnDreamLanding(p) {
   const isFinanciallyFree = p.passiveIncome >= totalExpenses(p);
 
   if (canAfford && isFinanciallyFree) {
-    document.getElementById("action-area").innerHTML = `
-      <div class="ac">
-        <div class="ac-head" style="background:linear-gradient(90deg,#4c1d95,#7c3aed)">${t('freedom.hd')}</div>
-        <div class="ac-title">${dream.icon} ${dreamTitle(dream)}</div>
-        <div style="padding:20px;">
-          <p style="color:#c8e6ff;margin-bottom:14px;">${dreamDesc(dream)}</p>
-          <div style="padding:14px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;margin-bottom:18px;">
-            <div style="margin-bottom:6px;">${t('freedom.dream_cost')} <strong style="color:#a78bfa;">$${dream.cost.toLocaleString()}</strong></div>
-            <div style="margin-bottom:6px;">${t('freedom.your_cash')} <strong style="color:var(--profit);">$${p.cash.toLocaleString()}</strong></div>
-            <div style="margin-bottom:6px;">${t('freedom.passive')} <strong style="color:var(--profit);">$${p.passiveIncome.toLocaleString()}/mo</strong></div>
-            <div>${t('freedom.expenses')} <strong>$${totalExpenses(p).toLocaleString()}/mo</strong></div>
+    setAction(() => {
+      const _p = currentPlayer();
+      document.getElementById("action-area").innerHTML = `
+        <div class="ac">
+          <div class="ac-head" style="background:linear-gradient(90deg,#4c1d95,#7c3aed)">${t('freedom.hd')}</div>
+          <div class="ac-title">${dream.icon} ${dreamTitle(dream)}</div>
+          <div style="padding:20px;">
+            <p style="color:#c8e6ff;margin-bottom:14px;">${dreamDesc(dream)}</p>
+            <div style="padding:14px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;margin-bottom:18px;">
+              <div style="margin-bottom:6px;">${t('freedom.dream_cost')} <strong style="color:#a78bfa;">$${dream.cost.toLocaleString()}</strong></div>
+              <div style="margin-bottom:6px;">${t('freedom.your_cash')} <strong style="color:var(--profit);">$${_p.cash.toLocaleString()}</strong></div>
+              <div style="margin-bottom:6px;">${t('freedom.passive')} <strong style="color:var(--profit);">$${_p.passiveIncome.toLocaleString()}/mo</strong></div>
+              <div>${t('freedom.expenses')} <strong>$${totalExpenses(_p).toLocaleString()}/mo</strong></div>
+            </div>
+            <div style="padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;margin-bottom:16px;font-size:13px;color:#4ade80;">
+              ${t('freedom.free_msg')}
+            </div>
+            <button class="btn btn-primary" style="width:100%;font-size:17px;padding:16px;" onclick="buyDream()">${t('freedom.buy_btn')}</button>
           </div>
-          <div style="padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;margin-bottom:16px;font-size:13px;color:#4ade80;">
-            ${t('freedom.free_msg')}
-          </div>
-          <button class="btn btn-primary" style="width:100%;font-size:17px;padding:16px;" onclick="buyDream()">${t('freedom.buy_btn')}</button>
-        </div>
-      </div>`;
+        </div>`;
+    });
     return;
   }
 
@@ -3785,16 +3857,18 @@ function showWin(p, details) {
 
 function drawSplurge() {
   const card = SPLURGES[Math.floor(Math.random() * SPLURGES.length)];
-  document.getElementById("action-area").innerHTML = `
-    <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">${t('splurge.hd')}</div>
-      <div class="ac-title">${splurgeTitle(card)}</div>
-      <div style="padding:20px;">
-        <p style="color:#fca5a5; margin-bottom:12px;">${splurgeDesc(card)}</p>
-        <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:20px;">−$${card.cost.toLocaleString()}</div>
-        <button class="btn btn-danger-act" style="width:100%;" onclick="paySplurge(${card.cost})">${t('splurge.pay_btn')}</button>
-      </div>
-    </div>`;
+  setAction(() => {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">${t('splurge.hd')}</div>
+        <div class="ac-title">${splurgeTitle(card)}</div>
+        <div style="padding:20px;">
+          <p style="color:#fca5a5; margin-bottom:12px;">${splurgeDesc(card)}</p>
+          <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:20px;">−$${card.cost.toLocaleString()}</div>
+          <button class="btn btn-danger-act" style="width:100%;" onclick="paySplurge(${card.cost})">${t('splurge.pay_btn')}</button>
+        </div>
+      </div>`;
+  });
 }
 
 function paySplurge(cost) {
@@ -3807,18 +3881,20 @@ function paySplurge(cost) {
 
 function renderAction_EndTurn(msg) {
   syncState(); // broadcast current state to all online players
-  const p = currentPlayer();
-  const hasLiabilities = p.liabilities && p.liabilities.length > 0;
-  document.getElementById("action-area").innerHTML = `
-    <div class="ac">
-      <div class="ac-title" style="color:var(--accent);">${t('game.turn_complete')}</div>
-      <div style="padding:20px 30px; text-align:center; font-size:16px; color:#c8e6ff;">${msg}</div>
-      <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
-        ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
-        <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
-        <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
-      </div>
-    </div>`;
+  setAction(() => {
+    const p = currentPlayer();
+    const hasLiabilities = p.liabilities && p.liabilities.length > 0;
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-title" style="color:var(--accent);">${t('game.turn_complete')}</div>
+        <div style="padding:20px 30px; text-align:center; font-size:16px; color:#c8e6ff;">${msg}</div>
+        <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
+          ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
+          <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
+          <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
+        </div>
+      </div>`;
+  });
 }
 
 function showPayLiabilityModal() {
@@ -3855,6 +3931,10 @@ function payLiability(liabilityIndex) {
 }
 
 function showTakeLoanModal() {
+  if (state.loansThisTurn >= 1) {
+    showNotif(t('loan.limit_reached'), "error");
+    return;
+  }
   const p      = currentPlayer();
   const tiers  = calcCreditTiers(p);
   const curCF  = (p.salary + p.passiveIncome) - totalExpenses(p);
@@ -3930,6 +4010,7 @@ function confirmTakeLoan() {
   const loanName   = terms.tier === 'extended' ? t('loan.name_highrisk') : t('loan.name_bank');
   p.cash += amount;
   p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
+  state.loansThisTurn++;
   recalcPassive(p);
   renderGame();
   closeModal();
@@ -4098,7 +4179,7 @@ function showTurnConfirmation(player, callback) {
   avatar.textContent = player.name.charAt(0).toUpperCase();
   nameEl.textContent = player.name;
   nameEl.style.color = player.color;
-  profEl.textContent = player.profession;
+  profEl.textContent = player.profKey ? profName(player.profKey) : player.profession;
 
   overlay.classList.add("active");
   btn.onclick = () => {
@@ -4537,15 +4618,18 @@ function chooseDream(idx) {
   // Online: only the player whose turn it is picks their dream
   if (isOnline && idx !== myPlayerIdx) {
     // Show a waiting message in the action area for non-choosers
-    document.getElementById('action-area').innerHTML = `
-      <div class="ac" style="text-align:center;">
-        <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${t('dream.selection_hd', idx+1, state.players.length)}</div>
-        <div style="padding:32px 20px;">
-          <div style="font-size:40px;margin-bottom:12px;">🌙</div>
-          <div style="font-size:16px;font-weight:700;">${t('dream.waiting_msg', p.name)}</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:6px;">${t('dream.to_choose')}</div>
-        </div>
-      </div>`;
+    const _idx = idx, _pName = p.name, _total = state.players.length;
+    setAction(() => {
+      document.getElementById('action-area').innerHTML = `
+        <div class="ac" style="text-align:center;">
+          <div class="ac-head" style="background:linear-gradient(90deg,var(--pur-d),var(--pur))">${t('dream.selection_hd', _idx+1, _total)}</div>
+          <div style="padding:32px 20px;">
+            <div style="font-size:40px;margin-bottom:12px;">🌙</div>
+            <div style="font-size:16px;font-weight:700;">${t('dream.waiting_msg', _pName)}</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px;">${t('dream.to_choose')}</div>
+          </div>
+        </div>`;
+    });
     return;
   }
 
@@ -4695,6 +4779,14 @@ let _lastTurnIdx = -1;     // detects whose turn just started
 // ── Screen navigation ────────────────────────────────────────
 // ── Mobile panel helpers ──────────────────────────────────────
 let _mobileOpenPanel = null;
+let _rerenderAction  = null;   // stores the last action render fn for language re-render
+
+// Call this instead of setting action-area.innerHTML directly.
+// Stores the renderer so applyLang() can re-run it after a language switch.
+function setAction(fn) {
+  _rerenderAction = fn;
+  fn();
+}
 
 function openMobilePanel(side) {
   closeMobilePanel(true);

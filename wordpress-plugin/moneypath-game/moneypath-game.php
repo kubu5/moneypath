@@ -66,10 +66,10 @@ function moneypath_settings_page() {
                                name="moneypath_server_url"
                                value="<?php echo esc_attr(get_option('moneypath_server_url')); ?>"
                                class="regular-text"
-                               placeholder="https://moneypath.railway.app">
+                               placeholder="https://game.littleexplorers.pl">
                         <p class="description">
                             Full URL of your deployed Node.js server, e.g.
-                            <code>https://moneypath-production.up.railway.app</code>
+                            <code>https://game.littleexplorers.pl</code>
                         </p>
                     </td>
                 </tr>
