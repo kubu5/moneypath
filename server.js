@@ -229,6 +229,51 @@ function handle(ws, msg) {
       break;
     }
 
+    case 'rejoin_game': {
+      const g = games.get(msg.gameId);
+      if (!g)         return send(ws, { type: 'error', message: 'Game not found' });
+      if (!g.started) return send(ws, { type: 'error', message: 'Game not started yet' });
+      if (!g.state)   return send(ws, { type: 'error', message: 'No state available' });
+
+      // Find the player in the saved game state
+      const statePlayers = g.state.players || [];
+      const playerIdx    = statePlayers.findIndex(p => p.id === msg.playerId);
+      if (playerIdx === -1) return send(ws, { type: 'error', message: 'Player not found in game' });
+
+      const playerData = statePlayers[playerIdx];
+
+      // Re-register in the connected-players list (replace if already listed)
+      const existingSlot = g.players.findIndex(p => p.id === msg.playerId);
+      if (existingSlot !== -1) {
+        g.players[existingSlot].ws = ws;
+      } else {
+        g.players.push({ ws, id: msg.playerId, name: playerData.name, color: playerData.color, idx: playerIdx });
+      }
+      clientMeta.set(ws, { gameId: msg.gameId, playerId: msg.playerId });
+
+      // If the original host is gone, promote the rejoining player if no host exists
+      const hostAlive = g.players.some(p => p.ws === g.hostWs && p.ws.readyState === 1);
+      if (!hostAlive) g.hostWs = ws;
+      const amHost = g.hostWs === ws;
+
+      send(ws, {
+        type:       'rejoined_game',
+        playerIdx,
+        gameId:     msg.gameId,
+        isHost:     amHost,
+        state:      g.state,
+        players:    g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+      });
+
+      broadcast(msg.gameId, {
+        type:        'player_rejoined',
+        playerId:    msg.playerId,
+        playerName:  playerData.name,
+        players:     g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+      }, ws);
+      break;
+    }
+
     case 'ping': {
       send(ws, { type: 'pong' });
       break;

@@ -1209,6 +1209,28 @@ input:focus, select:focus {
 @media (max-width: 820px) {
 
   /* ─────────────────────────────────────────────────────────────
+     ROTATE-DEVICE OVERLAY — shown in landscape on mobile
+  ───────────────────────────────────────────────────────────── */
+  #rotate-overlay {
+    display: none; /* hidden by default; shown via media query below */
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #04101e;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #e2e8f0;
+  }
+  #rotate-overlay-inner {
+    padding: 32px;
+    max-width: 320px;
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    #rotate-overlay { display: flex !important; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
      MENU / SETUP SCREENS — edge-to-edge app feel
   ───────────────────────────────────────────────────────────── */
   body {
@@ -1645,7 +1667,13 @@ body { padding-top: 44px; }
         </div>
       </div>
 
-      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:18px;" onclick="goScreen('menu')" data-i18n="online.back">← Back</button>
+      <!-- Rejoin banner — shown only when a saved session exists -->
+      <div id="rejoin-banner" style="display:none; background:linear-gradient(135deg,rgba(56,189,248,0.12),rgba(34,197,94,0.10)); border:1.5px solid rgba(56,189,248,0.35); border-radius:12px; padding:14px 16px; margin-top:14px;">
+        <div style="font-size:12px; color:var(--muted); margin-bottom:6px;" data-i18n="online.rejoin_hint">You were in a game. Tap to reconnect.</div>
+        <button class="btn btn-primary" style="width:100%; padding:12px; font-size:14px;" onclick="onlineRejoinGame()" data-i18n="online.rejoin_btn">🔄 Rejoin Last Game</button>
+      </div>
+
+      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:14px;" onclick="goScreen('menu')" data-i18n="online.back">← Back</button>
     </div>
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
@@ -1818,6 +1846,15 @@ body { padding-top: 44px; }
 <!-- Mobile backdrop — dims board when a side panel is open -->
 <div id="mobile-backdrop" onclick="closeMobilePanel()"></div>
 
+<!-- Rotate-device overlay — shown when mobile is in landscape -->
+<div id="rotate-overlay">
+  <div id="rotate-overlay-inner">
+    <div style="font-size:56px;margin-bottom:12px;">📱</div>
+    <div id="rotate-overlay-msg" style="font-size:17px;font-weight:700;margin-bottom:6px;">Obróć urządzenie</div>
+    <div style="font-size:13px;opacity:0.7;">MoneyPath wymaga trybu pionowego</div>
+  </div>
+</div>
+
 <!-- Mobile bottom navigation — shown only during game (via JS) -->
 <div id="mobile-bottom-nav">
   <button class="mob-nav-btn" id="mob-btn-players" onclick="toggleMobilePanel('left')">
@@ -1861,6 +1898,10 @@ const STRINGS = {
     'online.available':      'Available Games',
     'online.refresh':        '🔄 Refresh',
     'online.back':           '← Back',
+    'online.leave_confirm':  'You are in an active game. Are you sure you want to leave and disconnect?',
+    'online.rejoin_btn':     '🔄 Rejoin Last Game',
+    'online.rejoin_hint':    'You were in a game. Tap to reconnect.',
+    'online.rejoin_fail':    'Game not found or already ended.',
     'online.no_games':       'No open games. Create one above!',
     'online.checking':       'Checking for games...',
     'online.loading':        'Loading…',
@@ -2185,6 +2226,10 @@ const STRINGS = {
     'online.available':      'Dostępne gry',
     'online.refresh':        '🔄 Odśwież',
     'online.back':           '← Wróć',
+    'online.leave_confirm':  'Jesteś w aktywnej grze. Na pewno chcesz wyjść i rozłączyć się?',
+    'online.rejoin_btn':     '🔄 Wróć do poprzedniej gry',
+    'online.rejoin_hint':    'Byłeś w grze. Kliknij aby wrócić.',
+    'online.rejoin_fail':    'Gra nie istnieje lub już się zakończyła.',
     'online.no_games':       'Brak otwartych gier. Utwórz nową powyżej!',
     'online.checking':       'Wyszukiwanie gier...',
     'online.loading':        'Ładowanie…',
@@ -2526,6 +2571,7 @@ function applyLang() {
     drawBoard(); // refresh canvas text (board labels are language-specific)
     if (typeof _rerenderAction === 'function') _rerenderAction(); // re-render action area
   }
+  updateRotateOverlayLang();
   // Refresh action area text for online waiting bar
   const wb = document.getElementById('online-waiting-bar');
   if (wb && !wb.style.display?.includes('none')) wb.textContent = t('game.waiting_bar');
@@ -4779,6 +4825,84 @@ document.addEventListener('touchmove', function(e) {
 }, { passive: false });
 document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
 
+// ── LOCK SCREEN ORIENTATION TO PORTRAIT (mobile) ──
+(function tryLockOrientation() {
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(() => {});
+    } else if (screen.lockOrientation) {
+      screen.lockOrientation('portrait-primary');
+    } else if (screen.mozLockOrientation) {
+      screen.mozLockOrientation('portrait-primary');
+    }
+  } catch(e) {}
+})();
+
+// ── LEAVE / REFRESH / BACK GUARD ──
+// Warn when user tries to close or navigate away while in an online game.
+window.addEventListener('beforeunload', function(e) {
+  if (isOnline) {
+    e.preventDefault();
+    e.returnValue = ''; // required by Chrome to show native dialog
+  }
+});
+
+// Push a dummy history entry so we can intercept the back button.
+history.pushState({ mp: true }, '');
+window.addEventListener('popstate', function() {
+  // Always push back so the URL stays the same (single-page app)
+  history.pushState({ mp: true }, '');
+  if (isOnline) {
+    if (confirm(t('online.leave_confirm'))) {
+      leaveOnlineGame();
+    }
+  }
+});
+
+// ── SESSION PERSISTENCE (rejoin support) ──
+function saveOnlineSession(gameId, playerId, playerName, playerColor, playerIdx) {
+  try {
+    localStorage.setItem('mp_session', JSON.stringify({
+      gameId, playerId, playerName, playerColor, playerIdx,
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function clearOnlineSession() {
+  try { localStorage.removeItem('mp_session'); } catch(e) {}
+}
+
+function loadOnlineSession() {
+  try {
+    const raw = localStorage.getItem('mp_session');
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    // Discard sessions older than 2 hours
+    if (Date.now() - s.ts > 2 * 60 * 60 * 1000) { clearOnlineSession(); return null; }
+    return s;
+  } catch(e) { return null; }
+}
+
+// Graceful leave helper — clears session and disconnects
+function leaveOnlineGame() {
+  clearOnlineSession();
+  if (wsConn) { wsConn.close(); wsConn = null; }
+  isOnline = false; isHost = false; myPlayerIdx = -1;
+  _rerenderAction = null;
+  goScreen('menu');
+}
+
+// Update rotate-overlay message text when language changes
+function updateRotateOverlayLang() {
+  const el = document.getElementById('rotate-overlay-msg');
+  if (el) el.textContent = LANG === 'pl' ? 'Obróć urządzenie' : 'Rotate your device';
+  const sub = document.querySelector('#rotate-overlay-inner div:last-child');
+  if (sub) sub.textContent = LANG === 'pl'
+    ? 'MoneyPath wymaga trybu pionowego'
+    : 'MoneyPath requires portrait mode';
+}
+
 // ── THEME TOGGLE ──
 // ==================== ONLINE MULTIPLAYER ====================
 let isOnline    = false;   // true once game_started received
@@ -4786,7 +4910,8 @@ let isHost      = false;   // true for the player who created the room
 let myPlayerIdx = -1;      // which player am I (0-based)
 let myPlayerId  = null;    // random UUID for this session
 let wsConn      = null;    // WebSocket connection
-let roomPlayers = [];      // [{id, name, color, idx}] — populated as players join
+let roomPlayers  = [];      // [{id, name, color, idx}] — populated as players join
+let _savedGameId = null;   // gameId of the current room — for session save
 let _syncing    = false;   // prevents sync loops
 let _lastTurnIdx = -1;     // detects whose turn just started
 
@@ -4840,7 +4965,12 @@ function toggleMobilePanel(side) {
 function goScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(name + '-screen').classList.add('active');
-  if (name === 'online') refreshLobby();
+  if (name === 'online') {
+    refreshLobby();
+    // Show rejoin banner if there's an active saved session
+    const rjBanner = document.getElementById('rejoin-banner');
+    if (rjBanner) rjBanner.style.display = loadOnlineSession() ? 'block' : 'none';
+  }
   // game-active class: enables scroll-lock + bottom-nav on mobile
   document.body.classList.toggle('game-active', name === 'game');
   // Bottom nav: clear inline style so CSS media query controls it
@@ -4974,6 +5104,17 @@ function onlineJoinGame(gameId) {
   });
 }
 
+function onlineRejoinGame() {
+  const session = loadOnlineSession();
+  if (!session) { showNotif(t('online.rejoin_fail'), 'error'); return; }
+  myPlayerId  = session.playerId;
+  myPlayerIdx = session.playerIdx;
+  isHost      = false; // server will correct this if we're the host
+  connectWS(() => {
+    wsSend({ type: 'rejoin_game', gameId: session.gameId, playerId: session.playerId });
+  });
+}
+
 // ── Room UI ───────────────────────────────────────────────────
 function updateRoomUI(players) {
   roomPlayers = players;
@@ -4999,6 +5140,7 @@ function copyRoomCode() {
 }
 
 function leaveRoom() {
+  clearOnlineSession();
   if (wsConn) { wsConn.close(); wsConn = null; }
   isOnline = false; isHost = false; myPlayerIdx = -1;
   goScreen('menu');
@@ -5048,6 +5190,7 @@ function handleServerMsg(msg) {
   switch (msg.type) {
 
     case 'game_created': {
+      _savedGameId = msg.gameId;
       document.getElementById('room-code-display').textContent = msg.gameId;
       updateRoomUI(msg.players);
       goScreen('room');
@@ -5055,7 +5198,8 @@ function handleServerMsg(msg) {
     }
 
     case 'joined_game': {
-      myPlayerIdx = msg.playerIdx;
+      _savedGameId = msg.gameId;
+      myPlayerIdx  = msg.playerIdx;
       document.getElementById('room-code-display').textContent = msg.gameId;
       updateRoomUI(msg.players);
       goScreen('room');
@@ -5130,6 +5274,9 @@ function handleServerMsg(msg) {
       isOnline    = true;
       _lastTurnIdx = -1; // -1 so turnChanged is true when dream phase ends
       state = JSON.parse(JSON.stringify(msg.state));
+      // Save session so the player can rejoin if they disconnect
+      const _me = state.players[myPlayerIdx];
+      if (_me) saveOnlineSession(msg.gameId || _savedGameId, myPlayerId, _me.name, _me.color, myPlayerIdx);
       goScreen('game');
       initPanelsMobile();
       renderGame();
@@ -5204,6 +5351,33 @@ function handleServerMsg(msg) {
         updateOnlineWaiting();
         beginTurn(); // shows "waiting for X to play"
       }
+      break;
+    }
+
+    case 'rejoined_game': {
+      myPlayerIdx = msg.playerIdx;
+      isOnline    = true;
+      isHost      = msg.isHost || false;
+      _lastTurnIdx = -1;
+      state = JSON.parse(JSON.stringify(msg.state));
+      goScreen('game');
+      initPanelsMobile();
+      renderGame();
+      showNotif('🔄 ' + t('online.rejoin_btn').replace('🔄 ', '') + ' ✓', 'cashflow');
+      // If it's my turn, start it; otherwise show waiting bar
+      if (isMyTurn()) {
+        setTimeout(() => showTurnConfirmation(currentPlayer(), () => beginTurn()), 600);
+      } else {
+        updateOnlineWaiting();
+        beginTurn(); // shows waiting UI
+      }
+      break;
+    }
+
+    case 'player_rejoined': {
+      // Another player came back — update connected list and notify
+      showNotif(`🔄 ${htmlEsc(msg.playerName)} rejoined`, 'info');
+      // If game state has that player, nothing extra to do — next state_update covers it
       break;
     }
 
