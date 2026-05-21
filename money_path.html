@@ -3709,12 +3709,12 @@ function liquidateSell(idx) {
   p.cash += proceeds;
   recalcPassive(p);
   renderGame();
+  syncState();
   closeModal();
   setTimeout(() => {
     if (p.cash < 0) showLiquidateModal();
     else {
       showNotif(t('notif.crisis_ok'), "success");
-      // Bankruptcy always takes priority — forfeit any deal that was pending
       state.currentCard = null;
       renderAction_EndTurn(t('space.crisis'));
     }
@@ -3753,6 +3753,7 @@ function declareBankruptcy() {
       // Remove bankrupt player from state before sending transfer so new host gets clean state
       state.players.splice(state.currentPlayerIdx, 1);
       if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
+      state.hostPlayerId = nextHostPlayer.id;
       wsSend({ type: 'transfer_host', newHostId: nextHostPlayer.id, state: JSON.parse(JSON.stringify(state)) });
       renderGame();
       // Former host watches but no longer plays — show waiting UI
@@ -3788,7 +3789,7 @@ function handlePayday() {
   checkFastTrack(p);
   if (p.cash < 0) { checkSolvency(); return; }
   renderFS();
-  // Notyfikacja widoczna niezależnie od tego czy staje czy przekracza
+  syncState();
   const sign = cf >= 0 ? '+' : '';
   showNotif(t('notif.payday', salary.toLocaleString(), expenses.toLocaleString(), cf.toLocaleString(), sign), cf >= 0 ? "success" : "error");
 }
@@ -4137,6 +4138,7 @@ function confirmTakeLoan() {
   recalcPassive(p);
   renderGame();
   closeModal();
+  syncState();
   const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
   showNotif(t('notif.loan_taken', loanName, amount.toLocaleString(), repayAmount.toLocaleString(), cfAfter.toLocaleString()), cfAfter >= 0 ? "success" : "warning");
   if (state.currentCard) {
@@ -4339,15 +4341,22 @@ function updateTurnBanner() {
 
 function renderSidebar() {
   const el = document.getElementById("players-sidebar");
+  // In online mode, determine which player index is the host by matching
+  // state.players to the known host. We tag via state if available.
+  const hostPlayerId = state.hostPlayerId || null;
   el.innerHTML = state.players.map((p, i) => {
-    const isActive = i === state.currentPlayerIdx;
+    const isActive  = i === state.currentPlayerIdx;
+    const isMe      = isOnline && i === myPlayerIdx;
+    const isHostP   = hostPlayerId ? p.id === hostPlayerId : (!isOnline && i === 0);
     const cf = monthlyCashflow(p);
     return `
       <div style="padding:12px; background:${isActive?'rgba(56,189,248,0.08)':'rgba(8,20,40,0.5)'}; margin-bottom:8px; border-radius:10px; border:1px solid ${isActive?'rgba(56,189,248,0.3)':'rgba(56,189,248,0.06)'}; transition:all 0.3s;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
           <div style="width:8px; height:8px; border-radius:50%; background:${p.color}; box-shadow:0 0 6px ${p.color};"></div>
           <strong style="color:${p.color}; font-size:14px;">${p.name}</strong>
-          ${isActive ? `<span style="margin-left:auto; font-size:10px; color:var(--accent); letter-spacing:1px;">${t('player.active')}</span>` : ''}
+          ${isMe      ? `<span style="font-size:10px; background:rgba(76,175,125,0.18); color:var(--profit); border-radius:4px; padding:1px 5px;">YOU</span>` : ''}
+          ${isHostP   ? `<span style="font-size:10px; background:rgba(255,193,7,0.18); color:#f59e0b; border-radius:4px; padding:1px 5px;">HOST</span>` : ''}
+          ${isActive  ? `<span style="margin-left:auto; font-size:10px; color:var(--accent); letter-spacing:1px;">${t('player.active')}</span>` : ''}
         </div>
         <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">${p.profKey ? profName(p.profKey) : p.profession}</div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text);">
@@ -5058,11 +5067,13 @@ function goScreen(name) {
 
 // ── WebSocket connection — heartbeat + auto-reconnect ─────────
 let _heartbeatTimer  = null;
+let _autoSyncTimer   = null;
 let _reconnectTimer  = null;
 let _reconnectDelay  = 1500;   // ms, doubles each attempt up to MAX
 let _wsOnOpen        = null;   // callback for the current connectWS call
 const WS_MAX_DELAY   = 30000;
 const WS_PING_EVERY  = 25000;  // keep-alive interval (< typical 30-60s server timeout)
+const AUTO_SYNC_MS   = 5000;   // fallback sync every 5 s when no action occurs
 
 function startHeartbeat() {
   stopHeartbeat();
@@ -5070,10 +5081,15 @@ function startHeartbeat() {
     if (wsConn && wsConn.readyState === 1) wsSend({ type: 'ping' });
     else stopHeartbeat();
   }, WS_PING_EVERY);
+  // Auto-sync: host re-broadcasts state every 5 s as a catch-up for laggy clients
+  _autoSyncTimer = setInterval(() => {
+    if (isOnline && isHost && wsConn && wsConn.readyState === 1) syncState();
+  }, AUTO_SYNC_MS);
 }
 
 function stopHeartbeat() {
   if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+  if (_autoSyncTimer)  { clearInterval(_autoSyncTimer);  _autoSyncTimer  = null; }
 }
 
 function connectWS(onOpen) {
@@ -5289,9 +5305,12 @@ function handleServerMsg(msg) {
     }
 
     case 'host_transferred': {
-      // This client is the new host (disconnect-based transfer)
       isHost = true;
-      if (msg.state) state = JSON.parse(JSON.stringify(msg.state));
+      if (msg.state) {
+        state = JSON.parse(JSON.stringify(msg.state));
+        // Tag new host in state so sidebar badge updates
+        if (state.players[myPlayerIdx]) state.hostPlayerId = state.players[myPlayerIdx].id;
+      }
       showNotif(t('notif.you_host', msg.newHostName || '?'), 'cashflow');
       renderGame();
       if (isMyTurn()) {
@@ -5304,9 +5323,10 @@ function handleServerMsg(msg) {
     }
 
     case 'host_changed': {
-      // Another player became host (voluntary transfer — e.g. host went bankrupt)
       isHost = false;
+      if (msg.state) state = JSON.parse(JSON.stringify(msg.state));
       showNotif(t('notif.new_host', '?', msg.newHostName), 'info');
+      renderGame();
       break;
     }
 
@@ -5357,8 +5377,13 @@ function handleServerMsg(msg) {
     case 'game_started': {
       myPlayerIdx = msg.playerIdx;
       isOnline    = true;
+      isHost      = (myPlayerIdx === 0); // host is always the first player at game start
       _lastTurnIdx = -1; // -1 so turnChanged is true when dream phase ends
       state = JSON.parse(JSON.stringify(msg.state));
+      // Tag the host player ID in state so all clients can show HOST badge
+      if (isHost && state.players[myPlayerIdx]) {
+        state.hostPlayerId = state.players[myPlayerIdx].id;
+      }
       // Save session so the player can rejoin if they disconnect
       const _me = state.players[myPlayerIdx];
       if (_me) saveOnlineSession(msg.gameId || _savedGameId, myPlayerId, _me.name, _me.color, myPlayerIdx);
