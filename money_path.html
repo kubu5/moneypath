@@ -4368,7 +4368,10 @@ function liabName(l) {
 }
 
 function renderFS() {
-  const p = currentPlayer();
+  // In online mode always show the local player's own financial statement
+  const p = (isOnline && myPlayerIdx >= 0 && state.players[myPlayerIdx])
+    ? state.players[myPlayerIdx]
+    : currentPlayer();
   recalcPassive(p);
   const cf = monthlyCashflow(p);
   const expenses = totalExpenses(p);
