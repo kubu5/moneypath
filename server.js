@@ -229,6 +229,33 @@ function handle(ws, msg) {
       break;
     }
 
+    case 'transfer_host': {
+      // Host bankrupted in-game — voluntarily hands off host role to another player
+      const meta = clientMeta.get(ws);
+      if (!meta) return;
+      const g = games.get(meta.gameId);
+      if (!g || g.hostWs !== ws) return; // only current host may transfer
+
+      // Find the new host by playerId
+      const newHostSlot = g.players.find(p => p.id === msg.newHostId && p.ws !== ws);
+      if (!newHostSlot) return; // target not connected
+
+      g.hostWs = newHostSlot.ws;
+      g.state  = msg.state || g.state; // adopt latest state sent with the transfer
+
+      send(g.hostWs, {
+        type:        'host_transferred',
+        newHostName: newHostSlot.name,
+        state:       g.state
+      });
+
+      broadcast(meta.gameId, {
+        type:        'host_changed',
+        newHostName: newHostSlot.name
+      }, g.hostWs);
+      break;
+    }
+
     case 'rejoin_game': {
       const g = games.get(msg.gameId);
       if (!g)         return send(ws, { type: 'error', message: 'Game not found' });

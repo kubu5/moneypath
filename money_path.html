@@ -3743,6 +3743,25 @@ function declareBankruptcy() {
   const p = currentPlayer();
   closeModal();
   showNotif(t('notif.bankruptcy', p.name), "error");
+
+  // If this host is going bankrupt in an online game, hand off host role first
+  if (isOnline && isHost && state.players.length > 1) {
+    // Pick the first player that isn't the bankrupt one
+    const nextHostPlayer = state.players.find(pl => pl.id !== p.id);
+    if (nextHostPlayer) {
+      isHost = false;
+      // Remove bankrupt player from state before sending transfer so new host gets clean state
+      state.players.splice(state.currentPlayerIdx, 1);
+      if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
+      wsSend({ type: 'transfer_host', newHostId: nextHostPlayer.id, state: JSON.parse(JSON.stringify(state)) });
+      renderGame();
+      // Former host watches but no longer plays — show waiting UI
+      updateOnlineWaiting();
+      beginTurn();
+      return;
+    }
+  }
+
   state.players.splice(state.currentPlayerIdx, 1);
   if (state.players.length === 0) {
     document.getElementById("game-screen").classList.remove("active");
@@ -5267,13 +5286,24 @@ function handleServerMsg(msg) {
     }
 
     case 'host_transferred': {
-      // This client is the new host — take over as Game Master
+      // This client is the new host (disconnect-based transfer)
       isHost = true;
-      // If it's not our turn, adopt the server's last known state (ours may be stale)
-      if (msg.state && !isMyTurn()) {
-        state = JSON.parse(JSON.stringify(msg.state));
+      if (msg.state) state = JSON.parse(JSON.stringify(msg.state));
+      showNotif(t('notif.you_host', msg.newHostName || '?'), 'cashflow');
+      renderGame();
+      if (isMyTurn()) {
+        setTimeout(() => showTurnConfirmation(currentPlayer(), () => beginTurn()), 400);
+      } else {
+        updateOnlineWaiting();
+        beginTurn();
       }
-      // player_left will arrive next and handle index adjustment + beginTurn
+      break;
+    }
+
+    case 'host_changed': {
+      // Another player became host (voluntary transfer — e.g. host went bankrupt)
+      isHost = false;
+      showNotif(t('notif.new_host', '?', msg.newHostName), 'info');
       break;
     }
 
