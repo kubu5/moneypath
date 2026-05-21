@@ -3709,7 +3709,6 @@ function liquidateSell(idx) {
   p.cash += proceeds;
   recalcPassive(p);
   renderGame();
-  syncState();
   closeModal();
   setTimeout(() => {
     if (p.cash < 0) showLiquidateModal();
@@ -3789,7 +3788,6 @@ function handlePayday() {
   checkFastTrack(p);
   if (p.cash < 0) { checkSolvency(); return; }
   renderFS();
-  syncState();
   const sign = cf >= 0 ? '+' : '';
   showNotif(t('notif.payday', salary.toLocaleString(), expenses.toLocaleString(), cf.toLocaleString(), sign), cf >= 0 ? "success" : "error");
 }
@@ -4138,7 +4136,6 @@ function confirmTakeLoan() {
   recalcPassive(p);
   renderGame();
   closeModal();
-  syncState();
   const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
   showNotif(t('notif.loan_taken', loanName, amount.toLocaleString(), repayAmount.toLocaleString(), cfAfter.toLocaleString()), cfAfter >= 0 ? "success" : "warning");
   if (state.currentCard) {
@@ -4328,7 +4325,7 @@ function renderGame() {
   renderSidebar();   // also calls updateCashBar()
   renderFS();
   updateTurnBanner();
-  drawBoard();
+  if (!isAnimatingTurn) drawBoard(); // skip redraw during dice/move animation
   updateOnlineWaiting();
 }
 
@@ -5412,12 +5409,27 @@ function handleServerMsg(msg) {
 
     case 'state_update': {
       if (_syncing) return;
+
+      // Don't overwrite state mid-animation — would corrupt pioneer position
+      if (isAnimatingTurn) return;
+
+      // If it's currently our turn, only adopt the update if the turn has changed
+      // (i.e. someone else is now playing). Mid-turn updates from the host's 5s
+      // auto-sync would otherwise wipe local deal/loan state we're acting on.
+      const incomingIdx = msg.state && msg.state.currentPlayerIdx;
+      if (isOnline && incomingIdx === myPlayerIdx && _lastTurnIdx === myPlayerIdx) {
+        // Same turn, same player — just update sidebar/board for other players' data
+        // but keep our local state intact so ongoing modals/actions aren't disrupted
+        updateOnlineWaiting();
+        break;
+      }
+
       _syncing = true;
       try {
         state = JSON.parse(JSON.stringify(msg.state));
         renderGame();
 
-        // Dream selection phase: if not all dreams chosen, continue chooseDream
+        // Dream selection phase
         const dreamsSet = state.players.filter(p => p.dream).length;
         if (dreamsSet < state.players.length) {
           chooseDream(dreamsSet);
@@ -5425,16 +5437,11 @@ function handleServerMsg(msg) {
           return;
         }
 
-        // Normal turn: if it just became MY turn, begin my turn.
-        // turnChanged compares the incoming currentPlayerIdx against _lastTurnIdx,
-        // which is ONLY updated here (not in nextTurn), so it correctly reflects
-        // the last turn-change we SAW from the server — not what we predicted locally.
         const isNowMyTurn = state.currentPlayerIdx === myPlayerIdx;
         const turnChanged  = state.currentPlayerIdx !== _lastTurnIdx;
         _lastTurnIdx = state.currentPlayerIdx;
 
         if (isNowMyTurn && turnChanged) {
-          // Small delay so the board animates first
           setTimeout(() => {
             showTurnConfirmation(currentPlayer(), () => beginTurn());
           }, 500);
