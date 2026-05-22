@@ -1397,7 +1397,8 @@ input:focus, select:focus {
     flex-direction: row !important;
     align-items: stretch !important;
   }
-  [data-theme="dark"] #mobile-bottom-nav {
+  [data-theme="dark"] #mobile-bottom-nav,
+  [data-theme="dark"] body.game-active #mobile-bottom-nav {
     background: rgba(4,14,28,0.97) !important;
     border-top-color: rgba(56,189,248,0.2) !important;
   }
@@ -5359,6 +5360,7 @@ function startOnlineGame() {
   state.players = roomPlayers.map((rp, i) => {
     const prof = {..._shuffledProfs[i % _shuffledProfs.length]};
     return {
+      id: rp.id,                                              // ← stable player ID for server validation
       name: rp.name, color: PCOLORS[i], profession: prof.name, profKey: prof.key || null,
       salary: prof.salary, taxes: prof.taxes, mortgage: prof.mortgage,
       studentLoan: prof.studentLoan || 0, carLoan: prof.carLoan,
