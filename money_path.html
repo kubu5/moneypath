@@ -2030,7 +2030,7 @@ const STRINGS = {
     'dream.land_to_win':     'Land on your dream space when financially free to win!',
     'dream.lets_play':       "Let's Play! 🎲",
     // Layoff
-    'turn.laid_off':         (n,t) => `${n} is laid off this turn. Turns remaining: ${t}`,
+    'turn.laid_off':         (n,turns) => `${n} is laid off — no salary this turn, expenses still due. Turns remaining: ${turns}`,
     // Space messages
     'space.payday':          'Landed on Payday — cash received!',
     'space.nothing':         'Nothing special happens here.',
@@ -2086,7 +2086,7 @@ const STRINGS = {
     'notif.sold_asset':      (name,proc) => `Sold ${name} for $${proc}`,
     'notif.crisis_ok':       'Crisis resolved! Continue your turn.',
     'notif.donated':         n => `Donated $${n}. Roll 2 dice for the next 3 turns.`,
-    'notif.layoff':          n => `Layoff! Lost one month's cash flow: $${n}.`,
+    'notif.layoff':          (expenses, passive) => `Laid off! No salary this month. Expenses: -$${expenses}${passive>0?` · Passive income: +$${passive}`:''}`,
     'notif.ft_payday':       n => `Freedom Track payday: +$${n}`,
     'notif.ft_income':       n => `Freedom Track +$${n}`,
     'notif.splurge_paid':    n => `Paid $${n} for Splurge`,
@@ -2362,7 +2362,7 @@ const STRINGS = {
     'confirm.label':         'Następny gracz',
     'confirm.start':         'ZACZYNAM TURĘ →',
     // Layoff
-    'turn.laid_off':         (n,turns) => `${n} jest na urlopie. Zostało tur: ${turns}`,
+    'turn.laid_off':         (n,turns) => `${n} jest zwolniony — brak wynagrodzenia, wydatki nadal naliczane. Zostało tur: ${turns}`,
     // Space messages
     'space.payday':          'Wypłata — gotówka otrzymana!',
     'space.nothing':         'Nic szczególnego się nie dzieje.',
@@ -2418,7 +2418,7 @@ const STRINGS = {
     'notif.sold_asset':      (name,proc) => `Sprzedano ${name} za $${proc}`,
     'notif.crisis_ok':       'Kryzys zażegnany! Kontynuuj turę.',
     'notif.donated':         n => `Przekazano $${n} na cele charytatywne. Przez 3 tury rzucasz dwiema kostkami.`,
-    'notif.layoff':          n => `Zwolnienie! Utracono miesięczny przepływ gotówki: $${n}.`,
+    'notif.layoff':          (expenses, passive) => `Zwolnienie! Brak wynagrodzenia. Wydatki: -$${expenses}${passive>0?` · Dochód pasywny: +$${passive}`:''}`,
     'notif.ft_payday':       n => `Ścieżka wolności — wypłata: +$${n}`,
     'notif.ft_income':       n => `Ścieżka wolności +$${n}`,
     'notif.splurge_paid':    n => `Zapłacono $${n} za Zachciankę`,
@@ -3027,6 +3027,13 @@ function beginTurn() {
 
   if (p.layoffTurnsLeft > 0) {
     p.layoffTurnsLeft--;
+    // Salary cancelled — but expenses still apply, passive income still flows in
+    const expenses = totalExpenses(p);
+    const passive  = p.passiveIncome;
+    p.cash += passive - expenses;   // no salary, pay expenses, keep passive income
+    renderGame();
+    if (!checkSolvency()) return;   // show bankruptcy if cash went negative
+    showNotif(t('notif.layoff', expenses.toLocaleString(), passive.toLocaleString()), 'error');
     renderAction_EndTurn(t('turn.laid_off', p.name, p.layoffTurnsLeft));
     return;
   }
@@ -3884,12 +3891,12 @@ function donateToCharity(cost) {
 
 function handleLayoff() {
   const p = currentPlayer();
-  const lostCash = Math.max(0, monthlyCashflow(p));
-  p.cash -= lostCash;
+  // Just set the flag — the expense penalty is applied at the START of the next turn
   p.layoffTurnsLeft = 1;
   renderGame();
-  if (!checkSolvency()) return;
-  renderAction_EndTurn(t('notif.layoff', lostCash.toLocaleString()));
+  renderAction_EndTurn(LANG === 'pl'
+    ? `⚡ ${p.name} zostaje zwolniony! Następna tura: brak wynagrodzenia, wydatki naliczane.`
+    : `⚡ ${p.name} is laid off! Next turn: no salary, expenses still due.`);
 }
 
 function getFastTrackIncome(p) {
