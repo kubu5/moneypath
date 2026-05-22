@@ -3302,9 +3302,13 @@ function updateStockBuyCost(symbol) {
   const totalCostEl = document.getElementById("stock-total-cost");
   const buyBtn = document.getElementById("stock-buy-button");
   if (!qtyInput || !totalCostEl || !buyBtn) return;
-  let quantity = parseInt(qtyInput.value, 10);
-  if (Number.isNaN(quantity) || quantity < 1) quantity = 1;
-  qtyInput.value = quantity;
+  const raw = qtyInput.value.trim();
+  if (raw === '' || Number.isNaN(parseInt(raw, 10)) || parseInt(raw, 10) < 1) {
+    totalCostEl.textContent = '—';
+    buyBtn.disabled = true;
+    return;
+  }
+  const quantity = Math.max(1, parseInt(raw, 10));
   const totalCost = quantity * card.sharePrice;
   totalCostEl.textContent = `$${totalCost.toLocaleString()}`;
   buyBtn.disabled = currentPlayer().cash < totalCost;
@@ -3350,8 +3354,8 @@ function showStockDealCard(card) {
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.price_share')}</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.normal_range')}</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.owned')}</span><strong>${owned} ${t('liq.shares')}</strong></div>
-            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
-            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.total_cost_lbl')}</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong><input id="stock-quantity-input" type="number" min="1" placeholder="?" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.total_cost_lbl')}</span><strong id="stock-total-cost" style="color:var(--warning)">—</strong></div>
           </div>
           <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
             <span>💰 Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:17px;">$${p.cash.toLocaleString()}</strong></span>
@@ -3373,7 +3377,13 @@ function buyDeal() {
   const p = currentPlayer();
   const card = state.currentCard;
   const qtyInput = document.getElementById("stock-quantity-input");
-  const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+  const rawQty = qtyInput?.value?.trim();
+  if (!rawQty || Number.isNaN(parseInt(rawQty, 10)) || parseInt(rawQty, 10) < 1) {
+    showNotif(LANG === 'pl' ? '⚠️ Podaj ilość akcji do kupienia.' : '⚠️ Enter a quantity to buy.', 'error');
+    if (qtyInput) { qtyInput.focus(); qtyInput.style.borderColor = 'rgba(239,68,68,0.7)'; setTimeout(()=>{ qtyInput.style.borderColor = ''; }, 1500); }
+    return;
+  }
+  const quantity = Math.max(1, parseInt(rawQty, 10));
   const currentPrice = card.sharePrice || (state.market[card.symbol] || 1);
   const totalCost = card.isStockMarket ? quantity * currentPrice : card.downpayment;
 
@@ -3452,7 +3462,7 @@ function showSellStocksModal() {
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <span style="color:var(--muted);font-size:13px;">${t('sell.qty')}</span>
-          <input type="number" id="sell-qty-${i}" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
+          <input type="number" id="sell-qty-${i}" min="1" max="${asset.shares}" placeholder="?" step="1"
             style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
           <span style="color:var(--muted);font-size:12px;">${t('sell.per_share', curPrice)}</span>
           <button class="btn btn-danger-act" style="margin-left:auto;padding:8px 16px;" onclick="confirmSellStock(${i})">${t('sell.btn')}</button>
@@ -3471,7 +3481,13 @@ function confirmSellStock(idx) {
   if (!asset) return;
 
   const qtyInput = document.getElementById(`sell-qty-${idx}`);
-  const qty = Math.max(1, Math.min(asset.shares, parseInt(qtyInput?.value, 10) || asset.shares));
+  const rawSell = qtyInput?.value?.trim();
+  if (!rawSell || Number.isNaN(parseInt(rawSell, 10)) || parseInt(rawSell, 10) < 1) {
+    showNotif(LANG === 'pl' ? '⚠️ Podaj ilość akcji do sprzedaży.' : '⚠️ Enter a quantity to sell.', 'error');
+    if (qtyInput) { qtyInput.focus(); qtyInput.style.borderColor = 'rgba(239,68,68,0.7)'; setTimeout(()=>{ qtyInput.style.borderColor = ''; }, 1500); }
+    return;
+  }
+  const qty = Math.max(1, Math.min(asset.shares, parseInt(rawSell, 10)));
   const marketPrice = state.market[asset.symbol] || asset.sharePrice;
   const purchasePrice = asset.sharePrice || marketPrice;
   // Sell at purchase price or lower market price — no windfall above purchase price
@@ -3494,7 +3510,9 @@ function confirmSellStock(idx) {
   closeModal();
   renderGame();
   showNotif(t('notif.sold_stock', qty, asset.symbol, curPrice, pnlStr), pnl >= 0 ? "success" : "");
-  showStockDealCard(state.currentCard);
+  // After selling from a deal card — end this card activity (go to loan/repay/next player)
+  state.currentCard = null;
+  renderAction_EndTurn(t('notif.sold_stock', qty, asset.symbol, curPrice, pnlStr));
 }
 
 // ==================== CREDIT LIMIT ENGINE ====================
@@ -4234,7 +4252,7 @@ function showDealStockSell() {
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
         <span style="color:var(--muted);font-size:13px;">${t('sell_sym.qty')}</span>
-        <input type="number" id="deal-sell-qty" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
+        <input type="number" id="deal-sell-qty" min="1" max="${asset.shares}" placeholder="?" step="1"
           style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
         <span style="color:var(--muted);font-size:12px;">${t('sell.per_share', curPrice)}</span>
       </div>
@@ -4252,7 +4270,13 @@ function confirmDealStockSell() {
   const asset = p.assets.find(a => a.type === 'stock' && a.symbol === card.symbol && a.shares > 0);
   if (!asset) return;
   const qtyInput = document.getElementById("deal-sell-qty");
-  const qty = Math.max(1, Math.min(asset.shares, parseInt(qtyInput?.value, 10) || asset.shares));
+  const rawDealSell = qtyInput?.value?.trim();
+  if (!rawDealSell || Number.isNaN(parseInt(rawDealSell, 10)) || parseInt(rawDealSell, 10) < 1) {
+    showNotif(LANG === 'pl' ? '⚠️ Podaj ilość akcji do sprzedaży.' : '⚠️ Enter a quantity to sell.', 'error');
+    if (qtyInput) { qtyInput.focus(); qtyInput.style.borderColor = 'rgba(239,68,68,0.7)'; setTimeout(()=>{ qtyInput.style.borderColor = ''; }, 1500); }
+    return;
+  }
+  const qty = Math.max(1, Math.min(asset.shares, parseInt(rawDealSell, 10)));
   const marketPrice = state.market[card.symbol] || card.sharePrice;
   const purchasePrice = asset.sharePrice || marketPrice;
   // Cap sell price at purchase price — gain only if market drops below purchase
@@ -4272,7 +4296,9 @@ function confirmDealStockSell() {
   closeModal();
   renderGame();
   showNotif(t('notif.sold_stock', qty, card.symbol, curPrice, pnlStr), pnl >= 0 ? "success" : "");
-  showStockDealCard(state.currentCard);
+  // End this deal card activity — go to repay/loan/next player
+  state.currentCard = null;
+  renderAction_EndTurn(t('notif.sold_stock', qty, card.symbol, curPrice, pnlStr));
 }
 
 // ==================== STOCK PRICES ====================
