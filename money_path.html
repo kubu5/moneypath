@@ -1509,6 +1509,19 @@ input:focus, select:focus {
 
 <script>
 // ==================== GAME DATA ====================
+
+// Returns a shuffled copy of PROFESSIONS indices so every player gets a unique profession.
+// If there are more players than professions, excess players wrap around (shouldn't happen
+// with 9 professions and max 6 players).
+function dealProfessions(count) {
+  const indices = PROFESSIONS.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return Array.from({length: count}, (_, i) => indices[i % indices.length]);
+}
+
 const PROFESSIONS = [
   {name:"Schoolteacher",        salary:3800, taxes:680,  mortgage:820,  studentLoan:200, carLoan:110, creditCards:90,  retailPayment:80,  otherExpenses:1350, startCash:1100, homeMortgageLiability:0, studentLoanLiability:18000, carLoanLiability:5200,  creditCardLiability:2100, retailDebt:1200},
   {name:"Chef",                 salary:4400, taxes:800,  mortgage:940,  studentLoan:80,  carLoan:140, creditCards:180, retailPayment:150, otherExpenses:1480, startCash:1300, homeMortgageLiability:0, studentLoanLiability:6000,  carLoanLiability:7200,  creditCardLiability:3800, retailDebt:2400},
@@ -1756,8 +1769,9 @@ function removePlayer(i) {
 function startGame() {
   if (setupPlayers.length < 1) return alert("Need at least 1 player");
 
+  const profIndices = dealProfessions(setupPlayers.length);
   state.players = setupPlayers.map((sp, i) => {
-    const prof = {...PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)]};
+    const prof = {...PROFESSIONS[profIndices[i]]};
     return {
       name: sp.name,
       color: PCOLORS[i],
@@ -3514,8 +3528,9 @@ function startOnlineGame() {
   if (!isHost || roomPlayers.length < 2) return;
 
   // Build initial state from room player list (same logic as startGame())
+  const profIndices = dealProfessions(roomPlayers.length);
   state.players = roomPlayers.map((rp, i) => {
-    const prof = {...PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)]};
+    const prof = {...PROFESSIONS[profIndices[i]]};
     return {
       name: rp.name, color: PCOLORS[i], profession: prof.name,
       salary: prof.salary, taxes: prof.taxes, mortgage: prof.mortgage,
