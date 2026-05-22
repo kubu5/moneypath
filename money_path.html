@@ -2946,7 +2946,8 @@ function startGame() {
       layoffTurnsLeft: 0,
       charityTurnsLeft: 0,
       passiveIncome: 0,
-      dream: null
+      dream: null,
+      shorts: []
     };
   });
 
@@ -3367,6 +3368,7 @@ function showStockDealCard(card) {
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_shares')}</button>
             ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">${t('deal.sell_sym', card.symbol)}</button>` : ''}
+            <button class="btn btn-secondary" onclick="showShortSellModal()" style="flex:1.2;">📉 ${LANG==='pl'?'SHORT':'SHORT'}</button>
             <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
             <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
           </div>
@@ -3374,6 +3376,129 @@ function showStockDealCard(card) {
       </div>`;
     updateStockBuyCost(card.symbol);
   });
+}
+
+function showShortSellModal() {
+  const card = state.currentCard;
+  const p = currentPlayer();
+  if (!card || !card.isStockMarket) { showNotif(LANG==='pl'?'⚠️ Brak karty akcji':'⚠️ No stock card active', 'error'); return; }
+  const price = card.sharePrice;
+  const maxQty = price > 0 ? Math.floor(p.cash / (price * 0.5)) : 0;
+  setModal(LANG==='pl' ? '📉 Krótka Sprzedaż' : '📉 Short Sell', `
+    <h2 style="margin-bottom:14px;">${LANG==='pl'?'Krótka sprzedaż akcji':'Short Sell Shares'}</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div style="background:rgba(14,165,233,0.08);padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.15);text-align:center;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">${LANG==='pl'?'Symbol':'Symbol'}</div>
+        <div style="font-size:18px;font-weight:900;color:var(--accent);">${card.symbol}</div>
+      </div>
+      <div style="background:rgba(14,165,233,0.08);padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.15);text-align:center;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">${LANG==='pl'?'Cena':'Price'}</div>
+        <div style="font-size:18px;font-weight:900;">$${price.toLocaleString()}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--muted);">${LANG==='pl'?'Twoja gotówka':'Your cash'}: <strong style="color:var(--profit)">$${p.cash.toLocaleString()}</strong></div>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--muted);">${LANG==='pl'?'Max short (50% depozyt)':'Max short (50% margin)'}: <strong style="color:var(--warning)">${maxQty}</strong> ${LANG==='pl'?'akcji':'shares'}</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+      <input type="number" id="short-qty-input" min="1" step="1" max="${maxQty}" placeholder="?"
+        style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;"
+        oninput="updateShortPreview()">
+      <button onclick="document.getElementById('short-qty-input').value=${maxQty};updateShortPreview();"
+        style="padding:8px 12px;border-radius:8px;border:1px solid rgba(251,191,36,0.5);background:rgba(251,191,36,0.12);color:#fbbf24;font-size:11px;font-weight:800;cursor:pointer;">MAX</button>
+    </div>
+    <div id="short-preview" style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.08);border:1px solid rgba(56,189,248,0.15);font-size:12px;color:var(--muted);min-height:44px;margin-bottom:12px;"></div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-danger-act" onclick="openShort(parseInt(document.getElementById('short-qty-input').value||0,10))">${LANG==='pl'?'Otwórz Short':'Open Short'}</button>
+      <button class="btn btn-secondary" onclick="closeModal()">${LANG==='pl'?'Anuluj':'Cancel'}</button>
+    </div>`);
+  updateShortPreview();
+}
+
+function updateShortPreview() {
+  const card = state.currentCard;
+  const qty = parseInt(document.getElementById('short-qty-input')?.value || 0, 10);
+  const el = document.getElementById('short-preview');
+  if (!el || !card) return;
+  if (!qty || qty < 1) { el.textContent = LANG==='pl'?'Podaj ilość akcji':'Enter quantity'; return; }
+  const price = card.sharePrice;
+  const received = qty * price;
+  const margin = Math.ceil(qty * price * 0.5);
+  el.innerHTML = LANG==='pl'
+    ? `Otrzymasz: <strong style="color:var(--profit)">$${received.toLocaleString()}</strong> · Depozyt: <strong style="color:var(--warning)">$${margin.toLocaleString()}</strong><br><span style="color:var(--muted);font-size:11px;">Musisz odkupić ${qty} × ${card.symbol} aby zamknąć pozycję</span>`
+    : `You receive: <strong style="color:var(--profit)">$${received.toLocaleString()}</strong> · Margin required: <strong style="color:var(--warning)">$${margin.toLocaleString()}</strong><br><span style="color:var(--muted);font-size:11px;">You owe ${qty} × ${card.symbol} shares back to close</span>`;
+}
+
+function openShort(qty) {
+  const card = state.currentCard;
+  const p = currentPlayer();
+  const price = card.sharePrice;
+  const margin = Math.ceil(qty * price * 0.5);
+  if (!qty || qty < 1) {
+    showNotif(LANG==='pl' ? '⚠️ Podaj ilość akcji' : '⚠️ Enter quantity', 'error');
+    return;
+  }
+  if (p.cash < margin) {
+    showNotif(LANG==='pl' ? `⚠️ Potrzebujesz min. $${margin.toLocaleString()} jako depozyt zabezpieczający.` : `⚠️ Need min. $${margin.toLocaleString()} margin to open this short.`, 'error');
+    return;
+  }
+  if (!p.shorts) p.shorts = [];
+  const received = qty * price;
+  p.cash += received;  // they receive cash from "selling" borrowed shares
+  p.shorts.push({symbol: card.symbol, qty, openPrice: price});
+  closeModal();
+  renderGame();
+  syncState();
+  showNotif(LANG==='pl' ? `📉 Short otwarty: ${qty} × ${card.symbol} @ $${price} | Otrzymano $${received.toLocaleString()}` : `📉 Short opened: ${qty} × ${card.symbol} @ $${price} | Received $${received.toLocaleString()}`, 'success');
+  renderAction_EndTurn(LANG==='pl' ? `Krótka sprzedaż otwarta: ${qty} × ${card.symbol}` : `Short position opened: ${qty} × ${card.symbol}`);
+}
+
+function showManageShortsModal() {
+  const p = currentPlayer();
+  if (!p.shorts || !p.shorts.length) { showNotif(LANG==='pl'?'Brak otwartych shortów':'No open short positions', 'info'); return; }
+  let html = `<h2 style="margin-bottom:16px;">${LANG==='pl'?'Otwarte Shorty':'Open Short Positions'}</h2><div style="display:flex;flex-direction:column;gap:10px;">`;
+  p.shorts.forEach((s, idx) => {
+    const currentPrice = state.market[s.symbol] || s.openPrice;
+    const pnl = (s.openPrice - currentPrice) * s.qty;
+    const closeCost = s.qty * currentPrice;
+    const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
+    const pnlStr = pnl >= 0 ? `+$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`;
+    html += `<div style="background:rgba(14,165,233,0.08);padding:12px;border-radius:10px;border:1px solid rgba(56,189,248,0.15);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <strong style="color:var(--accent);font-size:15px;">${s.symbol}</strong>
+        <span style="color:${pnlColor};font-weight:900;">${pnlStr}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+        <span>${LANG==='pl'?'Ilość':'Qty'}: <strong>${s.qty}</strong></span>
+        <span>${LANG==='pl'?'Otwarcie':'Opened at'}: <strong>$${s.openPrice.toLocaleString()}</strong></span>
+        <span>${LANG==='pl'?'Teraz':'Now'}: <strong style="color:${currentPrice>s.openPrice?'var(--loss)':'var(--profit)'};">$${currentPrice.toLocaleString()}</strong></span>
+        <span>${LANG==='pl'?'Koszt zamknięcia':'Close cost'}: <strong>$${closeCost.toLocaleString()}</strong></span>
+      </div>
+      <button class="btn ${pnl>=0?'btn-invest':'btn-danger-act'}" onclick="closeShort(${idx})" style="width:100%;font-size:13px;">${LANG==='pl'?'Zamknij (Cover)':'Cover Position'} — $${closeCost.toLocaleString()}</button>
+    </div>`;
+  });
+  html += `<button class="btn btn-secondary" onclick="closeModal()">${LANG==='pl'?'Zamknij':'Close'}</button></div>`;
+  setModal(LANG==='pl' ? '📉 Zarządzaj Shortami' : '📉 Manage Shorts', html);
+}
+
+function closeShort(idx) {
+  const p = currentPlayer();
+  if (!p.shorts || !p.shorts[idx]) return;
+  const s = p.shorts[idx];
+  const currentPrice = state.market[s.symbol] || s.openPrice;
+  const closeCost = s.qty * currentPrice;
+  const pnl = (s.openPrice - currentPrice) * s.qty;  // positive = profit, negative = loss
+  // The player already received openPrice*qty in cash when opening. Now they pay closeCost.
+  p.cash -= closeCost;
+  p.shorts.splice(idx, 1);
+  closeModal();
+  renderGame();
+  syncState();
+  if (p.cash < 0) {
+    checkSolvency();
+    return;
+  }
+  const pnlStr = pnl >= 0 ? `+$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`;
+  showNotif(LANG==='pl' ? `📈 Short zamknięty: ${s.symbol} | P&L: ${pnlStr}` : `📈 Short covered: ${s.symbol} | P&L: ${pnlStr}`, pnl >= 0 ? 'success' : 'error');
+  renderAction_EndTurn(LANG==='pl' ? `Short zamknięty: ${s.symbol} | ${pnlStr}` : `Short covered: ${s.symbol} | P&L: ${pnlStr}`);
 }
 
 function buyDeal() {
@@ -4148,6 +4273,8 @@ function renderAction_EndTurn(msg) {
         <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
           ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
           <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
+          ${(p.shorts && p.shorts.length > 0) ? `<button class="btn btn-secondary" style="width:100%;" onclick="showManageShortsModal()">📉 ${LANG==='pl'?'Zarządzaj Shortami':'Manage Shorts'} (${p.shorts.length})</button>` : ''}
+          ${state.players.length > 1 ? `<button class="btn btn-secondary" style="width:100%;" onclick="showLendMoneyModal()">💸 ${LANG==='pl'?'Pożycz Graczowi':'Lend to Player'}</button>` : ''}
           <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
         </div>
       </div>`;
@@ -4185,6 +4312,17 @@ function payLiability(liabilityIndex) {
   p.cash -= liability.value;
   const removed = p.liabilities.splice(liabilityIndex, 1)[0];
   recalcPassive(p);
+  // If this was a player-to-player loan, remove the corresponding loan_receivable from the lender
+  if (removed.type === 'player_loan' && removed.loanId) {
+    const lender = state.players.find(pl => pl.id === removed.fromPlayerId || pl.name === removed.fromPlayerName);
+    if (lender) {
+      const rcvIdx = lender.assets.findIndex(a => a.type === 'loan_receivable' && a.loanId === removed.loanId);
+      if (rcvIdx !== -1) {
+        lender.assets.splice(rcvIdx, 1);
+        recalcPassive(lender);
+      }
+    }
+  }
   renderGame();
   closeModal();
   showNotif(t('notif.paid_off', removed.name, removed.value.toLocaleString()), "success");
@@ -4284,6 +4422,106 @@ function confirmTakeLoan() {
 function showTakeLoanThenDeal() {
   state._loanFromDeal = true;
   showTakeLoanModal();
+}
+
+function showLendMoneyModal() {
+  const p = currentPlayer();
+  const others = state.players.map((pl, i) => ({pl, i})).filter(({i}) => i !== state.currentPlayerIdx);
+  if (!others.length) { showNotif(LANG==='pl'?'Brak innych graczy':'No other players to lend to.', 'info'); return; }
+
+  const playerOptions = others.map(({pl, i}) =>
+    `<option value="${i}">${pl.name} (cash: $${pl.cash.toLocaleString()})</option>`
+  ).join('');
+
+  setModal(LANG==='pl' ? '💸 Pożyczka dla Gracza' : '💸 Lend to Player', `
+    <h2 style="margin-bottom:14px;">${LANG==='pl'?'Pożycz pieniądze innemu graczowi':'Lend money to another player'}</h2>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--muted);">${LANG==='pl'?'Twoja gotówka':'Your cash'}: <strong style="color:var(--profit)">$${p.cash.toLocaleString()}</strong></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <select id="loan-to-player" style="padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;">${playerOptions}</select>
+      <input type="number" id="loan-p2p-amount" min="100" step="100" max="${p.cash}" placeholder="${LANG==='pl'?'Kwota pożyczki':'Loan amount'}"
+        style="padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;"
+        oninput="updateP2PLoanPreview()">
+      <select id="loan-p2p-rate" onchange="updateP2PLoanPreview()"
+        style="padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;">
+        <option value="5">5% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+        <option value="10" selected>10% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+        <option value="15">15% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+        <option value="20">20% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+        <option value="25">25% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+        <option value="30">30% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+        <option value="50">50% ${LANG==='pl'?'rocznie':'p.a.'}</option>
+      </select>
+      <div id="p2p-loan-preview" style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.08);border:1px solid rgba(56,189,248,0.15);font-size:12px;color:var(--muted);min-height:40px;"></div>
+      <button class="btn btn-invest" onclick="confirmLendMoney()">${LANG==='pl'?'Potwierdź Pożyczkę':'Confirm Loan'}</button>
+      <button class="btn btn-secondary" onclick="closeModal()">${LANG==='pl'?'Anuluj':'Cancel'}</button>
+    </div>`);
+  updateP2PLoanPreview();
+}
+
+function updateP2PLoanPreview() {
+  const amount = parseInt(document.getElementById('loan-p2p-amount')?.value || 0, 10);
+  const rate = parseInt(document.getElementById('loan-p2p-rate')?.value || 10, 10);
+  const monthly = amount > 0 ? Math.round(amount * (rate/100) / 12) : 0;
+  const el = document.getElementById('p2p-loan-preview');
+  if (!el) return;
+  if (amount < 100) { el.textContent = LANG==='pl'?'Podaj kwotę pożyczki':'Enter loan amount'; return; }
+  el.innerHTML = LANG==='pl'
+    ? `Miesięczna rata: <strong style="color:var(--accent)">$${monthly.toLocaleString()}</strong> · Roczny koszt: <strong>$${(monthly*12).toLocaleString()}</strong>`
+    : `Monthly payment: <strong style="color:var(--accent)">$${monthly.toLocaleString()}</strong> · Annual cost: <strong>$${(monthly*12).toLocaleString()}</strong>`;
+}
+
+function confirmLendMoney() {
+  const p = currentPlayer();
+  const toIdx = parseInt(document.getElementById('loan-to-player')?.value, 10);
+  const amount = parseInt(document.getElementById('loan-p2p-amount')?.value || 0, 10);
+  const rate = parseInt(document.getElementById('loan-p2p-rate')?.value || 10, 10);
+
+  if (!amount || amount < 100) { showNotif(LANG==='pl'?'⚠️ Podaj kwotę min. $100':'⚠️ Enter amount (min. $100)', 'error'); return; }
+  if (p.cash < amount) { showNotif(LANG==='pl'?'⚠️ Za mało gotówki':'⚠️ Not enough cash', 'error'); return; }
+
+  const to = state.players[toIdx];
+  if (!to) return;
+
+  const monthlyPayment = Math.round(amount * (rate/100) / 12);
+  const loanId = Date.now();
+
+  p.cash -= amount;
+
+  // Lender gets a loan receivable asset (generates monthly cashflow)
+  p.assets.push({
+    name: LANG==='pl' ? `Pożyczka dla ${to.name}` : `Loan to ${to.name}`,
+    cashflow: monthlyPayment,
+    type: 'loan_receivable',
+    toPlayerId: to.id || String(toIdx),
+    toPlayerName: to.name,
+    value: amount,
+    rate,
+    loanId
+  });
+
+  // Borrower gets a liability
+  to.liabilities.push({
+    name: LANG==='pl' ? `Pożyczka od ${p.name}` : `Loan from ${p.name}`,
+    value: amount,
+    payment: monthlyPayment,
+    type: 'player_loan',
+    fromPlayerId: p.id || String(state.currentPlayerIdx),
+    fromPlayerName: p.name,
+    rate,
+    loanId
+  });
+
+  recalcPassive(p);
+  recalcPassive(to);
+  closeModal();
+  renderGame();
+  syncState();
+  showNotif(LANG==='pl'
+    ? `💸 Pożyczyłeś $${amount.toLocaleString()} dla ${to.name} @ ${rate}% rocznie`
+    : `💸 Lent $${amount.toLocaleString()} to ${to.name} @ ${rate}% p.a.`, 'success');
+  renderAction_EndTurn(LANG==='pl'
+    ? `Pożyczka $${amount.toLocaleString()} → ${to.name} (rata: $${monthlyPayment}/mies.)`
+    : `Lent $${amount.toLocaleString()} → ${to.name} (payment: $${monthlyPayment}/mo)`);
 }
 
 function showDealStockSell() {
@@ -4576,6 +4814,21 @@ function renderFS() {
     ? businessLiabilities.map(l=>row(assetDisplayName(l), money(l.value))).join("")
     : emptyRows(3);
 
+  const loanReceivables = p.assets.filter(a => a.type === 'loan_receivable');
+  const loanReceivableRows = loanReceivables.length
+    ? loanReceivables.map(a => row(`💸 ${LANG==='pl'?'Pożyczka dla':'Loan to'} ${a.toPlayerName}`, money(a.value))).join("")
+    : '';
+
+  const shortPositions = (p.shorts && p.shorts.length)
+    ? p.shorts.map(s => {
+        const curPrice = state.market[s.symbol] || s.openPrice;
+        const closeCost = s.qty * curPrice;
+        const pnl = (s.openPrice - curPrice) * s.qty;
+        const valColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
+        return row(`📉 Short: ${s.symbol} ×${s.qty}`, `<span style="color:${valColor};">${money(closeCost)}</span>`);
+      }).join("")
+    : '';
+
   document.getElementById("fs-display").innerHTML = `
     <div class="fs-paper">
       <div style="background:linear-gradient(135deg,rgba(14,165,233,0.25),rgba(6,182,212,0.15)); padding:16px; border-radius:12px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
@@ -4587,6 +4840,7 @@ function renderFS() {
       ${row(p.profKey ? profName(p.profKey) : p.profession, money(p.salary))}
       ${row(t('fs.dividends'), money(investmentAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
       ${row(t('fs.real_estate'), money(businessAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+      ${loanReceivables.length ? row(`💸 ${LANG==='pl'?'Odsetki od pożyczek':'Loan Interest'}`, money(loanReceivables.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle") : ''}
 
       <div class="fs-summary">
         <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">${t('fs.freedom_progress')}</div>
@@ -4617,12 +4871,14 @@ function renderFS() {
           ${stockRows}
           ${row(t('fs.real_estate'),"Cost")}
           ${assetRows}
+          ${loanReceivableRows ? `${row(LANG==='pl'?'💸 Pożyczki (aktywa)':'💸 Loans Receivable', LANG==='pl'?'Wartość':'Value')}${loanReceivableRows}` : ''}
         </div>
         <div>
           <div class="fs-section-title">${t('fs.liabilities')}</div>
           ${fixedLiabilities.map(l=>row(l.name, money(l.value))).join("")}
           ${row(t('fs.real_estate'),"Debt")}
           ${bizLiabRows}
+          ${shortPositions ? `${row(LANG==='pl'?'📉 Shorty':'📉 Short Positions', LANG==='pl'?'Koszt zamknięcia':'Close Cost')}${shortPositions}` : ''}
         </div>
       </div>
     </div>`;
@@ -5432,7 +5688,7 @@ function startOnlineGame() {
         {name:"Subscriptions & Retail", value:prof.retailDebt||0, payment:prof.retailPayment||0, type:"retail"}
       ],
       position: 0, visualPosition: 0, onFastTrack: false,
-      layoffTurnsLeft: 0, charityTurnsLeft: 0, passiveIncome: 0, dream: null
+      layoffTurnsLeft: 0, charityTurnsLeft: 0, passiveIncome: 0, dream: null, shorts: []
     };
   });
   state.currentPlayerIdx = 0;
