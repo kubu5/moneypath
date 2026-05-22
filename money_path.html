@@ -2628,15 +2628,15 @@ function applyLang() {
 
 // ==================== GAME DATA ====================
 const PROFESSIONS = [
-  {key:"schoolteacher",        name:"Schoolteacher",        salary:3800, taxes:680,  mortgage:820,  studentLoan:200, carLoan:110, creditCards:90,  retailPayment:80,  otherExpenses:1350, startCash:1100, homeMortgageLiability:0, studentLoanLiability:18000, carLoanLiability:5200,  creditCardLiability:2100, retailDebt:1200},
-  {key:"chef",                 name:"Chef",                 salary:4400, taxes:800,  mortgage:940,  studentLoan:80,  carLoan:140, creditCards:180, retailPayment:150, otherExpenses:1480, startCash:1300, homeMortgageLiability:0, studentLoanLiability:6000,  carLoanLiability:7200,  creditCardLiability:3800, retailDebt:2400},
-  {key:"plumber",              name:"Plumber",              salary:5200, taxes:1050, mortgage:1000, studentLoan:0,   carLoan:200, creditCards:130, retailPayment:110, otherExpenses:1560, startCash:1800, homeMortgageLiability:0, studentLoanLiability:0,     carLoanLiability:9800,  creditCardLiability:2700, retailDebt:1700},
-  {key:"sales_rep",            name:"Sales Representative", salary:5500, taxes:1100, mortgage:1100, studentLoan:140, carLoan:180, creditCards:160, retailPayment:120, otherExpenses:1620, startCash:1600, homeMortgageLiability:0, studentLoanLiability:11000, carLoanLiability:8400,  creditCardLiability:3500, retailDebt:1900},
-  {key:"nurse",                name:"Registered Nurse",     salary:6600, taxes:1400, mortgage:1280, studentLoan:320, carLoan:160, creditCards:110, retailPayment:100, otherExpenses:1750, startCash:2400, homeMortgageLiability:0, studentLoanLiability:28000, carLoanLiability:7000,  creditCardLiability:2400, retailDebt:1500},
-  {key:"accountant",           name:"Accountant",           salary:6400, taxes:1350, mortgage:1260, studentLoan:280, carLoan:130, creditCards:100, retailPayment:90,  otherExpenses:1700, startCash:2500, homeMortgageLiability:0, studentLoanLiability:24000, carLoanLiability:6200,  creditCardLiability:2200, retailDebt:1400},
-  {key:"firefighter",          name:"Firefighter",          salary:7200, taxes:1600, mortgage:1380, studentLoan:120, carLoan:210, creditCards:120, retailPayment:140, otherExpenses:1900, startCash:2800, homeMortgageLiability:0, studentLoanLiability:8000,  carLoanLiability:12000, creditCardLiability:2800, retailDebt:2000},
-  {key:"construction_mgr",     name:"Construction Manager", salary:7800, taxes:1780, mortgage:1480, studentLoan:160, carLoan:230, creditCards:115, retailPayment:130, otherExpenses:1980, startCash:3000, homeMortgageLiability:0, studentLoanLiability:12000, carLoanLiability:13500, creditCardLiability:2500, retailDebt:1800},
-  {key:"pharmacist",           name:"Pharmacist",           salary:9200, taxes:2200, mortgage:1720, studentLoan:580, carLoan:240, creditCards:130, retailPayment:110, otherExpenses:2200, startCash:3400, homeMortgageLiability:0, studentLoanLiability:52000, carLoanLiability:12500, creditCardLiability:2900, retailDebt:1600}
+  {key:"schoolteacher",        name:"Schoolteacher",        salary:3800, taxes:680,  mortgage:820,  studentLoan:200, carLoan:110, creditCards:90,  retailPayment:80,  otherExpenses:1350, startCash:1100, homeMortgageLiability:145000, studentLoanLiability:18000, carLoanLiability:5200,  creditCardLiability:2100, retailDebt:1200},
+  {key:"chef",                 name:"Chef",                 salary:4400, taxes:800,  mortgage:940,  studentLoan:80,  carLoan:140, creditCards:180, retailPayment:150, otherExpenses:1480, startCash:1300, homeMortgageLiability:170000, studentLoanLiability:6000,  carLoanLiability:7200,  creditCardLiability:3800, retailDebt:2400},
+  {key:"plumber",              name:"Plumber",              salary:5200, taxes:1050, mortgage:1000, studentLoan:0,   carLoan:200, creditCards:130, retailPayment:110, otherExpenses:1560, startCash:1800, homeMortgageLiability:185000, studentLoanLiability:0,     carLoanLiability:9800,  creditCardLiability:2700, retailDebt:1700},
+  {key:"sales_rep",            name:"Sales Representative", salary:5500, taxes:1100, mortgage:1100, studentLoan:140, carLoan:180, creditCards:160, retailPayment:120, otherExpenses:1620, startCash:1600, homeMortgageLiability:200000, studentLoanLiability:11000, carLoanLiability:8400,  creditCardLiability:3500, retailDebt:1900},
+  {key:"nurse",                name:"Registered Nurse",     salary:6600, taxes:1400, mortgage:1280, studentLoan:320, carLoan:160, creditCards:110, retailPayment:100, otherExpenses:1750, startCash:2400, homeMortgageLiability:235000, studentLoanLiability:28000, carLoanLiability:7000,  creditCardLiability:2400, retailDebt:1500},
+  {key:"accountant",           name:"Accountant",           salary:6400, taxes:1350, mortgage:1260, studentLoan:280, carLoan:130, creditCards:100, retailPayment:90,  otherExpenses:1700, startCash:2500, homeMortgageLiability:230000, studentLoanLiability:24000, carLoanLiability:6200,  creditCardLiability:2200, retailDebt:1400},
+  {key:"firefighter",          name:"Firefighter",          salary:7200, taxes:1600, mortgage:1380, studentLoan:120, carLoan:210, creditCards:120, retailPayment:140, otherExpenses:1900, startCash:2800, homeMortgageLiability:255000, studentLoanLiability:8000,  carLoanLiability:12000, creditCardLiability:2800, retailDebt:2000},
+  {key:"construction_mgr",     name:"Construction Manager", salary:7800, taxes:1780, mortgage:1480, studentLoan:160, carLoan:230, creditCards:115, retailPayment:130, otherExpenses:1980, startCash:3000, homeMortgageLiability:275000, studentLoanLiability:12000, carLoanLiability:13500, creditCardLiability:2500, retailDebt:1800},
+  {key:"pharmacist",           name:"Pharmacist",           salary:9200, taxes:2200, mortgage:1720, studentLoan:580, carLoan:240, creditCards:130, retailPayment:110, otherExpenses:2200, startCash:3400, homeMortgageLiability:320000, studentLoanLiability:52000, carLoanLiability:12500, creditCardLiability:2900, retailDebt:1600}
 ];
 
 // Rat Race: NO market spaces — deals only on Deal spaces
@@ -3158,7 +3158,8 @@ function handleRatRaceSpace(space) {
   // Never show deal/other cards while player has a cash crisis — resolve it first
   const p = currentPlayer();
   if (p.cash < 0) {
-    showNotif(t('bankrupt.deal_forfeited'), 'error');
+    // If it was a deal space, remember it — after crisis is resolved we'll offer the deal
+    if (space.type === "deal") state.pendingDealAfterCrisis = true;
     checkSolvency();
     return;
   }
@@ -3356,7 +3357,7 @@ function showStockDealCard(card) {
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.price_share')}</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.normal_range')}</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.owned')}</span><strong>${owned} ${t('liq.shares')}</strong></div>
-            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong><input id="stock-quantity-input" type="number" min="1" placeholder="?" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
+            <div class="stock-stat"><span style="color:var(--muted)">${t('deal.qty_buy')}</span><strong style="display:flex;align-items:center;gap:6px;"><input id="stock-quantity-input" type="number" min="1" placeholder="?" step="1" style="width:70px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"><button onclick="stockAllIn()" style="padding:3px 9px;border-radius:6px;border:1px solid rgba(251,191,36,0.5);background:rgba(251,191,36,0.12);color:#fbbf24;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">ALL IN</button></strong></div>
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.total_cost_lbl')}</span><strong id="stock-total-cost" style="color:var(--warning)">—</strong></div>
           </div>
           <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
@@ -3439,6 +3440,22 @@ function buyDeal() {
   const _displayName = dealTitle(card);
   showNotif(card.isStockMarket ? t('notif.bought_shares', quantity, card.symbol) : t('notif.bought_asset', _displayName, card.cashflow.toLocaleString()), "success");
   renderAction_EndTurn(t('notif.acquired', _displayName));
+}
+
+function stockAllIn() {
+  const card = state.currentCard;
+  const p = currentPlayer();
+  const price = card?.sharePrice || 1;
+  const maxQty = Math.floor(p.cash / price);
+  if (maxQty < 1) {
+    showNotif(LANG === 'pl' ? '⚠️ Niewystarczające środki na zakup nawet 1 akcji.' : '⚠️ Not enough cash to buy even 1 share.', 'error');
+    return;
+  }
+  const input = document.getElementById('stock-quantity-input');
+  if (input) {
+    input.value = maxQty;
+    updateStockBuyCost(card.symbol);
+  }
 }
 
 // ==================== SELL STOCKS ====================
@@ -3799,7 +3816,12 @@ function liquidateSell(idx) {
     else {
       showNotif(t('notif.crisis_ok'), "success");
       state.currentCard = null;
-      renderAction_EndTurn(t('space.crisis'));
+      if (state.pendingDealAfterCrisis) {
+        state.pendingDealAfterCrisis = false;
+        setTimeout(() => handleDealChoice(), 350);
+      } else {
+        renderAction_EndTurn(t('space.crisis'));
+      }
     }
   }, 350);
 }
@@ -3819,12 +3841,19 @@ function emergencyLoan(amount, interestRate = 0.10, monthlyRate = 0.10) {
   const cfAfter = (p.salary + p.passiveIncome) - totalExpenses(p);
   showNotif(t('notif.emergency_loan', loanName, amount.toLocaleString(), repayAmount.toLocaleString(), cfAfter.toLocaleString()), isHighRisk ? "error" : "warning");
   state.currentCard = null;
-  renderAction_EndTurn(t('loan.taken_end', loanName));
+  if (state.pendingDealAfterCrisis && p.cash >= 0) {
+    state.pendingDealAfterCrisis = false;
+    setTimeout(() => handleDealChoice(), 400);
+  } else {
+    state.pendingDealAfterCrisis = false;
+    renderAction_EndTurn(t('loan.taken_end', loanName));
+  }
 }
 
 function declareBankruptcy() {
   const p = currentPlayer();
   closeModal();
+  state.pendingDealAfterCrisis = false; // clear any pending deal — player is eliminated
   showNotif(t('notif.bankruptcy', p.name), "error");
 
   // If this host is going bankrupt in an online game, hand off host role first
@@ -3846,6 +3875,7 @@ function declareBankruptcy() {
     }
   }
 
+  const bankruptName = p.name;
   state.players.splice(state.currentPlayerIdx, 1);
   if (state.players.length === 0) {
     document.getElementById("game-screen").classList.remove("active");
@@ -3856,8 +3886,29 @@ function declareBankruptcy() {
     return;
   }
   if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
+
+  // Online: bankrupt player was the current player — server still treats them as current,
+  // so this update is accepted. We send directly (bypassing isMyTurn guard) to propagate
+  // the removal to all other clients.
+  if (isOnline && wsConn && wsConn.readyState === 1) {
+    wsSend({ type: 'state_update', playerId: myPlayerId, clientSeq: ++_clientSeq, state: JSON.parse(JSON.stringify(state)) });
+  }
+
   renderGame();
-  beginTurn();
+  // Show "Game Over for X" screen, then start next player's turn
+  const nextP = currentPlayer();
+  setAction(() => {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac" style="text-align:center;">
+        <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#991b1b)">💀 GAME OVER</div>
+        <div style="padding:28px 20px;">
+          <div style="font-size:42px;margin-bottom:10px;">🏳️</div>
+          <div style="font-size:19px;font-weight:900;color:var(--loss);margin-bottom:6px;">${LANG==='pl'?`${bankruptName} odpada z gry`:`${bankruptName} is eliminated`}</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:22px;">${LANG==='pl'?`Następna tura: ${nextP.name}`:`Next up: ${nextP.name}`}</div>
+          <button class="btn btn-primary" style="font-size:15px;padding:14px 32px;" onclick="beginTurn()">${LANG==='pl'?`▶ Tura ${nextP.name}`:`▶ ${nextP.name}'s Turn`}</button>
+        </div>
+      </div>`;
+  });
 }
 
 // ==================== OTHER HANDLERS ====================
