@@ -3002,6 +3002,24 @@ function beginTurn() {
     return;
   }
 
+  // Block turn start if player has unresolved cash crisis
+  if (p.cash < 0) {
+    setAction(() => {
+      document.getElementById("action-area").innerHTML = `
+        <div class="ac" style="text-align:center;">
+          <div class="ac-head" style="background:linear-gradient(90deg,#7f1d1d,#dc2626)">${t('bankrupt.crisis')}</div>
+          <div style="padding:32px 20px;">
+            <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
+            <div style="font-size:17px;font-weight:700;color:var(--loss);margin-bottom:8px;">${t('bankrupt.title')}</div>
+            <div style="font-size:28px;font-weight:900;color:var(--loss);margin-bottom:20px;">$${p.cash.toLocaleString()}</div>
+            <button class="btn btn-danger-act" style="font-size:15px;padding:14px 32px;" onclick="showBankruptcyModal(currentPlayer())">${t('bankrupt.declare_btn').replace('💀 ','⚠️ ').replace('OGŁOŚ BANKRUCTWO','ROZWIĄŻ KRYZYS').replace('DECLARE BANKRUPTCY','RESOLVE CRISIS')}</button>
+          </div>
+        </div>`;
+    });
+    setTimeout(() => showBankruptcyModal(p), 300);
+    return;
+  }
+
   if (p.layoffTurnsLeft > 0) {
     p.layoffTurnsLeft--;
     renderAction_EndTurn(t('turn.laid_off', p.name, p.layoffTurnsLeft));
@@ -3098,6 +3116,15 @@ async function rollDice() {
   if (rollButton) rollButton.disabled = true;
   await animateDiceRoll(rolls);
   await animatePlayerMove(p, roll);
+
+  // If passing through payday caused a cash crisis, skip landing-space action —
+  // the bankruptcy modal was already shown by handlePayday().
+  if (p.cash < 0) {
+    drawBoard();
+    isAnimatingTurn = false;
+    return;
+  }
+
   if (p.onFastTrack) {
     handleFastTrack();
   } else {
@@ -3114,6 +3141,13 @@ async function rollDice() {
 
 // ==================== SPACE HANDLERS ====================
 function handleRatRaceSpace(space) {
+  // Never show deal/other cards while player has a cash crisis — resolve it first
+  const p = currentPlayer();
+  if (p.cash < 0) {
+    showNotif(t('bankrupt.deal_forfeited'), 'error');
+    checkSolvency();
+    return;
+  }
   if (space.type === "deal")    handleDealChoice();
   else if (space.type === "splurge")  drawSplurge();
   else if (space.type === "baby")    handleBaby();
