@@ -1,10 +1,9 @@
-/* MoneyPath WordPress Plugin — Embed Styles */
+/* MoneyPath WordPress Plugin — Embed Styles v2.0 */
 
 .moneypath-wrapper {
     position: relative;
     width: 100%;
     margin: 0 auto;
-    /* --mp-height is injected inline from the shortcode attribute */
     height: var(--mp-height, 92vh);
     border-radius: 12px;
     overflow: hidden;
@@ -19,11 +18,39 @@
     display: block;
 }
 
-/* On mobile: full height */
+/* Fullscreen wrapper */
+.moneypath-fullscreen .moneypath-wrapper {
+    border-radius: 0;
+    height: 100dvh;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Mobile */
 @media (max-width: 600px) {
     .moneypath-wrapper {
         border-radius: 0;
         height: 100dvh;
         box-shadow: none;
     }
+}
+
+/* ── Landing page call-to-action button (opcjonalnie) ── */
+.moneypath-cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #9570b8, #4CAF7D);
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 14px 36px;
+    border-radius: 50px;
+    text-decoration: none !important;
+    box-shadow: 0 4px 20px rgba(149,112,184,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.moneypath-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(149,112,184,0.45);
 }
