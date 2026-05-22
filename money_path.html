@@ -3378,14 +3378,20 @@ function showStockDealCard(card) {
 function buyDeal() {
   const p = currentPlayer();
   const card = state.currentCard;
-  const qtyInput = document.getElementById("stock-quantity-input");
-  const rawQty = qtyInput?.value?.trim();
-  if (!rawQty || Number.isNaN(parseInt(rawQty, 10)) || parseInt(rawQty, 10) < 1) {
-    showNotif(LANG === 'pl' ? '⚠️ Podaj ilość akcji do kupienia.' : '⚠️ Enter a quantity to buy.', 'error');
-    if (qtyInput) { qtyInput.focus(); qtyInput.style.borderColor = 'rgba(239,68,68,0.7)'; setTimeout(()=>{ qtyInput.style.borderColor = ''; }, 1500); }
-    return;
+
+  // Quantity validation only applies to stock market deals
+  let quantity = 1;
+  if (card.isStockMarket) {
+    const qtyInput = document.getElementById("stock-quantity-input");
+    const rawQty = qtyInput?.value?.trim();
+    if (!rawQty || Number.isNaN(parseInt(rawQty, 10)) || parseInt(rawQty, 10) < 1) {
+      showNotif(LANG === 'pl' ? '⚠️ Podaj ilość akcji do kupienia.' : '⚠️ Enter a quantity to buy.', 'error');
+      if (qtyInput) { qtyInput.focus(); qtyInput.style.borderColor = 'rgba(239,68,68,0.7)'; setTimeout(()=>{ qtyInput.style.borderColor = ''; }, 1500); }
+      return;
+    }
+    quantity = Math.max(1, parseInt(rawQty, 10));
   }
-  const quantity = Math.max(1, parseInt(rawQty, 10));
+
   const currentPrice = card.sharePrice || (state.market[card.symbol] || 1);
   const totalCost = card.isStockMarket ? quantity * currentPrice : card.downpayment;
 
