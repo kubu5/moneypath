@@ -1242,7 +1242,7 @@ input:focus, select:focus {
     max-width: 320px;
   }
   @media (orientation: landscape) and (max-height: 500px) {
-    #rotate-overlay { display: flex !important; }
+    body.game-active #rotate-overlay { display: flex !important; }
   }
 
   /* ─────────────────────────────────────────────────────────────
@@ -1379,9 +1379,10 @@ input:focus, select:focus {
   /* ── Backdrop ── */
   #mobile-backdrop { display: block !important; }
 
-  /* ── Bottom nav — MUST have display: flex to work ── */
-  #mobile-bottom-nav {
-    display: flex !important;               /* ← critical fix */
+  /* ── Bottom nav — only when game is active ── */
+  #mobile-bottom-nav { display: none !important; }
+  body.game-active #mobile-bottom-nav {
+    display: flex !important;
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
@@ -4444,14 +4445,16 @@ function renderSidebar() {
     const isActive  = i === state.currentPlayerIdx;
     const isMe      = isOnline && i === myPlayerIdx;
     const isHostP   = hostPlayerId ? p.id === hostPlayerId : (!isOnline && i === 0);
+    const isOffline = isOnline && p.connected === false;
     const cf = monthlyCashflow(p);
     return `
-      <div style="padding:12px; background:${isActive?'rgba(56,189,248,0.08)':'rgba(8,20,40,0.5)'}; margin-bottom:8px; border-radius:10px; border:1px solid ${isActive?'rgba(56,189,248,0.3)':'rgba(56,189,248,0.06)'}; transition:all 0.3s;">
+      <div style="padding:12px; background:${isActive?'rgba(56,189,248,0.08)':'rgba(8,20,40,0.5)'}; margin-bottom:8px; border-radius:10px; border:1px solid ${isActive?'rgba(56,189,248,0.3)':'rgba(56,189,248,0.06)'}; transition:all 0.3s; opacity:${isOffline?'0.55':'1'};">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
           <div style="width:8px; height:8px; border-radius:50%; background:${p.color}; box-shadow:0 0 6px ${p.color};"></div>
           <strong style="color:${p.color}; font-size:14px;">${p.name}</strong>
           ${isMe      ? `<span style="font-size:10px; background:rgba(76,175,125,0.18); color:var(--profit); border-radius:4px; padding:1px 5px;">YOU</span>` : ''}
           ${isHostP   ? `<span style="font-size:10px; background:rgba(255,193,7,0.18); color:#f59e0b; border-radius:4px; padding:1px 5px;">HOST</span>` : ''}
+          ${isOffline ? `<span style="font-size:10px; background:rgba(239,68,68,0.18); color:var(--loss); border-radius:4px; padding:1px 5px;">OFFLINE</span>` : ''}
           ${isActive  ? `<span style="margin-left:auto; font-size:10px; color:var(--accent); letter-spacing:1px;">${t('player.active')}</span>` : ''}
         </div>
         <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">${p.profKey ? profName(p.profKey) : p.profession}</div>
@@ -5088,13 +5091,23 @@ function updateRotateOverlayLang() {
 // ==================== ONLINE MULTIPLAYER ====================
 let isOnline    = false;   // true once game_started received
 let isHost      = false;   // true for the player who created the room
-let myPlayerIdx = -1;      // which player am I (0-based)
-let myPlayerId  = null;    // random UUID for this session
+let myPlayerId  = null;    // stable identifier for this session — survives reconnects
+let myPlayerIdx = -1;      // derived from myPlayerId — recomputed after every full state receive
 let wsConn      = null;    // WebSocket connection
 let roomPlayers  = [];      // [{id, name, color, idx}] — populated as players join
 let _savedGameId = null;   // gameId of the current room — for session save
 let _syncing    = false;   // prevents sync loops
 let _lastTurnIdx = -1;     // detects whose turn just started
+let _clientSeq  = 0;       // monotonic seq for outgoing state_update messages
+let _skipTimer  = null;    // pending auto-skip timer for offline player
+const SKIP_GRACE_MS = 30000; // 30 seconds grace before auto-skip
+
+// Recompute myPlayerIdx from stable myPlayerId after each full state replacement
+function recomputeMyIdx() {
+  if (!myPlayerId || !state || !state.players) return;
+  const i = state.players.findIndex(p => p.id === myPlayerId);
+  if (i !== -1) myPlayerIdx = i;
+}
 
 // ── Screen navigation ────────────────────────────────────────
 // ── Mobile panel helpers ──────────────────────────────────────
@@ -5225,9 +5238,11 @@ function scheduleReconnect() {
     showNotif(t('notif.reconnecting'), 'info');
     connectWS(() => {
       showNotif(t('notif.reconnected'), 'success');
-      // If we were mid-game as a non-host, re-send our last state so the host
-      // can re-include us in the next broadcast cycle
-      if (isOnline && !isHost) syncState();
+      // If we were mid-game, re-join the room by stable playerId so the server
+      // restores our slot (host transfer happens server-side automatically).
+      if (isOnline && _savedGameId && myPlayerId) {
+        wsSend({ type: 'rejoin_game', gameId: _savedGameId, playerId: myPlayerId });
+      }
     });
     _reconnectDelay = Math.min(_reconnectDelay * 2, WS_MAX_DELAY);
   }, _reconnectDelay);
@@ -5408,8 +5423,9 @@ function handleServerMsg(msg) {
       isHost = true;
       if (msg.state) {
         state = JSON.parse(JSON.stringify(msg.state));
+        recomputeMyIdx();
         // Tag new host in state so sidebar badge updates
-        if (state.players[myPlayerIdx]) state.hostPlayerId = state.players[myPlayerIdx].id;
+        if (myPlayerId) state.hostPlayerId = myPlayerId;
       }
       showNotif(t('notif.you_host', msg.newHostName || '?'), 'cashflow');
       renderGame();
@@ -5426,6 +5442,7 @@ function handleServerMsg(msg) {
       isHost = false;
       if (msg.state) {
         state = JSON.parse(JSON.stringify(msg.state));
+        recomputeMyIdx();
         _lastTurnIdx = state.currentPlayerIdx;
       }
       showNotif(t('notif.new_host', '?', msg.newHostName), 'info');
@@ -5440,45 +5457,40 @@ function handleServerMsg(msg) {
     }
 
     case 'player_left': {
-      if (!isOnline || !state.players || state.players.length === 0) {
-        updateRoomUI(msg.players);
-        showNotif(t('notif.player_left', msg.playerName), 'warning');
-        break;
+      // Server only emits player_left for pre-game lobby disconnects now.
+      // In-game disconnects come as 'player_disconnected' (slot preserved).
+      if (!isOnline) {
+        updateRoomUI(msg.players || []);
+        if (msg.playerName) showNotif(t('notif.player_left', msg.playerName), 'warning');
       }
-      // Remove disconnected player from game state
-      const leftIdx = state.players.findIndex(p => p.name === msg.playerName);
-      if (leftIdx !== -1) {
-        state.players.splice(leftIdx, 1);
-        if (leftIdx < myPlayerIdx) myPlayerIdx--;
-        if (state.players.length === 0) break;
-        if (leftIdx < state.currentPlayerIdx) {
-          state.currentPlayerIdx--;
-        } else if (leftIdx === state.currentPlayerIdx) {
-          state.currentPlayerIdx = state.currentPlayerIdx % state.players.length;
-        }
-        if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
-        _lastTurnIdx = state.currentPlayerIdx;
+      break;
+    }
+
+    case 'player_disconnected': {
+      if (msg.state) {
+        state = JSON.parse(JSON.stringify(msg.state));
+        recomputeMyIdx();
+      } else if (state && state.players) {
+        const sp = state.players.find(p => p.id === msg.playerId);
+        if (sp) { sp.connected = false; }
       }
-      // Build notification text
-      let notifText = `⚠️ ${msg.playerName} disconnected — game continues`;
-      if (msg.wasHost && msg.newHostName) {
-        if (isHost) {
-          notifText = t('notif.you_host', msg.playerName);
+      const dcPlayer = state.players && state.players.find(p => p.id === msg.playerId);
+      const dcName = (dcPlayer && dcPlayer.name) || '?';
+      showNotif(`📡 ${dcName} disconnected — slot reserved`, 'warning');
+      if (msg.newHostName) {
+        const iAmNewHost = msg.newHostPlayerId === myPlayerId;
+        if (iAmNewHost) {
+          isHost = true;
+          showNotif(t('notif.you_host', msg.newHostName), 'cashflow');
         } else {
-          notifText = t('notif.new_host', msg.playerName, msg.newHostName);
+          isHost = false;
+          showNotif(t('notif.new_host', dcName, msg.newHostName), 'info');
         }
       }
-      showNotif(notifText, 'warning');
       renderGame();
-      if (state.players.length <= 1) {
-        showNotif(t('notif.last_player'), 'cashflow');
-        isOnline = false;
-        beginTurn();
-      } else if (isMyTurn()) {
-        beginTurn();
-      } else {
-        updateOnlineWaiting();
-        beginTurn();
+      // If it's the disconnected player's turn, host shows skip button
+      if (isHost && state.players[state.currentPlayerIdx] && state.players[state.currentPlayerIdx].id === msg.playerId) {
+        _startSkipTimer(msg.playerId);
       }
       break;
     }
@@ -5489,6 +5501,9 @@ function handleServerMsg(msg) {
       isHost      = (myPlayerIdx === 0); // host is always the first player at game start
       _lastTurnIdx = -1; // -1 so turnChanged is true when dream phase ends
       state = JSON.parse(JSON.stringify(msg.state));
+      // Set stable myPlayerId from state, then recompute idx from id
+      if (state.players[myPlayerIdx]) myPlayerId = state.players[myPlayerIdx].id || myPlayerId;
+      recomputeMyIdx();
       // Tag the host player ID in state so all clients can show HOST badge
       if (isHost && state.players[myPlayerIdx]) {
         state.hostPlayerId = state.players[myPlayerIdx].id;
@@ -5525,13 +5540,14 @@ function handleServerMsg(msg) {
       // Don't overwrite state mid-animation — would corrupt pioneer position
       if (isAnimatingTurn) return;
 
+      // Ignore echoes of our own updates (server includes fromPlayerId)
+      if (msg.fromPlayerId && msg.fromPlayerId === myPlayerId) break;
+
       // If it's currently our turn, only adopt the update if the turn has changed
-      // (i.e. someone else is now playing). Mid-turn updates from the host's 5s
-      // auto-sync would otherwise wipe local deal/loan state we're acting on.
+      // (i.e. someone else is now playing). Mid-turn updates from peers (or auto-sync)
+      // would otherwise wipe local deal/loan state we're acting on.
       const incomingIdx = msg.state && msg.state.currentPlayerIdx;
       if (isOnline && incomingIdx === myPlayerIdx && _lastTurnIdx === myPlayerIdx) {
-        // Same turn, same player — just update sidebar/board for other players' data
-        // but keep our local state intact so ongoing modals/actions aren't disrupted
         updateOnlineWaiting();
         break;
       }
@@ -5539,6 +5555,7 @@ function handleServerMsg(msg) {
       _syncing = true;
       try {
         state = JSON.parse(JSON.stringify(msg.state));
+        recomputeMyIdx();
         renderGame();
 
         // Dream selection phase
@@ -5553,6 +5570,9 @@ function handleServerMsg(msg) {
         const turnChanged  = state.currentPlayerIdx !== _lastTurnIdx;
         _lastTurnIdx = state.currentPlayerIdx;
 
+        // Clear any pending skip — the turn has advanced
+        _clearSkipTimer();
+
         if (isNowMyTurn && turnChanged) {
           setTimeout(() => {
             showTurnConfirmation(currentPlayer(), () => beginTurn());
@@ -5566,20 +5586,7 @@ function handleServerMsg(msg) {
     }
 
     case 'player_action': {
-      // Host receives a non-host player's state, adopts it, re-broadcasts to all
-      if (!isHost) break;
-      state = JSON.parse(JSON.stringify(msg.state));
-      _lastTurnIdx = state.currentPlayerIdx;
-      renderGame();
-      // Re-broadcast authoritative state to all non-host players
-      wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
-      // Handle our own turn transition if it just became the host's turn
-      if (isMyTurn()) {
-        setTimeout(() => showTurnConfirmation(currentPlayer(), () => beginTurn()), 500);
-      } else {
-        updateOnlineWaiting();
-        beginTurn(); // shows "waiting for X to play"
-      }
+      // Legacy: server now broadcasts state_update directly. Ignored on the client.
       break;
     }
 
@@ -5589,6 +5596,8 @@ function handleServerMsg(msg) {
       isHost      = msg.isHost || false;
       _lastTurnIdx = -1;
       state = JSON.parse(JSON.stringify(msg.state));
+      if (state.players[myPlayerIdx]) myPlayerId = state.players[myPlayerIdx].id || myPlayerId;
+      recomputeMyIdx();
       goScreen('game');
       initPanelsMobile();
       renderGame();
@@ -5605,8 +5614,17 @@ function handleServerMsg(msg) {
 
     case 'player_rejoined': {
       // Another player came back — update connected list and notify
-      showNotif(`🔄 ${htmlEsc(msg.playerName)} rejoined`, 'info');
-      // If game state has that player, nothing extra to do — next state_update covers it
+      if (msg.state) {
+        state = JSON.parse(JSON.stringify(msg.state));
+        recomputeMyIdx();
+      } else if (state && state.players) {
+        const sp = state.players.find(p => p.id === msg.playerId);
+        if (sp) { sp.connected = true; sp.disconnectedAt = null; }
+      }
+      showNotif(`🔄 ${htmlEsc(msg.playerName || '?')} rejoined`, 'success');
+      // If a pending skip was queued for this player, cancel it
+      _clearSkipTimer();
+      renderGame();
       break;
     }
 
@@ -5646,14 +5664,52 @@ function isMyTurn() {
 
 // ── State sync (call after any state mutation during your turn) ─
 function syncState() {
-  if (!isOnline || _syncing) return;
-  if (isHost) {
-    // Host is the authority — broadcast to all players
-    wsSend({ type: 'state_update', state: JSON.parse(JSON.stringify(state)) });
-  } else {
-    // Non-host submits state to host; host validates and re-broadcasts
-    wsSend({ type: 'player_action', state: JSON.parse(JSON.stringify(state)) });
-  }
+  if (!isOnline || !wsConn || wsConn.readyState !== 1) return;
+  if (_syncing) return;
+  wsSend({
+    type:      'state_update',
+    playerId:  myPlayerId,
+    clientSeq: ++_clientSeq,
+    state:     JSON.parse(JSON.stringify(state))
+  });
+}
+
+// ── Skip-disconnected-player helpers ─────────────────────────
+function _startSkipTimer(offlinePlayerId) {
+  _clearSkipTimer();
+  if (!isHost) return;
+  const p = state.players && state.players.find(pp => pp.id === offlinePlayerId);
+  const name = (p && p.name) || '?';
+  // Inject skip button into action area shortly after disconnect
+  setTimeout(() => {
+    // Verify it's still that player's turn and they're still offline before showing
+    if (!isHost) return;
+    const cur = state.players && state.players[state.currentPlayerIdx];
+    if (!cur || cur.id !== offlinePlayerId) return;
+    if (cur.connected !== false) return;
+    const aa = document.getElementById('action-area');
+    if (!aa) return;
+    if (document.getElementById('skip-player-banner')) return;
+    const skipDiv = document.createElement('div');
+    skipDiv.id = 'skip-player-banner';
+    skipDiv.style.cssText = 'margin:10px 20px 0; padding:12px 16px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:10px; display:flex; align-items:center; justify-content:space-between; gap:12px;';
+    skipDiv.innerHTML = `<span style="font-size:13px;color:var(--loss);">📡 ${name} is offline</span><button class="btn btn-danger-act" style="padding:8px 16px; font-size:13px;" onclick="skipDisconnectedPlayer()">Skip turn</button>`;
+    aa.prepend(skipDiv);
+  }, 1000);
+  // Auto-skip after grace period
+  _skipTimer = setTimeout(() => { skipDisconnectedPlayer(); }, SKIP_GRACE_MS);
+}
+
+function _clearSkipTimer() {
+  if (_skipTimer) { clearTimeout(_skipTimer); _skipTimer = null; }
+  const el = document.getElementById('skip-player-banner');
+  if (el) el.remove();
+}
+
+function skipDisconnectedPlayer() {
+  _clearSkipTimer();
+  if (!isHost) return;
+  wsSend({ type: 'skip_disconnected_player', playerId: myPlayerId });
 }
 
 /* ── Panel collapse ── */

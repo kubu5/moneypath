@@ -106,38 +106,61 @@ wss.on('connection', ws => {
     const g = games.get(meta.gameId);
     if (!g) return;
 
-    const left = g.players.find(p => p.ws === ws);
-    const wasHost = g.hostWs === ws;
-    g.players = g.players.filter(p => p.ws !== ws);
+    // Mark player as disconnected in the connected-players list
+    const slot = g.players.find(p => p.id === meta.playerId);
+    if (slot) {
+      slot.ws = null;
+      slot.disconnectedAt = Date.now();
+    }
 
-    if (g.players.length === 0) {
-      games.delete(meta.gameId);
+    // If game not started yet — just remove from lobby
+    if (!g.started) {
+      g.players = g.players.filter(p => p.id !== meta.playerId);
+      if (g.players.length === 0) { games.delete(meta.gameId); return; }
+      // Transfer lobby host if needed
+      if (g.hostWs === ws) {
+        const nextConnected = g.players.find(p => p.ws && p.ws.readyState === 1);
+        if (nextConnected) {
+          g.hostWs = nextConnected.ws;
+          g.hostPlayerId = nextConnected.id;
+        }
+      }
+      broadcast(meta.gameId, {
+        type: 'player_left',
+        playerId: meta.playerId,
+        players: g.players
+          .filter(p => p.ws && p.ws.readyState === 1)
+          .map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+      });
       return;
     }
 
-    // Transfer host if the host disconnected
-    let newHostName = null;
-    if (wasHost) {
-      g.hostWs = g.players[0].ws;
-      newHostName = g.players[0].name;
-      // Notify the new host first — send current game state so they can take over
-      send(g.hostWs, {
-        type:        'host_transferred',
-        newHostName: newHostName,
-        state:       g.state
-      });
+    // Game in progress — mark disconnected in state, don't splice
+    if (g.state?.players) {
+      const sp = g.state.players.find(p => p.id === meta.playerId);
+      if (sp) { sp.connected = false; sp.disconnectedAt = Date.now(); }
     }
 
-    // Re-index remaining players
-    g.players.forEach((p, i) => { p.idx = i; });
+    // Transfer host if needed
+    let newHostName = null;
+    if (g.hostWs === ws || g.hostPlayerId === meta.playerId) {
+      const nextConnected = g.players.find(p => p.id !== meta.playerId && p.ws && p.ws.readyState === 1);
+      if (nextConnected) {
+        g.hostWs = nextConnected.ws;
+        g.hostPlayerId = nextConnected.id;
+        newHostName = nextConnected.name;
+        if (g.state) g.state.hostPlayerId = g.hostPlayerId;
+        send(g.hostWs, { type: 'host_transferred', newHostName, state: g.state });
+      }
+    }
 
+    // Broadcast disconnection — NOT player_left (don't splice)
     broadcast(meta.gameId, {
-      type:        'player_left',
-      playerId:    meta.playerId,
-      playerName:  left?.name || '?',
-      wasHost:     wasHost,
-      newHostName: newHostName,
-      players:     g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+      type: 'player_disconnected',
+      playerId: meta.playerId,
+      newHostPlayerId: newHostName ? g.hostPlayerId : undefined,
+      newHostName,
+      state: g.state
     });
   });
 });
@@ -150,12 +173,14 @@ function handle(ws, msg) {
       const id = newId();
       const g = {
         id,
-        name:       msg.gameName || `${msg.playerName}'s game`,
-        hostWs:     ws,
-        maxPlayers: Math.min(6, Math.max(2, msg.maxPlayers || 4)),
-        players:    [{ ws, id: msg.playerId, name: msg.playerName, color: msg.color, idx: 0 }],
-        started:    false,
-        state:      null
+        name:         msg.gameName || `${msg.playerName}'s game`,
+        hostWs:       ws,
+        hostPlayerId: msg.playerId,
+        maxPlayers:   Math.min(6, Math.max(2, msg.maxPlayers || 4)),
+        players:      [{ ws, id: msg.playerId, name: msg.playerName, color: msg.color, idx: 0 }],
+        started:      false,
+        state:        null,
+        seqMap:       {}
       };
       games.set(id, g);
       clientMeta.set(ws, { gameId: id, playerId: msg.playerId });
@@ -195,6 +220,9 @@ function handle(ws, msg) {
 
       g.started = true;
       g.state   = msg.state;
+      g.hostPlayerId = g.hostPlayerId || g.players[0].id;
+      if (g.state) g.state.hostPlayerId = g.hostPlayerId;
+      if (!g.seqMap) g.seqMap = {};
 
       // Tell every player their index + the initial state
       g.players.forEach((p, i) => {
@@ -204,28 +232,84 @@ function handle(ws, msg) {
     }
 
     case 'state_update': {
-      // Host-only broadcast: only the host may push authoritative state to all players
       const meta = clientMeta.get(ws);
       if (!meta) return;
       const g = games.get(meta.gameId);
       if (!g || !g.started) return;
-      if (g.hostWs !== ws) return; // non-host must use player_action instead
 
+      // Validate: sender must be in room
+      const senderSlot = g.players.find(p => p.id === msg.playerId);
+      if (!senderSlot) return;
+
+      // Validate: sender must be host OR current turn player
+      const curPlayerId = g.state?.players?.[g.state?.currentPlayerIdx]?.id;
+      const senderIsHost = g.hostPlayerId === msg.playerId;
+      const senderIsCurPlayer = msg.playerId === curPlayerId;
+      if (!senderIsHost && !senderIsCurPlayer) return;
+
+      // Reject stale updates (clientSeq must be > server's last seen seq for this sender)
+      const senderSeq = msg.clientSeq ?? 0;
+      const lastSeq   = g.seqMap?.[msg.playerId] ?? -1;
+      if (senderSeq <= lastSeq && lastSeq > 0) return; // stale
+      if (!g.seqMap) g.seqMap = {};
+      g.seqMap[msg.playerId] = senderSeq;
+
+      // Accept and store
       g.state = msg.state;
-      broadcast(meta.gameId, { type: 'state_update', state: msg.state }, ws);
+      // Propagate connected flags from server's presence registry
+      if (g.state && g.state.players) {
+        g.state.players.forEach(sp => {
+          const slot = g.players.find(p => p.id === sp.id);
+          sp.connected = slot ? !!(slot.ws && slot.ws.readyState === 1) : false;
+        });
+      }
+
+      broadcast(meta.gameId, {
+        type: 'state_update',
+        state: g.state,
+        fromPlayerId: msg.playerId
+      }, ws);
       break;
     }
 
     case 'player_action': {
-      // Non-host submits their state to the host for validation and re-broadcast
+      // Deprecated routing through host — now treated as a direct state update
       const meta = clientMeta.get(ws);
       if (!meta) return;
       const g = games.get(meta.gameId);
-      if (!g || !g.started) return;
-      if (g.hostWs === ws) return; // host should never send player_action to itself
+      if (!g || !g.started || !msg.state) return;
+      const senderSlot = g.players.find(p => p.id === msg.playerId);
+      if (!senderSlot) return;
+      const curPlayerId = g.state?.players?.[g.state?.currentPlayerIdx]?.id;
+      if (msg.playerId !== curPlayerId && g.hostPlayerId !== msg.playerId) return;
+      g.state = msg.state;
+      broadcast(meta.gameId, { type: 'state_update', state: g.state, fromPlayerId: msg.playerId }, ws);
+      break;
+    }
 
-      // Route action state to host only
-      send(g.hostWs, { type: 'player_action', state: msg.state });
+    case 'skip_disconnected_player': {
+      const meta = clientMeta.get(ws);
+      if (!meta) return;
+      const g = games.get(meta.gameId);
+      if (!g || !g.started || !g.state) return;
+      // Only current host can skip
+      if (g.hostPlayerId !== meta.playerId) return;
+
+      // Advance to next connected, non-bankrupt player
+      const players = g.state.players;
+      const total = players.length;
+      if (!total) return;
+      let next = (g.state.currentPlayerIdx + 1) % total;
+      let safety = 0;
+      while (safety++ < total) {
+        const candidate = players[next];
+        const slot = g.players.find(p => p.id === candidate.id);
+        const isConnected = slot && slot.ws && slot.ws.readyState === 1;
+        if (isConnected && !candidate.bankrupt) break;
+        next = (next + 1) % total;
+      }
+      g.state.currentPlayerIdx = next;
+      broadcast(meta.gameId, { type: 'state_update', state: g.state, fromPlayerId: meta.playerId });
       break;
     }
 
@@ -263,26 +347,32 @@ function handle(ws, msg) {
       if (!g.started) return send(ws, { type: 'error', message: 'Game not started yet' });
       if (!g.state)   return send(ws, { type: 'error', message: 'No state available' });
 
-      // Find the player in the saved game state
-      const statePlayers = g.state.players || [];
-      const playerIdx    = statePlayers.findIndex(p => p.id === msg.playerId);
-      if (playerIdx === -1) return send(ws, { type: 'error', message: 'Player not found in game' });
+      // Find the player slot by stable ID
+      const slot = g.players.find(p => p.id === msg.playerId);
+      if (!slot) return send(ws, { type: 'error', message: 'Player not found in room' });
 
-      const playerData = statePlayers[playerIdx];
-
-      // Re-register in the connected-players list (replace if already listed)
-      const existingSlot = g.players.findIndex(p => p.id === msg.playerId);
-      if (existingSlot !== -1) {
-        g.players[existingSlot].ws = ws;
-      } else {
-        g.players.push({ ws, id: msg.playerId, name: playerData.name, color: playerData.color, idx: playerIdx });
-      }
+      // Restore websocket connection
+      slot.ws = ws;
+      slot.disconnectedAt = null;
       clientMeta.set(ws, { gameId: msg.gameId, playerId: msg.playerId });
 
-      // If the original host is gone, promote the rejoining player if no host exists
-      const hostAlive = g.players.some(p => p.ws === g.hostWs && p.ws.readyState === 1);
-      if (!hostAlive) g.hostWs = ws;
-      const amHost = g.hostWs === ws;
+      // Update state presence flag
+      if (g.state?.players) {
+        const sp = g.state.players.find(p => p.id === msg.playerId);
+        if (sp) { sp.connected = true; sp.disconnectedAt = null; }
+      }
+
+      // Decide if this player becomes host
+      const hostAlive = g.players.some(p => p.id === g.hostPlayerId && p.ws && p.ws.readyState === 1);
+      if (!hostAlive) {
+        g.hostPlayerId = msg.playerId;
+        g.hostWs = ws;
+        if (g.state) g.state.hostPlayerId = g.hostPlayerId;
+      }
+      const amHost = g.hostPlayerId === msg.playerId;
+
+      // Recompute playerIdx from stable ID in state
+      const playerIdx = g.state.players.findIndex(p => p.id === msg.playerId);
 
       send(ws, {
         type:       'rejoined_game',
@@ -290,14 +380,14 @@ function handle(ws, msg) {
         gameId:     msg.gameId,
         isHost:     amHost,
         state:      g.state,
-        players:    g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+        players:    g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx, connected: !!(p.ws && p.ws.readyState === 1) }))
       });
 
       broadcast(msg.gameId, {
         type:        'player_rejoined',
         playerId:    msg.playerId,
-        playerName:  playerData.name,
-        players:     g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
+        playerName:  slot.name,
+        state:       g.state
       }, ws);
       break;
     }
