@@ -251,7 +251,8 @@ function handle(ws, msg) {
 
       broadcast(meta.gameId, {
         type:        'host_changed',
-        newHostName: newHostSlot.name
+        newHostName: newHostSlot.name,
+        state:       g.state   // send updated state so all clients remove the bankrupt player
       }, g.hostWs);
       break;
     }
