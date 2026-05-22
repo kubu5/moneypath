@@ -3340,6 +3340,12 @@ function showStockDealCard(card) {
     const p   = currentPlayer();
     const canBuy = p.cash >= card.sharePrice;
     const owned  = sharesOwned(p, card.symbol);
+    // Find open short position for this symbol (if any)
+    const shortIdx = (p.shorts || []).findIndex(s => s.symbol === card.symbol);
+    const openShortPos = shortIdx >= 0 ? p.shorts[shortIdx] : null;
+    const coverCost = openShortPos ? openShortPos.qty * card.sharePrice : 0;
+    const coverPnl  = openShortPos ? (openShortPos.openPrice - card.sharePrice) * openShortPos.qty : 0;
+    const coverPnlStr = coverPnl >= 0 ? `+$${coverPnl.toLocaleString()}` : `-$${Math.abs(coverPnl).toLocaleString()}`;
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
         <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">${t('deal.stock_mkt_hd')}</div>
@@ -3353,6 +3359,11 @@ function showStockDealCard(card) {
           </div>
           <p style="color:#c8e6ff; font-size:13px; margin-bottom:8px;">${dealDesc(card)}</p>
           ${breakoutNote}
+          ${openShortPos ? `<div style="margin:8px 0;padding:10px 14px;background:rgba(251,63,95,0.12);border:1px solid rgba(251,63,95,0.35);border-radius:10px;font-size:13px;">
+            📉 <strong style="color:var(--loss);">${LANG==='pl'?'Otwarta pozycja short':'Open short position'}:</strong>
+            ${openShortPos.qty} × ${card.symbol} @ $${openShortPos.openPrice} → ${LANG==='pl'?'teraz':'now'} $${card.sharePrice}
+            &nbsp;|&nbsp; P&L: <strong style="color:${coverPnl>=0?'var(--profit)':'var(--loss)'};">${coverPnlStr}</strong>
+          </div>` : ''}
           <div class="stock-chart" aria-label="Candlestick chart">${buildCandleChart(card.symbol)}</div>
           <div class="stock-stats">
             <div class="stock-stat"><span style="color:var(--muted)">${t('deal.price_share')}</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
@@ -3368,7 +3379,9 @@ function showStockDealCard(card) {
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_shares')}</button>
             ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">${t('deal.sell_sym', card.symbol)}</button>` : ''}
-            <button class="btn btn-secondary" onclick="showShortSellModal()" style="flex:1.2;">📉 ${LANG==='pl'?'SHORT':'SHORT'}</button>
+            ${openShortPos
+              ? `<button class="btn btn-danger-act" onclick="closeShort(${shortIdx})" style="flex:1.5;background:linear-gradient(135deg,#7c2d12,#b91c1c);">📉 Cover — $${coverCost.toLocaleString()}</button>`
+              : `<button class="btn btn-secondary" onclick="showShortSellModal()" style="flex:1.2;">📉 ${LANG==='pl'?'SHORT':'SHORT'}</button>`}
             <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
             <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
           </div>
@@ -3448,6 +3461,8 @@ function openShort(qty) {
   renderGame();
   syncState();
   showNotif(LANG==='pl' ? `📉 Short otwarty: ${qty} × ${card.symbol} @ $${price} | Otrzymano $${received.toLocaleString()}` : `📉 Short opened: ${qty} × ${card.symbol} @ $${price} | Received $${received.toLocaleString()}`, 'success');
+  // End the deal card after opening a short (same as buying/selling)
+  state.currentCard = null;
   renderAction_EndTurn(LANG==='pl' ? `Krótka sprzedaż otwarta: ${qty} × ${card.symbol}` : `Short position opened: ${qty} × ${card.symbol}`);
 }
 
@@ -3498,6 +3513,8 @@ function closeShort(idx) {
   }
   const pnlStr = pnl >= 0 ? `+$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`;
   showNotif(LANG==='pl' ? `📈 Short zamknięty: ${s.symbol} | P&L: ${pnlStr}` : `📈 Short covered: ${s.symbol} | P&L: ${pnlStr}`, pnl >= 0 ? 'success' : 'error');
+  // After closing a short from the deal card — end this deal (same as buying/selling)
+  state.currentCard = null;
   renderAction_EndTurn(LANG==='pl' ? `Short zamknięty: ${s.symbol} | ${pnlStr}` : `Short covered: ${s.symbol} | P&L: ${pnlStr}`);
 }
 
@@ -3595,8 +3612,7 @@ function showSellStocksModal() {
 
   stocks.forEach((asset, i) => {
     const marketPrice = state.market[asset.symbol] || asset.sharePrice;
-    const purchasePrice = asset.sharePrice || marketPrice;
-    const curPrice = Math.min(purchasePrice, marketPrice); // capped at purchase price
+    const curPrice = marketPrice;
     const curVal   = asset.shares * curPrice;
     const costBasis = asset.value;
     const pnl      = curVal - costBasis;
@@ -3639,9 +3655,7 @@ function confirmSellStock(idx) {
   }
   const qty = Math.max(1, Math.min(asset.shares, parseInt(rawSell, 10)));
   const marketPrice = state.market[asset.symbol] || asset.sharePrice;
-  const purchasePrice = asset.sharePrice || marketPrice;
-  // Sell at purchase price or lower market price — no windfall above purchase price
-  const curPrice = Math.min(purchasePrice, marketPrice);
+  const curPrice = marketPrice;
   const proceeds = qty * curPrice;
   const costBasis = Math.round((qty / asset.shares) * asset.value);
   const pnl = proceeds - costBasis;
@@ -4273,7 +4287,6 @@ function renderAction_EndTurn(msg) {
         <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
           ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
           <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
-          ${(p.shorts && p.shorts.length > 0) ? `<button class="btn btn-secondary" style="width:100%;" onclick="showManageShortsModal()">📉 ${LANG==='pl'?'Zarządzaj Shortami':'Manage Shorts'} (${p.shorts.length})</button>` : ''}
           ${state.players.length > 1 ? `<button class="btn btn-secondary" style="width:100%;" onclick="showLendMoneyModal()">💸 ${LANG==='pl'?'Pożycz Graczowi':'Lend to Player'}</button>` : ''}
           <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
         </div>
@@ -4532,8 +4545,7 @@ function showDealStockSell() {
   if (!asset) { showNotif(t('notif.no_sym_shares', card.symbol), "info"); return; }
 
   const marketPrice2 = state.market[card.symbol] || card.sharePrice;
-  const purchasePrice2 = asset.sharePrice || marketPrice2;
-  const curPrice = Math.min(purchasePrice2, marketPrice2);
+  const curPrice = marketPrice2;
   const curVal = asset.shares * curPrice;
   const pnl = curVal - asset.value;
   const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
@@ -4575,9 +4587,7 @@ function confirmDealStockSell() {
   }
   const qty = Math.max(1, Math.min(asset.shares, parseInt(rawDealSell, 10)));
   const marketPrice = state.market[card.symbol] || card.sharePrice;
-  const purchasePrice = asset.sharePrice || marketPrice;
-  // Cap sell price at purchase price — gain only if market drops below purchase
-  const curPrice = Math.min(purchasePrice, marketPrice);
+  const curPrice = marketPrice;
   const proceeds = qty * curPrice;
   const costBasis = Math.round((qty / asset.shares) * asset.value);
   const pnl = proceeds - costBasis;
