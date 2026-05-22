@@ -2909,8 +2909,10 @@ function removePlayer(i) {
 function startGame() {
   if (setupPlayers.length < 1) return alert("Need at least 1 player");
 
+  // Shuffle professions so each player gets a unique one
+  const _shuffledProfs = [...PROFESSIONS].sort(() => Math.random() - 0.5);
   state.players = setupPlayers.map((sp, i) => {
-    const prof = {...PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)]};
+    const prof = {..._shuffledProfs[i % _shuffledProfs.length]};
     return {
       name: sp.name,
       color: PCOLORS[i],
@@ -5238,8 +5240,10 @@ function startOnlineGame() {
   if (!isHost || roomPlayers.length < 2) return;
 
   // Build initial state from room player list (same logic as startGame())
+  // Shuffle professions so each player gets a unique one
+  const _shuffledProfs = [...PROFESSIONS].sort(() => Math.random() - 0.5);
   state.players = roomPlayers.map((rp, i) => {
-    const prof = {...PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)]};
+    const prof = {..._shuffledProfs[i % _shuffledProfs.length]};
     return {
       name: rp.name, color: PCOLORS[i], profession: prof.name, profKey: prof.key || null,
       salary: prof.salary, taxes: prof.taxes, mortgage: prof.mortgage,
