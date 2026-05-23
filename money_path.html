@@ -2546,13 +2546,7 @@ function buyDeal() {
       name: card.title, value: totalCost, cashflow: card.cashflow,
       type: card.type, rangeLow: card.rangeLow, rangeHigh: card.rangeHigh
     });
-    if (card.type === "rental" || card.type === "business") {
-      p.liabilities.push({
-        name: card.title,
-        value: Math.max(0, card.price - card.downpayment),
-        payment: 0, type: card.type
-      });
-    }
+    // Deals are paid in full upfront — no mortgage liability created
   }
 
   recalcPassive(p);
@@ -3516,8 +3510,8 @@ function renderFS() {
   const progress = expenses > 0 ? Math.min(100, Math.round((p.passiveIncome/expenses)*100)) : 100;
   const investmentAssets = p.assets.filter(a=>a.type==="stock"||a.type==="fund"||a.type==="cd");
   const businessAssets   = p.assets.filter(a=>a.type==="rental"||a.type==="business");
-  const fixedLiabilities    = p.liabilities.filter(l=>["home","student","car","credit","retail"].includes(l.type));
-  const businessLiabilities = p.liabilities.filter(l=>l.type==="rental"||l.type==="business");
+  const fixedLiabilities = p.liabilities.filter(l=>["home","student","car","credit","retail"].includes(l.type));
+  const loanLiabilities  = p.liabilities.filter(l=>l.type==="loan");
   const row = (label, value, cls="") => `
     <div class="fs-row ${cls}">
       <span>${label}</span>
@@ -3582,17 +3576,16 @@ function renderFS() {
 
       <div class="fs-grid">
         <div>
-          <div class="fs-section-title">Assets</div>
-          ${row("Stocks / Funds","Curr. Value")}
+          <div class="fs-section-title">Aktywa</div>
+          ${row("Akcje / Fundusze","Wart. bieżąca")}
           ${stockRows}
-          ${row("Real Estate / Business","Cost")}
+          ${row("Nieruchomości / Biznes","Koszt nabycia")}
           ${assetRows}
         </div>
         <div>
           <div class="fs-section-title">Zobowiązania</div>
           ${fixedLiabilities.map(l=>row(plLiabName(l.name), money(l.value))).join("")}
-          ${row("Nieruchomości / Biznes","Dług")}
-          ${bizLiabRows}
+          ${loanLiabilities.length ? loanLiabilities.map(l=>row(plLiabName(l.name), money(l.value))).join("") : emptyRows(2)}
         </div>
       </div>
     </div>`;
@@ -4357,6 +4350,26 @@ function confirmPlayerLoanOnline(borrowerIdx, lenderIdx) {
   const saved = localStorage.getItem('moneypath-theme') || 'light';
   applyTheme(saved);
 })();
+
+// Spacebar shortcuts: roll dice or next player
+document.addEventListener('keydown', function(e) {
+  if (e.code !== 'Space') return;
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+  e.preventDefault();
+
+  // Roll dice
+  const rollBtn = document.getElementById('roll-button');
+  if (rollBtn && !rollBtn.disabled && rollBtn.offsetParent !== null) {
+    rollBtn.click();
+    return;
+  }
+  // Next player — find the nextTurn button inside the action area
+  const nextBtn = document.querySelector('#action-area [onclick="nextTurn()"]');
+  if (nextBtn && nextBtn.offsetParent !== null) {
+    nextBtn.click();
+  }
+});
 </script>
 </body>
 </html>
