@@ -1459,33 +1459,41 @@ input:focus, select:focus {
         <span style="font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase;">Little Explorers — Szkoła Talentów</span>
       </a>
 
-      <div class="header" style="border-radius:0; margin:0 -36px 28px -36px;">
+      <div class="header" style="border-radius:0; margin:0 -36px 28px -36px; position:relative;">
         <div class="logo">MoneyPath</div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
+        <button id="lang-toggle-btn"
+          onclick="setLang(LANG==='en'?'pl':'en')"
+          style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;">
+          🌐 PL
+        </button>
       </div>
 
-      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;">Wybierz tryb gry</h1>
-      <p class="subtitle" style="margin-bottom:20px;">Graj lokalnie na jednym ekranie lub rywalizuj z przyjaciółmi online</p>
+      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;"
+        data-en="Choose game mode" data-pl="Wybierz tryb gry">Choose game mode</h1>
+      <p class="subtitle" style="margin-bottom:20px;"
+        data-en="Play locally on one screen or compete with friends online"
+        data-pl="Graj lokalnie na jednym ekranie lub rywalizuj z przyjaciółmi online">Play locally on one screen or compete with friends online</p>
 
       <!-- Mode buttons -->
       <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
         <button class="btn btn-primary" style="padding:16px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('setup')">
           <span style="font-size:26px;">💻</span>
-          <span><strong>Graj lokalnie</strong><br><span style="font-size:12px; opacity:0.8;">Na jednym urządzeniu lub screen share</span></span>
+          <span><strong data-en="Play Locally" data-pl="Graj lokalnie">Play Locally</strong><br><span style="font-size:12px; opacity:0.8;" data-en="On one device or screen share" data-pl="Na jednym urządzeniu lub screen share">On one device or screen share</span></span>
         </button>
         <button class="btn btn-invest" style="padding:16px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('online')">
           <span style="font-size:26px;">🌐</span>
-          <span><strong>Graj online</strong><br><span style="font-size:12px; opacity:0.8;">Każdy gracz na swoim urządzeniu</span></span>
+          <span><strong data-en="Play Online" data-pl="Graj online">Play Online</strong><br><span style="font-size:12px; opacity:0.8;" data-en="Each player on their own device" data-pl="Każdy gracz na swoim urządzeniu">Each player on their own device</span></span>
         </button>
       </div>
 
       <!-- Secondary buttons -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
         <button class="btn btn-secondary" style="padding:12px; font-size:13px; display:flex; align-items:center; gap:8px;" onclick="showMenuModal('mission')">
-          <span>🎯</span><span><strong>Misja</strong><br><span style="font-size:11px;opacity:.7;">O grze</span></span>
+          <span>🎯</span><span><strong data-en="Mission" data-pl="Misja">Mission</strong><br><span style="font-size:11px;opacity:.7;" data-en="About the game" data-pl="O grze">About the game</span></span>
         </button>
         <button class="btn btn-secondary" style="padding:12px; font-size:13px; display:flex; align-items:center; gap:8px;" onclick="showMenuModal('howtoplay')">
-          <span>📖</span><span><strong>Instrukcja</strong><br><span style="font-size:11px;opacity:.7;">Jak grać</span></span>
+          <span>📖</span><span><strong data-en="How to Play" data-pl="Instrukcja">How to Play</strong><br><span style="font-size:11px;opacity:.7;" data-en="Rules" data-pl="Jak grać">Rules</span></span>
         </button>
       </div>
 
@@ -1496,7 +1504,7 @@ input:focus, select:focus {
         <img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png"
              alt="" style="height:20px; width:auto; object-fit:contain;"
              onerror="this.style.display='none'">
-        <span>← Wróć do <strong>littleexplorers.pl</strong></span>
+        <span data-en="← Back to littleexplorers.pl" data-pl="← Wróć do littleexplorers.pl">← Back to littleexplorers.pl</span>
       </a>
 
       <div class="disclaimer-box" style="margin-top:12px;">
@@ -1506,18 +1514,34 @@ input:focus, select:focus {
     </div>
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
-      Zaprojektowana i zbudowana przez Jakuba Krawczyka<br>
-      <span style="font-size:10px; opacity:0.8;">Bezpłatna do użytku niekomercyjnego i edukacyjnego</span>
+      Designed &amp; developed by Jakub Krawczyk<br>
+      <span style="font-size:10px; opacity:0.8;">Free for non-commercial &amp; educational use only</span>
     </div>
   </div>
 </div>
 
-<!-- Misja / Instrukcja modal content -->
+<!-- Language + Mission modal -->
 <script>
+let LANG = localStorage.getItem('mp_lang') || 'en';
+
+function setLang(l) {
+  LANG = l;
+  localStorage.setItem('mp_lang', l);
+  applyMenuLang();
+}
+
+function applyMenuLang() {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.innerHTML = LANG === 'pl' ? (el.dataset.pl || el.dataset.en) : el.dataset.en;
+  });
+  const btn = document.getElementById('lang-toggle-btn');
+  if (btn) btn.textContent = LANG === 'en' ? '🌐 PL' : '🌐 EN';
+}
+
 const MENU_MODALS = {
   mission: {
-    title: '📖 O grze MoneyPath',
-    body: `
+    title: () => LANG === 'pl' ? '📖 O grze MoneyPath' : '📖 About MoneyPath',
+    body: () => LANG === 'pl' ? `
       <div style="line-height:1.7;font-size:14px;">
         <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
           <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Słowo od twórcy</div>
@@ -1552,7 +1576,42 @@ const MENU_MODALS = {
           <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers Szkoła Talentów</div>
         </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Zaczynam grać! 🎲</button>`
+      <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Zaczynam grać! 🎲</button>` : `
+      <div style="line-height:1.7;font-size:14px;">
+        <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">A word from the creator</div>
+          <p style="margin:0 0 10px;">Hi! I'm <strong>Jakub Krawczyk</strong>, co-founder of <strong>Little Explorers sp. z o.o. — School of Talents</strong>.</p>
+          <p style="margin:0 0 10px;">I've spent years working with children and young people, teaching them — among other things — how to think wisely about money. MoneyPath grew from one simple observation: <em>most people were never taught how financial freedom works</em>.</p>
+          <p style="margin:0;">I built this game so you can change that — by playing together with family or friends.</p>
+        </div>
+        <h3 style="margin:0 0 10px;color:var(--accent);">🎯 Goal</h3>
+        <p style="margin:0 0 6px;">Achieve <strong>financial freedom</strong> and buy your <strong>dream</strong>. You win when:</p>
+        <ol style="margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
+          <li>Your <strong>passive income</strong> (from assets) exceeds all monthly <strong>expenses</strong></li>
+          <li>You reach the <strong>Freedom Track</strong> and land on your dream space</li>
+          <li>You buy your dream with accumulated cash</li>
+        </ol>
+        <h3 style="margin:0 0 10px;color:var(--accent);">⚙️ How to play</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💰</span><span><strong>PAYDAY</strong> — collect salary and asset income, pay expenses. If passive income ≥ expenses — move to Freedom Track.</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🃏</span><span><strong>DEAL</strong> — buy assets (real estate, stocks, businesses) that generate passive income.</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💸</span><span><strong>SPLURGE</strong> — unexpected expense. Teaches the value of a cash reserve.</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">❤️</span><span><strong>CHARITY</strong> — donate. Roll 2 dice for the next 3 turns.</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🚀</span><span><strong>Freedom Track</strong> — outer track for financially-free players. Reach your dream space and buy it!</span></div>
+        </div>
+        <h3 style="margin:0 0 10px;color:var(--accent);">💡 Key to winning</h3>
+        <p style="margin:0 0 16px;">Don't chase cash — chase <strong>assets</strong>. Loans can speed up asset purchases — but repayments eat into your cashflow.</p>
+        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
+          <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiration — Cashflow 101</div>
+          <p style="margin:0 0 8px;">MoneyPath is inspired by <strong>Cashflow 101</strong> by Robert Kiyosaki. If the game hooked you — <strong>I strongly encourage</strong> you to try the original. It goes deeper and is packed with financial lessons.</p>
+          <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath is an independent creative work — not affiliated with Rich Dad Company.</p>
+        </div>
+        <div style="text-align:center;padding:10px 0 2px;border-top:1px solid rgba(56,189,248,0.1);">
+          <div style="font-size:13px;color:var(--muted);">Enjoy the game — see you on the Freedom Track! 🏆</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers School of Talents</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Let's play! 🎲</button>`
   },
   howtoplay: {
     title: '📖 Jak grać w MoneyPath',
@@ -1595,8 +1654,10 @@ const MENU_MODALS = {
 function showMenuModal(key) {
   const m = MENU_MODALS[key];
   if (!m) return;
-  const footer = key === 'mission' ? '' : `<button class="btn btn-secondary" style="width:100%;margin-top:14px;" onclick="closeModal()">Zamknij</button>`;
-  setModal(m.title, m.body + footer);
+  const title  = typeof m.title === 'function' ? m.title() : m.title;
+  const body   = typeof m.body  === 'function' ? m.body()  : m.body;
+  const footer = key === 'mission' ? '' : `<button class="btn btn-secondary" style="width:100%;margin-top:14px;" onclick="closeModal()">${LANG === 'pl' ? 'Zamknij' : 'Close'}</button>`;
+  setModal(title, body + footer);
 }
 </script>
 
@@ -1617,10 +1678,16 @@ function showMenuModal(key) {
           style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:15px; font-family:inherit; box-sizing:border-box;">
       </div>
 
-      <div style="display:flex; gap:10px; margin-bottom:24px;">
-        <input id="online-game-name" type="text" placeholder="Game name (optional)" maxlength="30"
-          style="flex:1; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box;">
-        <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()">🎮 Create</button>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:24px;">
+        <div style="display:flex; gap:10px;">
+          <input id="online-game-name" type="text" placeholder="Game name (optional)" maxlength="30"
+            style="flex:1; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box;">
+          <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()">🎮 Create</button>
+        </div>
+        <div style="position:relative;">
+          <input id="online-game-password" type="password" placeholder="🔒 Password (optional — leave blank for open game)" maxlength="30"
+            style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.2); background:var(--glass); color:var(--text); font-size:13px; font-family:inherit; box-sizing:border-box;">
+        </div>
       </div>
 
       <div>
@@ -1655,9 +1722,8 @@ function showMenuModal(key) {
       </div>
 
       <div style="text-align:center; margin-bottom:24px;">
-        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Share this code with friends</div>
-        <div id="room-code-display" class="room-code-box" title="Click to copy" onclick="copyRoomCode()">·····</div>
-        <div id="copy-hint" style="font-size:11px; color:var(--muted); margin-top:6px;">Click code to copy</div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Game Room</div>
+        <div id="room-game-name" style="font-size:20px; font-weight:700; color:var(--text); letter-spacing:0.5px;">—</div>
       </div>
 
       <div style="margin-bottom:20px;">
@@ -4138,6 +4204,7 @@ function sellAsset(assetName, salePrice) {
 
 // ==================== INIT ====================
 renderSetup();
+applyMenuLang();
 
 // ── THEME TOGGLE ──
 // ==================== ONLINE MULTIPLAYER ====================
@@ -4183,9 +4250,9 @@ async function refreshLobby() {
       return;
     }
     el.innerHTML = gs.map(g => `
-      <div class="lobby-game-card" onclick="onlineJoinGame('${g.id}')">
+      <div class="lobby-game-card" onclick="onlineJoinGame('${g.id}',${!!g.hasPassword})">
         <div>
-          <div style="font-weight:700;font-size:15px;">${htmlEsc(g.name)}</div>
+          <div style="font-weight:700;font-size:15px;">${htmlEsc(g.name)}${g.hasPassword ? ' <span style="font-size:14px;">🔒</span>' : ''}</div>
           <div style="font-size:12px;color:var(--muted);">Host: ${htmlEsc(g.host)} · ${g.players}/${g.maxPlayers} players</div>
         </div>
         <button class="btn btn-invest" style="padding:8px 18px;font-size:13px;pointer-events:none;">JOIN</button>
@@ -4208,21 +4275,47 @@ function onlineCreateGame() {
   const name = getOnlineName();
   if (!name) return alert('Enter your name first');
   const gameName = document.getElementById('online-game-name').value.trim() || `${name}'s game`;
+  const password = document.getElementById('online-game-password')?.value.trim() || '';
   myPlayerId  = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
   myPlayerIdx = 0;
   isHost      = true;
   connectWS(() => {
-    wsSend({ type: 'create_game', playerName: name, gameName, playerId: myPlayerId, color: PCOLORS[0], maxPlayers: 4 });
+    wsSend({ type: 'create_game', playerName: name, gameName, password: password || undefined, playerId: myPlayerId, color: PCOLORS[0], maxPlayers: 4 });
   });
 }
 
-function onlineJoinGame(gameId) {
+let _pendingJoinId = null;
+
+function onlineJoinGame(gameId, hasPassword) {
   const name = getOnlineName();
   if (!name) return alert('Enter your name first');
+  if (hasPassword) {
+    _pendingJoinId = gameId;
+    setModal('🔒 Password Required', `
+      <p style="margin-bottom:14px;color:var(--muted);font-size:14px;">This game is password protected. Enter the password to join.</p>
+      <input id="join-pw-input" type="password" placeholder="Password" maxlength="30" autofocus
+        style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid rgba(150,112,184,0.3);background:var(--glass);color:var(--text);font-size:15px;font-family:inherit;box-sizing:border-box;margin-bottom:14px;"
+        onkeydown="if(event.key==='Enter')document.getElementById('_joinPwBtn').click()">
+      <button id="_joinPwBtn" class="btn btn-primary" style="width:100%;padding:14px;" onclick="confirmJoinWithPassword()">Join Game</button>
+      <button class="btn btn-secondary" style="width:100%;margin-top:10px;padding:12px;" onclick="closeModal()">Cancel</button>`);
+    setTimeout(() => document.getElementById('join-pw-input')?.focus(), 80);
+  } else {
+    _doJoinGame(gameId, '');
+  }
+}
+
+function confirmJoinWithPassword() {
+  const pw = document.getElementById('join-pw-input')?.value || '';
+  closeModal();
+  if (_pendingJoinId) { _doJoinGame(_pendingJoinId, pw); _pendingJoinId = null; }
+}
+
+function _doJoinGame(gameId, password) {
+  const name = getOnlineName();
   myPlayerId  = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
   isHost      = false;
   connectWS(() => {
-    wsSend({ type: 'join_game', gameId, playerName: name, playerId: myPlayerId, color: PCOLORS[1] });
+    wsSend({ type: 'join_game', gameId, password, playerName: name, playerId: myPlayerId, color: PCOLORS[1] });
   });
 }
 
@@ -4240,14 +4333,6 @@ function updateRoomUI(players) {
     players.length < 2 ? 'Waiting for at least one more player…' : `${players.length} players ready`;
   const btn = document.getElementById('room-start-btn');
   if (btn) btn.style.display = (isHost && players.length >= 2) ? 'block' : 'none';
-}
-
-function copyRoomCode() {
-  const code = document.getElementById('room-code-display').textContent;
-  navigator.clipboard?.writeText(code).then(() => {
-    document.getElementById('copy-hint').textContent = '✅ Copied!';
-    setTimeout(() => { document.getElementById('copy-hint').textContent = 'Click code to copy'; }, 2000);
-  });
 }
 
 function leaveRoom() {
@@ -4297,7 +4382,8 @@ function handleServerMsg(msg) {
   switch (msg.type) {
 
     case 'game_created': {
-      document.getElementById('room-code-display').textContent = msg.gameId;
+      const gn = document.getElementById('room-game-name');
+      if (gn) gn.textContent = msg.gameName || 'My Game';
       updateRoomUI(msg.players);
       goScreen('room');
       break;
@@ -4305,7 +4391,8 @@ function handleServerMsg(msg) {
 
     case 'joined_game': {
       myPlayerIdx = msg.playerIdx;
-      document.getElementById('room-code-display').textContent = msg.gameId;
+      const gn = document.getElementById('room-game-name');
+      if (gn) gn.textContent = msg.gameName || 'Game';
       updateRoomUI(msg.players);
       goScreen('room');
       break;

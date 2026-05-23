@@ -57,10 +57,11 @@ const server = http.createServer((req, res) => {
     for (const [id, g] of games) {
       if (!g.started) list.push({
         id,
-        name:       g.name,
-        players:    g.players.length,
-        maxPlayers: g.maxPlayers,
-        host:       g.players[0]?.name || '?'
+        name:        g.name,
+        players:     g.players.length,
+        maxPlayers:  g.maxPlayers,
+        host:        g.players[0]?.name || '?',
+        hasPassword: !!g.password
       });
     }
     res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders() });
@@ -140,6 +141,7 @@ function handle(ws, msg) {
         name:       msg.gameName || `${msg.playerName}'s game`,
         hostWs:     ws,
         maxPlayers: Math.min(6, Math.max(2, msg.maxPlayers || 4)),
+        password:   msg.password ? String(msg.password).slice(0, 30) : null,
         players:    [{ ws, id: msg.playerId, name: msg.playerName, color: msg.color, idx: 0 }],
         started:    false,
         state:      null
@@ -149,6 +151,7 @@ function handle(ws, msg) {
       send(ws, {
         type:      'game_created',
         gameId:    id,
+        gameName:  g.name,
         playerIdx: 0,
         players:   g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }))
       });
@@ -161,13 +164,15 @@ function handle(ws, msg) {
       if (g.started)  return send(ws, { type: 'error', message: 'Game already started' });
       if (g.players.length >= g.maxPlayers)
                       return send(ws, { type: 'error', message: 'Game is full' });
+      if (g.password && msg.password !== g.password)
+                      return send(ws, { type: 'error', message: 'Wrong password' });
 
       const idx = g.players.length;
       g.players.push({ ws, id: msg.playerId, name: msg.playerName, color: msg.color, idx });
       clientMeta.set(ws, { gameId: msg.gameId, playerId: msg.playerId });
 
       const players = g.players.map(p => ({ id: p.id, name: p.name, color: p.color, idx: p.idx }));
-      send(ws, { type: 'joined_game', gameId: msg.gameId, playerIdx: idx, players });
+      send(ws, { type: 'joined_game', gameId: msg.gameId, gameName: g.name, playerIdx: idx, players });
       broadcast(msg.gameId, { type: 'lobby_update', players }, ws);
       break;
     }
