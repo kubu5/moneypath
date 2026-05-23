@@ -71,6 +71,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow: hidden;
+  padding-top: 40px;
 }
 
 /* ===== GLASS SYSTEM ===== */
@@ -256,7 +257,7 @@ input:focus, select:focus {
 #game-screen {
   display: none;
   grid-template-columns: 240px minmax(480px,1fr) 460px;
-  height: 100vh;
+  height: calc(100vh - 40px);
 }
 
 #game-screen.active { display: grid; }
@@ -1191,7 +1192,7 @@ input:focus, select:focus {
     grid-template-columns: 1fr !important;
     grid-template-rows: auto auto auto auto !important;
     height: auto !important;
-    min-height: 100dvh;
+    min-height: calc(100dvh - 40px);
   }
 
   .left-panel {
@@ -1222,13 +1223,12 @@ input:focus, select:focus {
   #turn-who { font-size: 17px !important; }
   #turn-count { font-size: 20px !important; }
 
-  #global-controls {
-    top: 6px !important; right: 8px !important;
-    gap: 6px !important;
-  }
+  #top-bar { height: 36px; padding: 0 8px; gap: 6px; }
+  body { padding-top: 36px; }
+  #game-screen { height: calc(100vh - 36px); }
   #global-theme-toggle, #lang-toggle-btn {
     font-size: 10px !important;
-    padding: 5px 10px !important;
+    padding: 4px 9px !important;
   }
 
   .modal { width: 95vw !important; max-width: 95vw !important; max-height: 90dvh; overflow-y: auto; }
@@ -1238,21 +1238,45 @@ input:focus, select:focus {
 }
 
 /* ══════════════════════════════════════════
-   GLOBAL THEME TOGGLE + SCREEN FOOTER
+   GLOBAL TOP BAR
    ══════════════════════════════════════════ */
+#top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 40px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 12px;
+  gap: 8px;
+  background: rgba(4,12,28,0.78);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid rgba(56,189,248,0.10);
+}
+:root #top-bar {
+  background: rgba(255,255,255,0.78);
+  border-bottom: 1px solid rgba(176,145,210,0.18);
+}
+[data-theme="dark"] #top-bar {
+  background: rgba(4,12,28,0.85);
+  border-bottom: 1px solid rgba(56,189,248,0.12);
+}
+
 #global-theme-toggle,
 #lang-toggle-btn {
-  padding: 7px 14px; border-radius: 20px;
+  padding: 5px 12px; border-radius: 20px;
   border: 1.5px solid rgba(176,145,210,0.4);
-  background: rgba(255,255,255,0.88);
+  background: rgba(255,255,255,0.12);
   color: #9570b8; font-weight: 700; font-size: 12px;
-  cursor: pointer; backdrop-filter: blur(8px);
+  cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
   white-space: nowrap;
 }
 [data-theme="dark"] #global-theme-toggle,
 [data-theme="dark"] #lang-toggle-btn {
-  background: rgba(8,20,40,0.88);
+  background: rgba(255,255,255,0.06);
   border-color: rgba(56,189,248,0.35);
   color: #7dd3fc;
 }
@@ -1440,8 +1464,8 @@ input:focus, select:focus {
 </head>
 <body>
 
-<!-- Global controls: language + theme toggle — visible on all screens -->
-<div id="global-controls" style="position:fixed;top:14px;right:16px;z-index:99999;display:flex;gap:8px;align-items:center;">
+<!-- Global top bar — above all screens, never overlaps content -->
+<div id="top-bar">
   <button id="lang-toggle-btn" onclick="setLang(LANG==='en'?'pl':'en')">🌐 PL</button>
   <button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
 </div>
