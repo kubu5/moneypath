@@ -1448,34 +1448,134 @@ input:focus, select:focus {
 <div id="menu-screen" class="screen active">
   <div class="setup-container">
     <div class="glass-premium setup-card">
-      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
+
+      <!-- Little Explorers branding -->
+      <a href="https://littleexplorers.pl" target="_blank" rel="noopener"
+         style="display:flex; align-items:center; justify-content:center; gap:10px; margin:-36px -36px 0 -36px; padding:12px 20px; background:rgba(149,112,184,0.12); border-bottom:1px solid rgba(149,112,184,0.18); text-decoration:none;">
+        <img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png"
+             alt="Little Explorers — Szkoła Talentów"
+             style="height:32px; width:auto; object-fit:contain;"
+             onerror="this.style.display='none'">
+        <span style="font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase;">Little Explorers — Szkoła Talentów</span>
+      </a>
+
+      <div class="header" style="border-radius:0; margin:0 -36px 28px -36px;">
         <div class="logo">MoneyPath</div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
       </div>
-      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;">Choose Mode</h1>
-      <p class="subtitle" style="margin-bottom:28px;">Play locally on one screen, or compete with friends online</p>
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <button class="btn btn-primary" style="padding:18px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('setup')">
-          <span style="font-size:28px;">💻</span>
-          <span><strong>Play Local</strong><br><span style="font-size:12px; opacity:0.8;">Same device or screen share</span></span>
+
+      <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;">Wybierz tryb gry</h1>
+      <p class="subtitle" style="margin-bottom:20px;">Graj lokalnie na jednym ekranie lub rywalizuj z przyjaciółmi online</p>
+
+      <!-- Mode buttons -->
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+        <button class="btn btn-primary" style="padding:16px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('setup')">
+          <span style="font-size:26px;">💻</span>
+          <span><strong>Graj lokalnie</strong><br><span style="font-size:12px; opacity:0.8;">Na jednym urządzeniu lub screen share</span></span>
         </button>
-        <button class="btn btn-invest" style="padding:18px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('online')">
-          <span style="font-size:28px;">🌐</span>
-          <span><strong>Play Online</strong><br><span style="font-size:12px; opacity:0.8;">Each player on their own device</span></span>
+        <button class="btn btn-invest" style="padding:16px; font-size:15px; text-align:left; display:flex; align-items:center; gap:14px;" onclick="goScreen('online')">
+          <span style="font-size:26px;">🌐</span>
+          <span><strong>Graj online</strong><br><span style="font-size:12px; opacity:0.8;">Każdy gracz na swoim urządzeniu</span></span>
         </button>
       </div>
-      <div class="disclaimer-box">
-        📚 <strong>MoneyPath</strong> is an original educational board game inspired by passive income and financial literacy principles.<br>
-        Not affiliated with or endorsed by Rich Dad Company or Cashflow® 101.
+
+      <!-- Secondary buttons -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+        <button class="btn btn-secondary" style="padding:12px; font-size:13px; display:flex; align-items:center; gap:8px;" onclick="showMenuModal('mission')">
+          <span>🎯</span><span><strong>Misja</strong><br><span style="font-size:11px;opacity:.7;">O grze</span></span>
+        </button>
+        <button class="btn btn-secondary" style="padding:12px; font-size:13px; display:flex; align-items:center; gap:8px;" onclick="showMenuModal('howtoplay')">
+          <span>📖</span><span><strong>Instrukcja</strong><br><span style="font-size:11px;opacity:.7;">Jak grać</span></span>
+        </button>
+      </div>
+
+      <!-- Back to website -->
+      <a href="https://littleexplorers.pl" target="_blank" rel="noopener"
+         class="btn btn-secondary"
+         style="display:flex; align-items:center; justify-content:center; gap:10px; padding:11px; text-decoration:none; font-size:13px; border:1px solid rgba(149,112,184,0.35);">
+        <img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png"
+             alt="" style="height:20px; width:auto; object-fit:contain;"
+             onerror="this.style.display='none'">
+        <span>← Wróć do <strong>littleexplorers.pl</strong></span>
+      </a>
+
+      <div class="disclaimer-box" style="margin-top:12px;">
+        📚 <strong>MoneyPath</strong> to oryginalna edukacyjna gra planszowa o finansach i dochodzie pasywnym.<br>
+        Niezwiązana z Rich Dad Company ani Cashflow® 101.
       </div>
     </div>
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
-      Designed &amp; developed by Jakub Krawczyk<br>
-      <span style="font-size:10px; opacity:0.8;">Free for non-commercial &amp; educational use only</span>
+      Zaprojektowana i zbudowana przez Jakuba Krawczyka<br>
+      <span style="font-size:10px; opacity:0.8;">Bezpłatna do użytku niekomercyjnego i edukacyjnego</span>
     </div>
   </div>
 </div>
+
+<!-- Misja / Instrukcja modal content -->
+<script>
+const MENU_MODALS = {
+  mission: {
+    title: '🎯 Misja MoneyPath',
+    body: `
+      <div style="text-align:center;margin-bottom:16px;">
+        <img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" style="height:40px;width:auto;" onerror="this.style.display='none'">
+      </div>
+      <p style="margin-bottom:12px;">MoneyPath to edukacyjna gra planszowa stworzona przez <strong>Little Explorers — Szkołę Talentów</strong>, która uczy dzieci i dorosłych <strong>myślenia finansowego</strong>.</p>
+      <p style="margin-bottom:12px;">Wierzymy, że <strong>wolność finansowa zaczyna się od edukacji</strong> — od zrozumienia jak działają aktywa, pasywa, cashflow i inwestycje.</p>
+      <p style="margin-bottom:16px;">MoneyPath przenosi te koncepcje do formy zabawy, dostępnej dla każdego.</p>
+      <div style="padding:12px;background:rgba(149,112,184,0.1);border:1px solid rgba(149,112,184,0.2);border-radius:10px;margin-bottom:16px;font-size:13px;">
+        🏫 <strong>Little Explorers — Szkoła Talentów</strong><br>
+        <span style="color:var(--muted);">Rozwijamy potencjał dzieci przez kreatywność, przedsiębiorczość i edukację finansową.</span>
+      </div>
+      <a href="https://littleexplorers.pl" target="_blank" class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;padding:12px;">
+        🌐 Odwiedź littleexplorers.pl
+      </a>`
+  },
+  howtoplay: {
+    title: '📖 Jak grać w MoneyPath',
+    body: `
+      <div style="line-height:1.7;font-size:14px;">
+        <h3 style="margin-bottom:8px;color:var(--accent);">🎯 Cel gry</h3>
+        <p style="margin-bottom:12px;">Osiągnij <strong>wolność finansową</strong> — twój dochód pasywny musi przekroczyć twoje miesięczne wydatki. Następnie kup swoje <strong>Marzenie</strong>!</p>
+
+        <h3 style="margin-bottom:8px;color:var(--accent);">🎲 Przebieg tury</h3>
+        <ol style="margin:0 0 12px 16px;">
+          <li>Rzuć kostką (lub naciśnij <strong>Spację</strong>)</li>
+          <li>Wyląduj na polu i wykonaj akcję</li>
+          <li>Naciśnij <strong>Spację</strong> aby zakończyć turę</li>
+        </ol>
+
+        <h3 style="margin-bottom:8px;color:var(--accent);">🏦 Pola na planszy</h3>
+        <ul style="margin:0 0 12px 16px;">
+          <li><strong style="color:#22c55e;">PAYDAY</strong> — otrzymujesz cashflow (przychody − wydatki)</li>
+          <li><strong style="color:#38bdf8;">DEAL</strong> — możesz kupić aktywo (nieruchomość, biznes, akcje)</li>
+          <li><strong style="color:#fb3f5f;">SPLURGE</strong> — niespodziewany wydatek</li>
+          <li><strong style="color:#f59e0b;">BABY</strong> — nowe dziecko, rosną wydatki</li>
+          <li><strong style="color:#ef4444;">LAYOFF</strong> — tracisz pracę na kilka tur</li>
+          <li><strong style="color:#84cc16;">CHARITY</strong> — darowizna daje bonus przy następnym rzucie</li>
+        </ul>
+
+        <h3 style="margin-bottom:8px;color:var(--accent);">💡 Wskazówki</h3>
+        <ul style="margin:0 0 12px 16px;">
+          <li>Kupuj aktywa — generują <strong>dochód pasywny</strong></li>
+          <li>Spłacaj długi — zmniejszają cashflow</li>
+          <li>Obserwuj giełdę — kupuj tanio, sprzedawaj drogo</li>
+          <li>Uważaj na <strong>Lichwy</strong> — 10 tur na spłatę!</li>
+        </ul>
+
+        <h3 style="margin-bottom:8px;color:var(--accent);">🌐 Tryb online</h3>
+        <p>Jeden gracz tworzy pokój → podaje kod → pozostali dołączają → host startuje grę. Każdy gra na swoim urządzeniu.</p>
+      </div>`
+  }
+};
+
+function showMenuModal(key) {
+  const m = MENU_MODALS[key];
+  if (!m) return;
+  setModal(m.title, m.body + `<button class="btn btn-secondary" style="width:100%;margin-top:14px;" onclick="closeModal()">Zamknij</button>`);
+}
+</script>
 
 <!-- ══════════════════════════════════════════
      ONLINE LOBBY SCREEN
