@@ -1258,12 +1258,188 @@ input:focus, select:focus {
   background: rgba(56,189,248,0.06);
   border-color: rgba(56,189,248,0.15);
 }
+
+/* ── TRADING TERMINAL ── */
+.trading-terminal {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(56,189,248,0.22);
+  background: rgba(4,12,28,0.97);
+  font-family: 'Courier New', 'Menlo', monospace;
+  color: #e2f0ff;
+}
+:root .trading-terminal {
+  background: #f8faff;
+  border: 1.5px solid rgba(149,112,184,0.25);
+  color: #1a1a2e;
+}
+.tt-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; gap: 8px; flex-wrap: wrap;
+  background: rgba(14,116,144,0.18);
+  border-bottom: 1px solid rgba(56,189,248,0.15);
+}
+:root .tt-topbar { background: rgba(149,112,184,0.12); border-bottom-color: rgba(149,112,184,0.18); }
+.tt-ticker { font-size: 20px; font-weight: 900; color: #38bdf8; letter-spacing: 2px; }
+:root .tt-ticker { color: var(--pur-d); }
+.tt-price { font-size: 26px; font-weight: 900; }
+.tt-trend-up { color: #22c55e; }
+.tt-trend-dn { color: #fb3f5f; }
+.tt-trend-fl { color: #f59e0b; }
+.tt-meta { display: flex; gap: 16px; flex-wrap: wrap; padding: 8px 14px; font-size: 12px; border-bottom: 1px solid rgba(56,189,248,0.08); }
+:root .tt-meta { border-bottom-color: rgba(149,112,184,0.1); }
+.tt-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.tt-meta-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.tt-meta-val { font-weight: 700; font-size: 13px; }
+.tt-chart-wrap {
+  margin: 0; padding: 8px 14px 4px;
+  background: rgba(2,6,16,0.8);
+  border-bottom: 1px solid rgba(56,189,248,0.08);
+}
+:root .tt-chart-wrap { background: rgba(243,232,255,0.35); border-bottom-color: rgba(149,112,184,0.1); }
+.tt-order-panel { padding: 12px 14px; }
+.tt-qty-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.tt-qty-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; min-width: 36px; }
+.tt-qty-input {
+  flex: 1; padding: 8px 10px; border-radius: 6px;
+  border: 1px solid rgba(56,189,248,0.25);
+  background: rgba(4,12,28,0.9); color: #e2e8f0;
+  font-size: 15px; font-family: 'Courier New', monospace; font-weight: 700;
+}
+:root .tt-qty-input { background: #fff; border-color: rgba(149,112,184,0.35); color: #1a1a2e; }
+.tt-presets { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 10px; }
+.tt-preset {
+  padding: 7px 4px; border-radius: 6px; font-size: 11px; font-weight: 800;
+  border: 1px solid rgba(56,189,248,0.25); background: rgba(56,189,248,0.06);
+  color: #7dd3fc; cursor: pointer; transition: all .15s; text-align: center;
+}
+.tt-preset:hover { background: rgba(56,189,248,0.18); color: #fff; }
+:root .tt-preset { border-color: rgba(149,112,184,0.3); background: rgba(149,112,184,0.07); color: var(--pur-d); }
+:root .tt-preset:hover { background: rgba(149,112,184,0.2); }
+.tt-cost-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; }
+.tt-action-grid { display: grid; gap: 8px; }
+.tt-btn-buy {
+  background: linear-gradient(135deg,#16a34a,#22c55e); color: #fff;
+  border: none; border-radius: 8px; padding: 13px; font-weight: 900; font-size: 15px;
+  cursor: pointer; transition: opacity .15s; letter-spacing: .5px;
+}
+.tt-btn-buy:disabled { opacity: .4; cursor: not-allowed; }
+.tt-btn-buy:not(:disabled):hover { opacity: .88; }
+.tt-btn-sell {
+  background: linear-gradient(135deg,#b91c1c,#ef4444); color: #fff;
+  border: none; border-radius: 8px; padding: 13px; font-weight: 900; font-size: 15px;
+  cursor: pointer; transition: opacity .15s;
+}
+.tt-btn-sell:disabled { opacity: .4; cursor: not-allowed; }
+.tt-btn-sell:not(:disabled):hover { opacity: .88; }
+.tt-btn-short {
+  background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff;
+  border: none; border-radius: 8px; padding: 10px; font-weight: 800; font-size: 13px;
+  cursor: pointer; transition: opacity .15s;
+}
+.tt-btn-short:hover { opacity: .85; }
+.tt-btn-cover {
+  background: linear-gradient(135deg,#0e7490,#38bdf8); color: #fff;
+  border: none; border-radius: 8px; padding: 10px; font-weight: 800; font-size: 13px;
+  cursor: pointer;
+}
+.tt-row2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.short-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 800;
+  background: rgba(139,92,246,0.18); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); margin-left: 6px;
+}
+
+/* ── CHAT PANEL ── */
+#chat-panel {
+  position: fixed; bottom: 70px; right: 16px; z-index: 900;
+  width: 300px; max-height: 380px;
+  background: rgba(6,14,32,0.97);
+  border: 1px solid rgba(56,189,248,0.22);
+  border-radius: 14px; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  transition: opacity .2s, transform .2s;
+}
+:root #chat-panel { background: rgba(255,255,255,0.97); border-color: rgba(149,112,184,0.3); }
+#chat-panel.chat-hidden { opacity: 0; pointer-events: none; transform: translateY(10px); }
+#chat-messages {
+  flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;
+  font-size: 12px;
+}
+.chat-msg { padding: 5px 9px; border-radius: 8px; line-height: 1.4; max-width: 100%; word-break: break-word; }
+.chat-msg-self { background: rgba(56,189,248,0.15); align-self: flex-end; color: #bae6fd; }
+.chat-msg-other { background: rgba(255,255,255,0.07); align-self: flex-start; color: #e2f0ff; }
+.chat-msg-system { color: var(--muted); font-style: italic; font-size: 11px; text-align: center; }
+:root .chat-msg-self { background: rgba(149,112,184,0.15); color: var(--pur-d); }
+:root .chat-msg-other { background: rgba(0,0,0,0.05); color: #2d2d2d; }
+#chat-input-row { display: flex; gap: 6px; padding: 8px; border-top: 1px solid rgba(56,189,248,0.1); }
+:root #chat-input-row { border-top-color: rgba(149,112,184,0.15); }
+#chat-input {
+  flex: 1; padding: 7px 10px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.2);
+  background: rgba(4,12,28,0.8); color: #e2e8f0; font-size: 13px;
+}
+:root #chat-input { background: #f0f4ff; border-color: rgba(149,112,184,0.3); color: #1a1a2e; }
+#chat-send { padding: 7px 12px; border-radius: 8px; border: none; background: #0284c7; color: #fff; font-weight: 700; cursor: pointer; }
+#chat-toggle {
+  position: fixed; bottom: 20px; right: 16px; z-index: 901;
+  padding: 10px 16px; border-radius: 50px; border: none;
+  background: linear-gradient(135deg,#0e7490,#0284c7); color: #fff;
+  font-weight: 800; font-size: 13px; cursor: pointer; display: none;
+  box-shadow: 0 4px 16px rgba(2,132,199,0.35);
+}
+#chat-unread {
+  position: absolute; top: -4px; right: -4px;
+  background: #ef4444; color: #fff; border-radius: 50%; width: 18px; height: 18px;
+  font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+  display: none;
+}
+
+/* ── INFO MODAL ── */
+.info-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(56,189,248,0.4);
+  background: rgba(56,189,248,0.1); color: #38bdf8; font-size: 11px; font-weight: 900;
+  cursor: pointer; vertical-align: middle; margin-left: 4px; flex-shrink: 0;
+  transition: background .15s;
+}
+.info-btn:hover { background: rgba(56,189,248,0.25); }
+:root .info-btn { border-color: rgba(149,112,184,0.4); background: rgba(149,112,184,0.1); color: var(--pur-d); }
+:root .info-btn:hover { background: rgba(149,112,184,0.25); }
+
+/* ── PLAYER LOAN MODAL ── */
+.loan-player-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  border: 1.5px solid transparent; cursor: pointer; transition: all .15s;
+  background: rgba(255,255,255,0.04);
+}
+.loan-player-card:hover, .loan-player-card.selected {
+  border-color: rgba(56,189,248,0.5); background: rgba(56,189,248,0.1);
+}
+:root .loan-player-card { background: rgba(0,0,0,0.03); }
+:root .loan-player-card:hover, :root .loan-player-card.selected { border-color: rgba(149,112,184,0.5); background: rgba(149,112,184,0.1); }
 </style>
 </head>
 <body>
 
 <!-- Global theme toggle — visible on all screens -->
 <button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+
+<!-- Chat panel (online only) -->
+<div id="chat-panel" class="chat-hidden">
+  <div style="padding:8px 12px;border-bottom:1px solid rgba(56,189,248,0.12);display:flex;align-items:center;justify-content:space-between;">
+    <strong style="font-size:13px;">💬 Czat</strong>
+    <button onclick="toggleChatPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">✕</button>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input-row">
+    <input id="chat-input" placeholder="Wpisz wiadomość…" onkeydown="if(event.key==='Enter')sendChatMessage()">
+    <button id="chat-send" onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+<button id="chat-toggle" onclick="toggleChatPanel()" style="position:relative;">
+  💬 Czat
+  <span id="chat-unread"></span>
+</button>
 
 <!-- SETUP SCREEN -->
 <!-- ══════════════════════════════════════════
@@ -1513,6 +1689,20 @@ input:focus, select:focus {
 // Returns a shuffled copy of PROFESSIONS indices so every player gets a unique profession.
 // If there are more players than professions, excess players wrap around (shouldn't happen
 // with 9 professions and max 6 players).
+// Polish liability name translations
+const PL_LIAB = {
+  "Housing Lease/Mortgage": "Kredyt hipoteczny / najem",
+  "Student Loans":           "Kredyt studencki",
+  "Transport Loan":          "Kredyt samochodowy",
+  "Credit Cards / BNPL":    "Karty kredytowe / BNPL",
+  "Subscriptions & Retail":  "Subskrypcje i wydatki",
+  "Bank Loan":               "Kredyt bankowy",
+  "Real Estate / Business":  "Nieruchomości / Biznes",
+};
+function plLiabName(name) {
+  return PL_LIAB[name] || name;
+}
+
 function dealProfessions(count) {
   const indices = PROFESSIONS.map((_, i) => i);
   for (let i = indices.length - 1; i > 0; i--) {
@@ -2112,57 +2302,215 @@ function updateStockBuyCost(symbol) {
 
 function showStockDealCard(card) {
   const p = currentPlayer();
-  const canBuy = p.cash >= card.sharePrice;
+  const price = card.sharePrice;
+  const stock = STOCK_MARKET_DEALS.find(s => s.symbol === card.symbol);
   const owned = sharesOwned(p, card.symbol);
-  const trendBadge = getTrendLabel(card.symbol);
+  const shortPos = (p.shorts || []).find(s => s.symbol === card.symbol);
+  const maxBuy = Math.floor(p.cash / price);
+  const canBuy = maxBuy >= 1;
 
-  // Is this price outside normal range?
-  let breakoutNote = '';
-  const currentPrice = card.sharePrice;
-  const stock = STOCK_MARKET_DEALS.find(s=>s.symbol===card.symbol);
+  // Trend colour
+  const history = (state.stockHistory || {})[card.symbol] || [];
+  const prevClose = history.length >= 2 ? history[history.length - 2]?.close : price;
+  const pctChange = prevClose ? ((price - prevClose) / prevClose * 100) : 0;
+  const trendCls  = pctChange > 0 ? 'tt-trend-up' : pctChange < 0 ? 'tt-trend-dn' : 'tt-trend-fl';
+  const trendArrow = pctChange > 0 ? '▲' : pctChange < 0 ? '▼' : '▶';
+
+  // Breakout / crash note
+  let marketNote = '';
   if (stock) {
-    if (currentPrice > stock.rangeHigh) {
-      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; font-size:12px; color:#4ade80;">⚡ BREAKOUT — price above normal range ($${stock.rangeHigh})</div>`;
-    } else if (currentPrice < stock.rangeLow) {
-      breakoutNote = `<div style="margin:8px 0; padding:8px 12px; background:rgba(251,63,95,0.1); border:1px solid rgba(251,63,95,0.3); border-radius:8px; font-size:12px; color:#fb7185;">⚡ CRASH — price below normal range ($${stock.rangeLow})</div>`;
-    }
+    if (price > stock.rangeHigh) marketNote = `<div style="padding:6px 10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:6px;font-size:11px;color:#4ade80;margin-bottom:8px;">⚡ BREAKOUT — powyżej normalnego zakresu ($${stock.rangeHigh})<button class="info-btn" onclick="showInfoModal('breakout')" title="Co to znaczy?">?</button></div>`;
+    else if (price < stock.rangeLow) marketNote = `<div style="padding:6px 10px;background:rgba(251,63,95,0.1);border:1px solid rgba(251,63,95,0.3);border-radius:6px;font-size:11px;color:#fb7185;margin-bottom:8px;">⚡ CRASH — poniżej normalnego zakresu ($${stock.rangeLow})<button class="info-btn" onclick="showInfoModal('crash')" title="Co to znaczy?">?</button></div>`;
   }
 
   document.getElementById("action-area").innerHTML = `
     <div class="ac">
-      <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">SMALL DEAL · STOCK MARKET</div>
-      <div class="stock-card">
-        <div class="stock-card-head">
-          <div class="stock-icon">${card.symbol.slice(0,2)}</div>
+      <div class="ac-head" style="background:linear-gradient(90deg,#0e7490,#0284c7)">GIEŁDA · SMALL DEAL</div>
+      <div class="trading-terminal">
+
+        <!-- Topbar -->
+        <div class="tt-topbar">
           <div>
-            <div class="stock-title">${card.symbol} ${trendBadge}</div>
-            <div class="stock-subtitle">${card.sector} · ${card.title}</div>
+            <div class="tt-ticker">${card.symbol} <span class="${trendCls}" style="font-size:14px;">${trendArrow} ${Math.abs(pctChange).toFixed(1)}%</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${card.sector} · ${card.title}</div>
           </div>
+          <div class="tt-price ${trendCls}">$${price.toLocaleString()}</div>
         </div>
-        <p style="color:#c8e6ff; font-size:13px; margin-bottom:8px;">${card.desc}</p>
-        ${breakoutNote}
-        <div class="stock-chart" aria-label="Candlestick chart">${buildCandleChart(card.symbol)}</div>
-        <div class="stock-stats">
-          <div class="stock-stat"><span style="color:var(--muted)">Price / share</span><strong style="color:var(--accent)">$${card.sharePrice}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Normal range</span><strong>$${stock?stock.rangeLow:'-'} – $${stock?stock.rangeHigh:'-'}</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Owned</span><strong>${owned} shares</strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Quantity to buy</span><strong><input id="stock-quantity-input" type="number" min="1" value="1" step="1" style="width:80px;padding:4px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;" oninput="updateStockBuyCost('${card.symbol}')"></strong></div>
-          <div class="stock-stat"><span style="color:var(--muted)">Total cost</span><strong id="stock-total-cost" style="color:var(--warning)">$${card.sharePrice.toLocaleString()}</strong></div>
+
+        <!-- Meta row -->
+        <div class="tt-meta">
+          <div class="tt-meta-item"><span class="tt-meta-label">ZAKRES</span><span class="tt-meta-val">$${stock?.rangeLow||'?'} – $${stock?.rangeHigh||'?'}</span></div>
+          <div class="tt-meta-item"><span class="tt-meta-label">POSIADASZ</span><span class="tt-meta-val" style="color:${owned>0?'var(--profit)':'var(--text)'};">${owned} akcji</span></div>
+          <div class="tt-meta-item"><span class="tt-meta-label">GOTÓWKA</span><span class="tt-meta-val" style="color:${canBuy?'var(--profit)':'var(--loss)'};">$${p.cash.toLocaleString()}</span></div>
+          ${shortPos ? `<div class="tt-meta-item"><span class="tt-meta-label">SHORT</span><span class="tt-meta-val short-badge">${shortPos.shares} szt @ $${shortPos.entryPrice}</span></div>` : ''}
         </div>
-        <div style="margin-bottom:14px; padding:10px 14px; background:rgba(4,12,28,0.5); border-radius:8px; font-size:13px; color:var(--text); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-          <span>💰 Cash: <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:17px;">$${p.cash.toLocaleString()}</strong></span>
-          ${!canBuy ? `<span style="color:var(--loss); font-size:12px;">Need $${(card.sharePrice - p.cash).toLocaleString()} more</span>` : ''}
+
+        <!-- Chart -->
+        <div class="tt-chart-wrap">
+          <div class="stock-chart" style="height:110px;margin:0;" aria-label="Wykres świecowy">${buildCandleChart(card.symbol)}</div>
         </div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button id="stock-buy-button" class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">BUY SHARES</button>
-          ${owned > 0 ? `<button class="btn btn-danger-act" onclick="showDealStockSell()" style="flex:1.5;">SELL ${card.symbol}</button>` : ''}
-          <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">🏦 LOAN</button>
-          <button class="btn btn-secondary" onclick="renderAction_EndTurn('Deal passed')" style="flex:1;">PASS</button>
+
+        ${marketNote}
+
+        <!-- Order panel -->
+        <div class="tt-order-panel">
+          <div class="tt-qty-row">
+            <span class="tt-qty-label">ILOŚĆ</span>
+            <input id="stock-quantity-input" class="tt-qty-input" type="number" min="1" value="1" step="1" oninput="updateStockBuyCost('${card.symbol}')">
+            <span style="font-size:12px;color:var(--muted);">× $${price}</span>
+          </div>
+
+          <!-- Buy presets -->
+          <div class="tt-presets">
+            <button class="tt-preset" onclick="setStockQtyPreset('allin','${card.symbol}')">ALL-IN</button>
+            <button class="tt-preset" onclick="setStockQtyPreset(0.5,'${card.symbol}')">50%</button>
+            <button class="tt-preset" onclick="setStockQtyPreset(0.25,'${card.symbol}')">25%</button>
+            <button class="tt-preset" onclick="setStockQtyPreset('plus10','${card.symbol}')">+10</button>
+          </div>
+
+          <div class="tt-cost-row">
+            <span style="color:var(--muted);font-size:12px;">Koszt łączny:</span>
+            <strong id="stock-total-cost" style="color:var(--warning);font-size:16px;">$${price.toLocaleString()}</strong>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="tt-action-grid">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;">
+              <button class="tt-btn-buy" id="stock-buy-button" onclick="buyDeal()" ${canBuy?'':'disabled'}>
+                BUY<br><span style="font-size:11px;font-weight:400;" id="tt-buy-label">max ${maxBuy} szt</span>
+              </button>
+              <button class="tt-btn-sell" onclick="showDealStockSell()" ${owned>0?'':'disabled'}>
+                SELL<br><span style="font-size:11px;font-weight:400;">${owned > 0 ? owned+' szt' : 'brak'}</span>
+              </button>
+            </div>
+            <div class="tt-row2">
+              <button class="tt-btn-short" onclick="showShortModal('${card.symbol}')">
+                📉 SHORT <button class="info-btn" onclick="event.stopPropagation();showInfoModal('short')" style="color:#fff;border-color:rgba(255,255,255,0.4);">?</button>
+              </button>
+              ${shortPos ? `<button class="tt-btn-cover" onclick="coverShort('${card.symbol}')">✅ COVER</button>` : '<div></div>'}
+              <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="font-size:12px;">🏦 Kredyt</button>
+            </div>
+            <button class="btn btn-secondary" onclick="renderAction_EndTurn('Pominięto deal giełdowy')" style="margin-top:4px;">POMIŃ</button>
+          </div>
         </div>
       </div>
     </div>`;
 
   updateStockBuyCost(card.symbol);
+}
+
+function setStockQtyPreset(type, symbol) {
+  const p = currentPlayer();
+  const price = state.currentCard?.sharePrice || (state.market[symbol] || 1);
+  const owned = sharesOwned(p, symbol);
+  const input = document.getElementById('stock-quantity-input');
+  if (!input) return;
+  let qty = 1;
+  if (type === 'allin') qty = Math.max(1, Math.floor(p.cash / price));
+  else if (type === 'plus10') qty = Math.max(1, (parseInt(input.value, 10) || 1) + 10);
+  else qty = Math.max(1, Math.floor(p.cash * type / price));
+  input.value = qty;
+  updateStockBuyCost(symbol);
+}
+
+function setStockSellPreset(pct) {
+  const p = currentPlayer();
+  const card = state.currentCard;
+  if (!card) return;
+  const asset = p.assets.find(a => a.type === 'stock' && a.symbol === card.symbol && a.shares > 0);
+  if (!asset) return;
+  const input = document.getElementById('deal-sell-qty');
+  if (!input) return;
+  input.value = Math.max(1, Math.floor(asset.shares * pct));
+}
+
+// ── SHORT SELLING ─────────────────────────────────────────────
+
+function showShortModal(symbol) {
+  const p = currentPlayer();
+  const price = state.market[symbol] || state.currentCard?.sharePrice || 1;
+  const maxShares = Math.floor(p.cash / (price * 0.5)); // 50% margin
+  const html = `
+    <h2 style="margin-bottom:4px;">Otwórz Short — ${symbol}</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Zakładasz że cena spadnie. Wymagany depozyt: 50% wartości pozycji.<button class="info-btn" onclick="showInfoModal('short')" style="vertical-align:middle;margin-left:6px;">?</button></p>
+    <div style="padding:12px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:10px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--muted);font-size:12px;">Cena wejścia</span><strong>$${price}</strong></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:12px;">Maks. ilość (przy depozycie 50%)</span><strong>${maxShares} szt</strong></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="color:var(--muted);font-size:13px;min-width:50px;">Ilość:</span>
+      <input type="number" id="short-qty" min="1" max="${maxShares}" value="${Math.max(1,Math.floor(maxShares/2))}" step="1" class="tt-qty-input" style="flex:1;" oninput="updateShortCost(${price})">
+    </div>
+    <div class="tt-presets" style="margin-bottom:12px;">
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${maxShares};updateShortCost(${price})">ALL-IN</button>
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${Math.floor(maxShares*0.5)};updateShortCost(${price})">50%</button>
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${Math.floor(maxShares*0.25)};updateShortCost(${price})">25%</button>
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=Math.max(1,(parseInt(document.getElementById('short-qty').value)||0)+5);updateShortCost(${price})">+5</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px;">
+      <span style="color:var(--muted);">Depozyt (z gotówki):</span>
+      <strong id="short-cost-display" style="color:#a78bfa;">$${Math.round(Math.max(1,Math.floor(maxShares/2))*price*0.5).toLocaleString()}</strong>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="tt-btn-short" style="flex:1;border-radius:8px;padding:12px;" onclick="confirmShort('${symbol}',${price})">📉 OTWÓRZ SHORT</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Anuluj</button>
+    </div>`;
+  setModal(`Short — ${symbol}`, html);
+}
+
+function updateShortCost(price) {
+  const qty = parseInt(document.getElementById('short-qty')?.value, 10) || 0;
+  const el = document.getElementById('short-cost-display');
+  if (el) el.textContent = '$' + Math.round(qty * price * 0.5).toLocaleString();
+}
+
+function confirmShort(symbol, entryPrice) {
+  const p = currentPlayer();
+  const qty = parseInt(document.getElementById('short-qty')?.value, 10) || 0;
+  if (qty < 1) { showNotif('Minimalna ilość: 1', 'error'); return; }
+  const margin = Math.round(qty * entryPrice * 0.5);
+  if (p.cash < margin) { showNotif(`Niewystarczająca gotówka na depozyt ($${margin.toLocaleString()})`, 'error'); return; }
+  p.cash -= margin;
+  if (!p.shorts) p.shorts = [];
+  const existing = p.shorts.find(s => s.symbol === symbol);
+  if (existing) {
+    // average in
+    const totalShares = existing.shares + qty;
+    existing.entryPrice = Math.round((existing.entryPrice * existing.shares + entryPrice * qty) / totalShares);
+    existing.shares = totalShares;
+    existing.margin += margin;
+  } else {
+    p.shorts.push({ symbol, shares: qty, entryPrice, margin });
+  }
+  recalcPassive(p);
+  renderGame();
+  closeModal();
+  showNotif(`Short otwarty: ${qty}× ${symbol} @ $${entryPrice} · Depozyt: $${margin.toLocaleString()}`, 'info');
+  showStockDealCard(state.currentCard);
+}
+
+function coverShort(symbol) {
+  const p = currentPlayer();
+  if (!p.shorts) return;
+  const idx = p.shorts.findIndex(s => s.symbol === symbol);
+  if (idx === -1) { showNotif('Brak otwartego shorta dla ' + symbol, 'error'); return; }
+  const pos = p.shorts[idx];
+  const curPrice = state.market[symbol] || state.currentCard?.sharePrice || pos.entryPrice;
+  const pnl = Math.round((pos.entryPrice - curPrice) * pos.shares);
+  const returned = pos.margin + pnl;
+  if (returned < 0) {
+    showNotif(`Margin call! Strata ($${Math.abs(pnl).toLocaleString()}) przekracza depozyt.`, 'error');
+    p.shorts.splice(idx, 1);
+    recalcPassive(p); renderGame(); syncState();
+    return;
+  }
+  p.cash += returned;
+  p.shorts.splice(idx, 1);
+  recalcPassive(p); renderGame(); syncState();
+  closeModal();
+  const pnlStr = `${pnl >= 0 ? '+' : ''}$${Math.abs(pnl).toLocaleString()}`;
+  showNotif(`Short zamknięty: ${pos.shares}× ${symbol} · P&L ${pnlStr}`, pnl >= 0 ? 'success' : 'error');
+  showStockDealCard(state.currentCard);
 }
 
 function buyDeal() {
@@ -2684,9 +3032,10 @@ function renderAction_EndTurn(msg) {
       <div class="ac-title" style="color:var(--accent);">✓ Turn Complete</div>
       <div style="padding:20px 30px; text-align:center; font-size:16px; color:#c8e6ff;">${msg}</div>
       <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
-        ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">💳 PAY DEBT</button>` : ''}
-        <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">🏦 TAKE LOAN</button>
-        <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">NEXT PLAYER →</button>
+        ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">💳 Spłać dług</button>` : ''}
+        <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">🏦 Kredyt bankowy (10%)</button>
+        ${state.players.length > 1 ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPlayerLoanModal()">🤝 Pożyczka od gracza</button>` : ''}
+        <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">NASTĘPNY GRACZ →</button>
       </div>
     </div>`;
 }
@@ -2768,7 +3117,7 @@ function showDealStockSell() {
   if (!card) return;
   const p = currentPlayer();
   const asset = p.assets.find(a => a.type === 'stock' && a.symbol === card.symbol && a.shares > 0);
-  if (!asset) { showNotif(`You don't own any ${card.symbol} shares.`, "info"); return; }
+  if (!asset) { showNotif(`Nie posiadasz akcji ${card.symbol}.`, "info"); return; }
 
   const curPrice = state.market[card.symbol] || card.sharePrice;
   const curVal = asset.shares * curPrice;
@@ -2776,26 +3125,214 @@ function showDealStockSell() {
   const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
   const pnlStr = `${pnl >= 0 ? '+' : ''}$${Math.abs(Math.round(pnl)).toLocaleString()}`;
 
-  const html = `<h2 style="margin-bottom:6px;">Sell ${card.symbol}</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Sell at current market price — profit or loss.</p>
-    <div style="padding:14px;background:rgba(4,12,28,0.7);border:1px solid rgba(56,189,248,0.15);border-radius:12px;margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+  const html = `<h2 style="margin-bottom:6px;">Sprzedaj ${card.symbol}</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:10px;">Sprzedaż po aktualnej cenie rynkowej — zysk lub strata.</p>
+    <div style="padding:12px;background:rgba(4,12,28,0.6);border:1px solid rgba(56,189,248,0.15);border-radius:10px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:10px;font-size:13px;">
         <strong style="color:var(--accent);">${asset.symbol}</strong>
-        <span style="font-size:12px;">${asset.shares} shares @ $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
-        <span style="font-size:12px;color:${pnlColor};">P&L ${pnlStr}</span>
+        <span>${asset.shares} szt × $${curPrice} = <strong>$${curVal.toLocaleString()}</strong></span>
+        <span style="color:${pnlColor};">P&L ${pnlStr}</span>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <span style="color:var(--muted);font-size:13px;">Qty:</span>
-        <input type="number" id="deal-sell-qty" min="1" max="${asset.shares}" value="${asset.shares}" step="1"
-          style="width:80px;padding:6px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.25);background:rgba(4,12,28,0.9);color:#e2e8f0;">
-        <span style="color:var(--muted);font-size:12px;">@ $${curPrice}/share</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="color:var(--muted);font-size:12px;min-width:40px;">Ilość:</span>
+        <input type="number" id="deal-sell-qty" min="1" max="${asset.shares}" value="${asset.shares}" step="1" class="tt-qty-input" style="flex:1;" oninput="updateSellTotal(${curPrice})">
+        <span style="color:var(--muted);font-size:12px;">/ ${asset.shares}</span>
+      </div>
+      <div class="tt-presets">
+        <button class="tt-preset" onclick="setStockSellPreset(1)">WSZYSTKO</button>
+        <button class="tt-preset" onclick="setStockSellPreset(0.75)">75%</button>
+        <button class="tt-preset" onclick="setStockSellPreset(0.5)">50%</button>
+        <button class="tt-preset" onclick="setStockSellPreset(0.25)">25%</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;">
+        <span style="color:var(--muted);">Otrzymasz:</span>
+        <strong id="sell-total-display" style="color:var(--profit);">$${curVal.toLocaleString()}</strong>
       </div>
     </div>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-danger-act" style="flex:1;" onclick="confirmDealStockSell()">SELL</button>
-      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal();showStockDealCard(state.currentCard)">CANCEL</button>
+      <button class="tt-btn-sell" style="flex:1;border-radius:8px;padding:12px;" onclick="confirmDealStockSell()">SPRZEDAJ</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal();showStockDealCard(state.currentCard)">ANULUJ</button>
     </div>`;
-  setModal(`Sell ${card.symbol}`, html);
+  setModal(`Sprzedaj ${card.symbol}`, html);
+}
+
+function updateSellTotal(price) {
+  const qty = parseInt(document.getElementById('deal-sell-qty')?.value, 10) || 0;
+  const el = document.getElementById('sell-total-display');
+  if (el) el.textContent = '$' + (qty * price).toLocaleString();
+}
+
+// ── INFO MODAL ────────────────────────────────────────────────
+
+const INFO_TEXTS = {
+  short: {
+    title: '📉 Co to jest Short (krótka sprzedaż)?',
+    body: `<p>Short to zakład na to, że <strong>cena akcji spadnie</strong>.</p>
+      <p style="margin-top:8px;">Jak to działa:</p>
+      <ol style="margin:8px 0 0 16px;line-height:1.8;">
+        <li>Otwierasz pozycję — wpłacasz <strong>depozyt (50% wartości)</strong></li>
+        <li>Jeśli cena <span style="color:var(--profit)">spada</span> → zarabiasz różnicę</li>
+        <li>Jeśli cena <span style="color:var(--loss)">rośnie</span> → tracisz różnicę</li>
+        <li>Zamykasz pozycję klikając <strong>COVER</strong></li>
+      </ol>
+      <p style="margin-top:8px;color:var(--warning);font-size:12px;">⚠️ Ryzyko: potencjalna strata jest nieograniczona jeśli cena rośnie.</p>`
+  },
+  breakout: {
+    title: '⚡ Co to jest Breakout?',
+    body: `<p>Cena akcji <strong>przekroczyła normalny zakres</strong> — to sygnał silnego popytu.</p>
+      <p style="margin-top:8px;">Może oznaczać:</p>
+      <ul style="margin:6px 0 0 16px;line-height:1.8;">
+        <li>Kontynuację wzrostu (momentum)</li>
+        <li>Lub rychłe odwrócenie (korekta)</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px;color:var(--muted);">Strategia: kup przy breakout jeśli wierzysz w trend, lub poczekaj na korektę.</p>`
+  },
+  crash: {
+    title: '📉 Co to jest Crash?',
+    body: `<p>Cena spadła <strong>poniżej normalnego zakresu</strong> — akcja jest tania historycznie.</p>
+      <p style="margin-top:8px;">Może być:</p>
+      <ul style="margin:6px 0 0 16px;line-height:1.8;">
+        <li>Okazją do zakupu (inwestycja w wartość)</li>
+        <li>Lub początkiem dalszych spadków</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px;color:var(--muted);">Strategia: kup w dołku jeśli wierzysz w odbicie, lub otwórz short jeśli oczekujesz dalszych spadków.</p>`
+  },
+  cashflow: {
+    title: '💵 Co to jest Cash Flow?',
+    body: `<p><strong>Przepływ gotówki</strong> = wszystkie dochody − wszystkie wydatki.</p>
+      <p style="margin-top:8px;">W grze: każde pole PAYDAY wypłaca Ci kwotę cash flow.</p>
+      <p style="margin-top:8px;"><strong>Wolność finansowa</strong> = gdy dochód pasywny (z aktywów) ≥ wydatki miesięczne.</p>`
+  },
+  passiveincome: {
+    title: '🏦 Dochód Pasywny',
+    body: `<p>Dochód pasywny to pieniądze które zarabiasz <strong>bez aktywnej pracy</strong>.</p>
+      <p style="margin-top:8px;">W grze pochodzi z:</p>
+      <ul style="margin:6px 0 0 16px;line-height:1.8;">
+        <li>🏠 Nieruchomości (wynajem)</li>
+        <li>📈 Akcji z dywidendą</li>
+        <li>🏭 Biznesów</li>
+        <li>💰 Funduszy inwestycyjnych</li>
+      </ul>`
+  }
+};
+
+function showInfoModal(topic) {
+  const info = INFO_TEXTS[topic];
+  if (!info) return;
+  const html = `<div style="line-height:1.7;font-size:14px;">${info.body}</div>
+    <button class="btn btn-secondary" style="width:100%;margin-top:16px;" onclick="closeModal()">Rozumiem</button>`;
+  setModal(info.title, html);
+}
+
+// ── PLAYER-TO-PLAYER LOANS ────────────────────────────────────
+
+function showPlayerLoanModal() {
+  const p = currentPlayer();
+  const others = state.players.filter((_, i) => i !== state.currentPlayerIdx);
+  if (others.length === 0) { showNotif('Brak innych graczy.', 'info'); return; }
+
+  const playerCards = others.map((other, i) => {
+    const idx = state.players.indexOf(other);
+    return `<div class="loan-player-card" id="lp-card-${idx}" onclick="selectLoanPlayer(${idx})">
+      <div style="width:12px;height:12px;border-radius:50%;background:${other.color};flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <strong>${other.name}</strong>
+        <div style="font-size:12px;color:var(--muted);">💰 $${other.cash.toLocaleString()}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const html = `
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">Wybierz gracza od którego chcesz pożyczyć pieniądze:</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="loan-player-list">${playerCards}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <span style="color:var(--muted);font-size:13px;min-width:70px;">Kwota ($):</span>
+      <input type="number" id="player-loan-amount" min="100" step="100" placeholder="np. 5000" class="tt-qty-input" style="flex:1;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="requestPlayerLoan()">📩 Wyślij prośbę</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Anuluj</button>
+    </div>`;
+  setModal('💸 Pożyczka od gracza', html);
+  window._selectedLoanPlayerIdx = null;
+}
+
+function selectLoanPlayer(idx) {
+  window._selectedLoanPlayerIdx = idx;
+  document.querySelectorAll('.loan-player-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('lp-card-' + idx)?.classList.add('selected');
+}
+
+function requestPlayerLoan() {
+  const fromIdx = state.currentPlayerIdx;
+  const toIdx = window._selectedLoanPlayerIdx;
+  const amount = parseInt(document.getElementById('player-loan-amount')?.value, 10);
+  if (toIdx === null || toIdx === undefined) { showNotif('Wybierz gracza.', 'error'); return; }
+  if (!amount || amount < 100) { showNotif('Minimalna kwota: $100.', 'error'); return; }
+
+  closeModal();
+  if (isOnline) {
+    // Send loan request via WebSocket to that player
+    wsSend({ type: 'loan_request', fromIdx, toIdx, amount, fromName: state.players[fromIdx].name });
+    showNotif(`Wysłano prośbę o $${amount.toLocaleString()} do ${state.players[toIdx].name}`, 'info');
+  } else {
+    // Local: directly show the response modal for the target player
+    showLoanResponseModal(fromIdx, toIdx, amount);
+  }
+}
+
+function showLoanResponseModal(fromIdx, toIdx, requestedAmount) {
+  const lender = state.players[toIdx];
+  const borrower = state.players[fromIdx];
+  const html = `
+    <p style="margin-bottom:12px;">${borrower.name} prosi o pożyczkę <strong>$${requestedAmount.toLocaleString()}</strong>.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--muted);font-size:13px;min-width:80px;">Kwota ($):</span>
+        <input type="number" id="loan-resp-amount" value="${requestedAmount}" min="100" step="100" class="tt-qty-input" style="flex:1;">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--muted);font-size:13px;min-width:80px;">Odsetki (%):</span>
+        <input type="number" id="loan-resp-rate" value="15" min="0" max="100" step="5" class="tt-qty-input" style="flex:1;max-width:90px;">
+        <span style="color:var(--muted);font-size:12px;">% jednorazowo</span>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Masz gotówki: <strong>$${lender.cash.toLocaleString()}</strong></p>
+    <div style="display:flex;gap:8px;">
+      <button class="tt-btn-buy" style="flex:1;border-radius:8px;padding:11px;" onclick="confirmPlayerLoan(${fromIdx},${toIdx})">✅ Pożycz</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal();showNotif('Pożyczka odmówiona','info');">❌ Odmów</button>
+    </div>`;
+  setModal(`💸 ${lender.name} — odpowiedź na prośbę`, html);
+}
+
+function confirmPlayerLoan(borrowerIdx, lenderIdx) {
+  const lender   = state.players[lenderIdx];
+  const borrower = state.players[borrowerIdx];
+  const amount   = parseInt(document.getElementById('loan-resp-amount')?.value, 10) || 0;
+  const rate     = parseInt(document.getElementById('loan-resp-rate')?.value, 10) || 15;
+  if (amount < 100) { showNotif('Minimalna kwota: $100.', 'error'); return; }
+  if (lender.cash < amount) { showNotif(`${lender.name} nie ma wystarczającej gotówki.`, 'error'); return; }
+
+  const repayAmount  = Math.round(amount * (1 + rate / 100));
+  const monthPayment = Math.round(repayAmount * 0.1);
+
+  lender.cash   -= amount;
+  borrower.cash += amount;
+  borrower.liabilities.push({
+    name: `Pożyczka od ${lender.name} (${rate}%)`,
+    value: repayAmount,
+    payment: monthPayment,
+    type: 'loan'
+  });
+  lender.assets.push({
+    name: `Należność od ${borrower.name}`,
+    value: repayAmount, cashflow: monthPayment,
+    type: 'fund', symbol: null, shares: 0
+  });
+
+  recalcPassive(lender); recalcPassive(borrower);
+  renderGame(); syncState(); closeModal();
+  showNotif(`${lender.name} pożyczył ${borrower.name} $${amount.toLocaleString()} przy ${rate}% odsetek`, 'success');
 }
 
 function confirmDealStockSell() {
@@ -3017,10 +3554,10 @@ function renderFS() {
         <div style="font-size:30px; font-weight:900; color:${p.cash>=0?'var(--profit)':'var(--loss)'};">${money(p.cash)}</div>
       </div>
 
-      <div class="fs-section-title">Income</div>
+      <div class="fs-section-title">Przychody</div>
       ${row(`${p.profession}`, money(p.salary))}
-      ${row("Dividends / Interest", money(investmentAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
-      ${row("Real Estate / Business", money(businessAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+      ${row("Dywidendy / Odsetki", money(investmentAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
+      ${row("Nieruchomości / Biznes", money(businessAssets.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle")}
 
       <div class="fs-summary">
         <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Financial Freedom Progress</div>
@@ -3031,14 +3568,14 @@ function renderFS() {
         </div>
       </div>
 
-      <div class="fs-section-title">Expenses</div>
-      ${row("Taxes + Living", money(p.taxes + p.otherExpenses))}
-      ${p.liabilities.filter(l=>l.payment>0).map(l=>row(l.name, money(l.payment), "subtle")).join("")}
+      <div class="fs-section-title">Wydatki</div>
+      ${row("Podatki + Utrzymanie", money(p.taxes + p.otherExpenses))}
+      ${p.liabilities.filter(l=>l.payment>0).map(l=>row(plLiabName(l.name), money(l.payment), "subtle")).join("")}
 
       <div class="fs-summary">
         <div class="fs-mini">
-          <span>Total Income:</span><span>${money(totalIncome)}</span>
-          <span>Total Expenses:</span><span>${money(-expenses)}</span>
+          <span>Łączne przychody:</span><span>${money(totalIncome)}</span>
+          <span>Łączne wydatki:</span><span>${money(-expenses)}</span>
           <span style="font-size:14px; font-weight:900;">Payday:</span><span style="font-size:14px; font-weight:900; color:${cf>=0?'var(--profit)':'var(--loss)'};">${money(cf)}</span>
         </div>
       </div>
@@ -3052,9 +3589,9 @@ function renderFS() {
           ${assetRows}
         </div>
         <div>
-          <div class="fs-section-title">Liabilities</div>
-          ${fixedLiabilities.map(l=>row(l.name, money(l.value))).join("")}
-          ${row("Real Estate / Business","Debt")}
+          <div class="fs-section-title">Zobowiązania</div>
+          ${fixedLiabilities.map(l=>row(plLiabName(l.name), money(l.value))).join("")}
+          ${row("Nieruchomości / Biznes","Dług")}
           ${bizLiabRows}
         </div>
       </div>
@@ -3600,6 +4137,7 @@ function handleServerMsg(msg) {
       goScreen('game');
       initPanelsMobile();
       renderGame();
+      initChatPanel();
       // Player 0 starts with dream selection; others wait
       chooseDream(0);
       updateOnlineWaiting();
@@ -3644,7 +4182,33 @@ function handleServerMsg(msg) {
     }
 
     case 'chat': {
-      showNotif(`💬 ${htmlEsc(msg.from)}: ${htmlEsc(msg.text)}`, 'info');
+      addChatMessage(msg.from, msg.text, msg.from === state.players[myPlayerIdx]?.name);
+      break;
+    }
+
+    case 'loan_request': {
+      // Another player is asking us for a loan (we are the lender)
+      if (msg.toIdx === myPlayerIdx) {
+        showLoanResponseModal(msg.fromIdx, msg.toIdx, msg.amount);
+      }
+      break;
+    }
+
+    case 'loan_confirm': {
+      // Lender confirmed — apply the loan to game state
+      if (isOnline) {
+        const borrower = state.players[msg.borrowerIdx];
+        const lender   = state.players[msg.lenderIdx];
+        if (!borrower || !lender) break;
+        const repay = Math.round(msg.amount * (1 + msg.rate / 100));
+        lender.cash   -= msg.amount;
+        borrower.cash += msg.amount;
+        borrower.liabilities.push({ name:`Pożyczka od ${lender.name} (${msg.rate}%)`, value:repay, payment:Math.round(repay*0.1), type:'loan' });
+        lender.assets.push({ name:`Należność od ${borrower.name}`, value:repay, cashflow:Math.round(repay*0.1), type:'fund', symbol:null, shares:0 });
+        recalcPassive(lender); recalcPassive(borrower);
+        renderGame();
+        showNotif(`${lender.name} pożyczył ${borrower.name} $${msg.amount.toLocaleString()} (${msg.rate}%)`, 'success');
+      }
       break;
     }
   }
@@ -3719,6 +4283,75 @@ function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme');
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
+// ── CHAT PANEL ───────────────────────────────────────────────
+
+let _chatMessages = [];
+let _chatUnread = 0;
+
+function addChatMessage(from, text, isSelf) {
+  const msg = { from, text, isSelf, time: new Date().toLocaleTimeString('pl', {hour:'2-digit',minute:'2-digit'}) };
+  _chatMessages.push(msg);
+  if (_chatMessages.length > 100) _chatMessages.shift();
+
+  const panel = document.getElementById('chat-messages');
+  if (panel) {
+    const cls = isSelf ? 'chat-msg-self' : 'chat-msg-other';
+    const div = document.createElement('div');
+    div.className = `chat-msg ${cls}`;
+    div.innerHTML = isSelf
+      ? `<span style="font-size:10px;opacity:.6;">${msg.time}</span> ${htmlEsc(text)}`
+      : `<strong style="font-size:11px;">${htmlEsc(from)}</strong> <span style="font-size:10px;opacity:.6;">${msg.time}</span><br>${htmlEsc(text)}`;
+    panel.appendChild(div);
+    panel.scrollTop = panel.scrollHeight;
+  }
+
+  const chatPanel = document.getElementById('chat-panel');
+  if (chatPanel && chatPanel.classList.contains('chat-hidden') && !isSelf) {
+    _chatUnread++;
+    const badge = document.getElementById('chat-unread');
+    if (badge) { badge.textContent = _chatUnread; badge.style.display = 'flex'; }
+  }
+}
+
+function toggleChatPanel() {
+  const panel = document.getElementById('chat-panel');
+  if (!panel) return;
+  panel.classList.toggle('chat-hidden');
+  if (!panel.classList.contains('chat-hidden')) {
+    _chatUnread = 0;
+    const badge = document.getElementById('chat-unread');
+    if (badge) badge.style.display = 'none';
+    document.getElementById('chat-messages')?.scrollTo(0, 999999);
+    document.getElementById('chat-input')?.focus();
+  }
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const text = (input?.value || '').trim();
+  if (!text || !isOnline) return;
+  wsSend({ type: 'chat', text });
+  input.value = '';
+}
+
+function initChatPanel() {
+  const toggle = document.getElementById('chat-toggle');
+  if (toggle) toggle.style.display = 'block';
+  addChatMessage('System', 'Czat online aktywny! Wyślij wiadomość do wszystkich graczy.', false);
+  document.getElementById('chat-panel')?.classList.remove('chat-hidden');
+}
+
+// ── PLAYER LOAN ONLINE CONFIRM ────────────────────────────────
+
+function confirmPlayerLoanOnline(borrowerIdx, lenderIdx) {
+  const amount = parseInt(document.getElementById('loan-resp-amount')?.value, 10) || 0;
+  const rate   = parseInt(document.getElementById('loan-resp-rate')?.value, 10) || 15;
+  if (amount < 100) { showNotif('Minimalna kwota: $100.', 'error'); return; }
+  closeModal();
+  wsSend({ type: 'loan_confirm', borrowerIdx, lenderIdx, amount, rate });
+  showNotif('Potwierdzono pożyczkę — oczekiwanie na synchronizację...', 'info');
+}
+
 // Load saved theme (default: light)
 (function() {
   const saved = localStorage.getItem('moneypath-theme') || 'light';

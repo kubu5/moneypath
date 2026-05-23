@@ -208,16 +208,45 @@ function handle(ws, msg) {
       const g = games.get(meta.gameId);
       if (!g) return;
       const sender = g.players.find(p => p.ws === ws);
-      broadcast(meta.gameId, {
+      const chatMsg = {
         type: 'chat',
         from: sender?.name || '?',
         text: String(msg.text || '').slice(0, 200)
+      };
+      broadcast(meta.gameId, chatMsg);
+      send(ws, chatMsg); // echo to sender
+      break;
+    }
+
+    case 'loan_request': {
+      // Relay loan request to the specific target player
+      const meta = clientMeta.get(ws);
+      if (!meta) return;
+      const g = games.get(meta.gameId);
+      if (!g) return;
+      const target = g.players.find(p => p.idx === msg.toIdx);
+      if (target) send(target.ws, {
+        type: 'loan_request',
+        fromIdx: msg.fromIdx,
+        toIdx:   msg.toIdx,
+        amount:  msg.amount,
+        fromName: String(msg.fromName || '').slice(0, 50)
       });
-      // also echo back to sender
-      send(ws, {
-        type: 'chat',
-        from: sender?.name || '?',
-        text: String(msg.text || '').slice(0, 200)
+      break;
+    }
+
+    case 'loan_confirm': {
+      // Broadcast loan confirmation to all players so state updates everywhere
+      const meta = clientMeta.get(ws);
+      if (!meta) return;
+      const g = games.get(meta.gameId);
+      if (!g) return;
+      broadcast(meta.gameId, {
+        type:        'loan_confirm',
+        borrowerIdx: msg.borrowerIdx,
+        lenderIdx:   msg.lenderIdx,
+        amount:      msg.amount,
+        rate:        msg.rate
       });
       break;
     }
