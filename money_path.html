@@ -1222,8 +1222,11 @@ input:focus, select:focus {
   #turn-who { font-size: 17px !important; }
   #turn-count { font-size: 20px !important; }
 
-  #global-theme-toggle {
+  #global-controls {
     top: 6px !important; right: 8px !important;
+    gap: 6px !important;
+  }
+  #global-theme-toggle, #lang-toggle-btn {
     font-size: 10px !important;
     padding: 5px 10px !important;
   }
@@ -1237,16 +1240,18 @@ input:focus, select:focus {
 /* ══════════════════════════════════════════
    GLOBAL THEME TOGGLE + SCREEN FOOTER
    ══════════════════════════════════════════ */
-#global-theme-toggle {
-  position: fixed; top: 14px; right: 16px; z-index: 99999;
+#global-theme-toggle,
+#lang-toggle-btn {
   padding: 7px 14px; border-radius: 20px;
   border: 1.5px solid rgba(176,145,210,0.4);
   background: rgba(255,255,255,0.88);
   color: #9570b8; font-weight: 700; font-size: 12px;
   cursor: pointer; backdrop-filter: blur(8px);
   transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
 }
-[data-theme="dark"] #global-theme-toggle {
+[data-theme="dark"] #global-theme-toggle,
+[data-theme="dark"] #lang-toggle-btn {
   background: rgba(8,20,40,0.88);
   border-color: rgba(56,189,248,0.35);
   color: #7dd3fc;
@@ -1435,8 +1440,11 @@ input:focus, select:focus {
 </head>
 <body>
 
-<!-- Global theme toggle — visible on all screens -->
-<button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+<!-- Global controls: language + theme toggle — visible on all screens -->
+<div id="global-controls" style="position:fixed;top:14px;right:16px;z-index:99999;display:flex;gap:8px;align-items:center;">
+  <button id="lang-toggle-btn" onclick="setLang(LANG==='en'?'pl':'en')">🌐 PL</button>
+  <button id="global-theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+</div>
 
 <!-- Chat panel (online only) -->
 <div id="chat-panel" class="chat-hidden">
@@ -1473,14 +1481,9 @@ input:focus, select:focus {
         <span style="font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase;">Little Explorers — Szkoła Talentów</span>
       </a>
 
-      <div class="header" style="border-radius:0; margin:0 -36px 28px -36px; position:relative;">
+      <div class="header" style="border-radius:0; margin:0 -36px 28px -36px;">
         <div class="logo">MoneyPath</div>
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Financial Freedom</div>
-        <button id="lang-toggle-btn"
-          onclick="setLang(LANG==='en'?'pl':'en')"
-          style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;">
-          🌐 PL
-        </button>
       </div>
 
       <h1 style="background:linear-gradient(90deg,#38bdf8,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:8px;"
