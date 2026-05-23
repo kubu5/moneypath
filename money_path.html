@@ -89,15 +89,15 @@ body {
 }
 
 .glass-premium {
-  background: linear-gradient(135deg, rgba(15,35,65,0.72), rgba(8,20,40,0.82));
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(125,211,252,0.28);
+  background: linear-gradient(135deg, rgba(15,35,65,0.62), rgba(8,20,40,0.74));
+  backdrop-filter: blur(40px) saturate(210%);
+  -webkit-backdrop-filter: blur(40px) saturate(210%);
+  border: 1px solid rgba(125,211,252,0.30);
   border-radius: 18px;
   box-shadow:
-    0 32px 80px rgba(0,0,0,0.55),
-    0 2px 0 rgba(255,255,255,0.08) inset,
-    0 0 0 1px rgba(56,189,248,0.06) inset;
+    0 32px 80px rgba(0,0,0,0.50),
+    0 2px 0 rgba(255,255,255,0.10) inset,
+    0 0 0 1px rgba(56,189,248,0.08) inset;
   position: relative;
   overflow: hidden;
 }
@@ -581,8 +581,9 @@ input:focus, select:focus {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2,6,15,0.88);
-  backdrop-filter: blur(6px);
+  background: rgba(2,6,15,0.72);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
   display: none;
   align-items: center;
   justify-content: center;
@@ -592,15 +593,20 @@ input:focus, select:focus {
 .modal-overlay.active { display: flex; }
 
 .modal {
-  background: linear-gradient(155deg, rgba(10,24,50,0.96), rgba(6,16,36,0.98));
-  border: 1px solid rgba(56,189,248,0.28);
+  background: linear-gradient(155deg, rgba(10,24,50,0.78), rgba(6,16,36,0.86));
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(56,189,248,0.32);
   border-radius: 20px;
   width: 540px;
   max-width: 94vw;
   max-height: 82vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset;
+  box-shadow:
+    0 40px 100px rgba(0,0,0,0.55),
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 0 0 1px rgba(56,189,248,0.06) inset;
   position: relative;
   overflow: hidden;
 }
@@ -615,8 +621,10 @@ input:focus, select:focus {
 
 #modal-head-txt {
   padding: 16px 24px;
-  background: rgba(4,12,28,0.8);
-  border-bottom: 1px solid rgba(56,189,248,0.15);
+  background: rgba(4,12,28,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(56,189,248,0.18);
   font-weight: 800;
   font-size: 16px;
   letter-spacing: 0.5px;
@@ -799,9 +807,11 @@ input:focus, select:focus {
     linear-gradient(135deg, #fef9f8, #f3e8ff 55%, #fff8f7);
 }
 :root .glass-premium {
-  background: rgba(255,255,255,0.92);
-  border: 1.5px solid rgba(255,166,153,0.3);
-  box-shadow: 0 16px 48px rgba(149,112,184,0.14), 0 2px 0 rgba(255,255,255,0.9) inset;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1.5px solid rgba(176,145,210,0.28);
+  box-shadow: 0 16px 48px rgba(149,112,184,0.16), 0 2px 0 rgba(255,255,255,0.9) inset;
 }
 :root .glass-premium::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.4), transparent); }
 :root .glass-premium::after  { background: linear-gradient(135deg, rgba(255,255,255,0.5), transparent 60%); }
@@ -932,17 +942,21 @@ input:focus, select:focus {
 :root .btn-add { border-color: rgba(176,145,210,0.4); color: var(--pur-d); }
 
 /* Modal */
-:root .modal-overlay { background: rgba(100,80,140,0.45); }
+:root .modal-overlay { background: rgba(100,80,140,0.30); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); }
 :root .modal {
-  background: #ffffff;
-  border: 1.5px solid rgba(176,145,210,0.3);
-  box-shadow: 0 24px 80px rgba(149,112,184,0.25);
+  background: rgba(255,255,255,0.80);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1.5px solid rgba(176,145,210,0.35);
+  box-shadow: 0 24px 80px rgba(149,112,184,0.22), 0 1px 0 rgba(255,255,255,0.9) inset;
   color: #2d2d2d;
 }
 :root .modal::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.5), transparent); }
 :root #modal-head-txt {
-  background: rgba(243,232,255,0.6);
-  border-bottom: 1px solid rgba(176,145,210,0.2);
+  background: rgba(243,232,255,0.50);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(176,145,210,0.22);
   color: var(--pur-d);
 }
 :root #modal-content { color: #2d2d2d; }
@@ -1487,13 +1501,11 @@ input:focus, select:focus {
         </button>
       </div>
 
-      <!-- Secondary buttons -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
-        <button class="btn btn-secondary" style="padding:12px; font-size:13px; display:flex; align-items:center; gap:8px;" onclick="showMenuModal('mission')">
-          <span>🎯</span><span><strong data-en="Mission" data-pl="Misja">Mission</strong><br><span style="font-size:11px;opacity:.7;" data-en="About the game" data-pl="O grze">About the game</span></span>
-        </button>
-        <button class="btn btn-secondary" style="padding:12px; font-size:13px; display:flex; align-items:center; gap:8px;" onclick="showMenuModal('howtoplay')">
-          <span>📖</span><span><strong data-en="How to Play" data-pl="Instrukcja">How to Play</strong><br><span style="font-size:11px;opacity:.7;" data-en="Rules" data-pl="Jak grać">Rules</span></span>
+      <!-- Mission + Instructions button -->
+      <div style="margin-bottom:14px;">
+        <button class="btn btn-secondary" style="width:100%; padding:14px; font-size:14px; display:flex; align-items:center; gap:10px; justify-content:center;" onclick="showMenuModal('mission')">
+          <span>🎯</span>
+          <span><strong data-en="Mission &amp; Game Instructions" data-pl="Misja i Instrukcja Gry">Mission &amp; Game Instructions</strong></span>
         </button>
       </div>
 
@@ -1538,126 +1550,172 @@ function applyMenuLang() {
   if (btn) btn.textContent = LANG === 'en' ? '🌐 PL' : '🌐 EN';
 }
 
-const MENU_MODALS = {
-  mission: {
-    title: () => LANG === 'pl' ? '📖 O grze MoneyPath' : '📖 About MoneyPath',
-    body: () => LANG === 'pl' ? `
-      <div style="line-height:1.7;font-size:14px;">
-        <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
-          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Słowo od twórcy</div>
-          <p style="margin:0 0 10px;">Cześć! Jestem <strong>Jakub Krawczyk</strong>, współzałożyciel <strong>Little Explorers sp. z o.o. — Szkoły Talentów</strong>.</p>
-          <p style="margin:0 0 10px;">Od lat pracuję z dziećmi i młodzieżą, ucząc ich — między innymi — jak mądrze myśleć o pieniądzach. MoneyPath powstało z jednej prostej obserwacji: <em>większość ludzi nigdy nie nauczyła się, jak działa wolność finansowa</em>.</p>
-          <p style="margin:0;">Tę grę stworzyłem, żebyś mógł to zmienić — bawiąc się razem z rodziną lub przyjaciółmi.</p>
-        </div>
-        <h3 style="margin:0 0 10px;color:var(--accent);">🎯 Cel gry</h3>
-        <p style="margin:0 0 6px;">Osiągnij <strong>wolność finansową</strong> i kup swoje <strong>marzenie</strong>. Wygrasz, gdy:</p>
-        <ol style="margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
-          <li>Twój <strong>dochód pasywny</strong> (z aktywów) przekroczy wszystkie miesięczne <strong>wydatki</strong></li>
-          <li>Trafisz na swój <strong>Freedom Track</strong> i wylądujesz na swojej przestrzeni marzeń</li>
-          <li>Wykupisz marzenie za zebrane pieniądze</li>
-        </ol>
-        <h3 style="margin:0 0 10px;color:var(--accent);">⚙️ Jak grać</h3>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💰</span><span><strong>PAY</strong> — wypłata. Dostajesz pensję i dochód z aktywów, płacisz wydatki. Jeśli pasywny dochód ≥ wydatki — wchodzisz na Freedom Track.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🃏</span><span><strong>DEAL</strong> — kupujesz aktywa (nieruchomości, akcje, biznesy) generujące dochód pasywny.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💸</span><span><strong>SPLURGE</strong> — nieoczekiwany wydatek. Uczy zarządzania rezerwą gotówkową.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">❤️</span><span><strong>CHAR</strong> — darowizna. Przez 3 tury rzucasz dwiema kostkami.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🚀</span><span><strong>Freedom Track</strong> — tor dla finansowo wolnych. Dotrzyj do przestrzeni marzenia i je kup!</span></div>
-        </div>
-        <h3 style="margin:0 0 10px;color:var(--accent);">💡 Klucz do wygranej</h3>
-        <p style="margin:0 0 16px;">Nie ścigaj się o gotówkę — ścigaj się o <strong>aktywa</strong>. Pożyczki mogą przyspieszyć zakup aktywów — ale raty obciążają cashflow.</p>
-        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
-          <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiracja — Cashflow 101</div>
-          <p style="margin:0 0 8px;">MoneyPath zainspirowana jest grą <strong>Cashflow 101</strong> Roberta Kiyosaki. Jeśli gra cię wciągnęła — <strong>gorąco zachęcam</strong> do oryginalnej wersji. Jest głębsza i pełna lekcji finansowych.</p>
-          <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath to niezależna praca twórcza — nie jest powiązana z Rich Dad Company.</p>
-        </div>
-        <div style="text-align:center;padding:10px 0 2px;border-top:1px solid rgba(56,189,248,0.1);">
-          <div style="font-size:13px;color:var(--muted);">Miłej gry i do zobaczenia na wolności finansowej! 🏆</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers Szkoła Talentów</div>
-        </div>
+function buildMissionBody() {
+  if (LANG === 'pl') return `
+    <div style="line-height:1.75;font-size:14px;">
+
+      <!-- Słowo od twórcy -->
+      <div style="background:linear-gradient(135deg,rgba(56,189,248,0.09),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.22);border-radius:14px;padding:18px 20px;margin-bottom:22px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,0.5),transparent);"></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px;">Słowo od twórcy</div>
+        <p style="margin:0 0 10px;">Cześć! Jestem <strong>Jakub Krawczyk</strong>, współzałożyciel <strong>Little Explorers sp. z o.o. — Szkoły Talentów</strong>.</p>
+        <p style="margin:0 0 10px;">Od lat pracuję z dziećmi i młodzieżą, ucząc ich — między innymi — jak mądrze myśleć o pieniądzach. MoneyPath powstało z jednej prostej obserwacji: <em>większość ludzi nigdy nie nauczyła się, jak działa wolność finansowa</em>.</p>
+        <p style="margin:0;">Tę grę stworzyłem, żebyś mógł to zmienić — bawiąc się razem z rodziną lub przyjaciółmi.</p>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Zaczynam grać! 🎲</button>` : `
-      <div style="line-height:1.7;font-size:14px;">
-        <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
-          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">A word from the creator</div>
-          <p style="margin:0 0 10px;">Hi! I'm <strong>Jakub Krawczyk</strong>, co-founder of <strong>Little Explorers sp. z o.o. — School of Talents</strong>.</p>
-          <p style="margin:0 0 10px;">I've spent years working with children and young people, teaching them — among other things — how to think wisely about money. MoneyPath grew from one simple observation: <em>most people were never taught how financial freedom works</em>.</p>
-          <p style="margin:0;">I built this game so you can change that — by playing together with family or friends.</p>
-        </div>
-        <h3 style="margin:0 0 10px;color:var(--accent);">🎯 Goal</h3>
-        <p style="margin:0 0 6px;">Achieve <strong>financial freedom</strong> and buy your <strong>dream</strong>. You win when:</p>
-        <ol style="margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
-          <li>Your <strong>passive income</strong> (from assets) exceeds all monthly <strong>expenses</strong></li>
-          <li>You reach the <strong>Freedom Track</strong> and land on your dream space</li>
-          <li>You buy your dream with accumulated cash</li>
+
+      <!-- Cel gry -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🎯 Cel gry</h3>
+      <p style="margin:0 0 8px;">Osiągnij <strong>wolność finansową</strong> i kup swoje <strong>marzenie</strong>. Wygrasz, gdy:</p>
+      <ol style="margin:0 0 20px;padding-left:22px;display:flex;flex-direction:column;gap:5px;">
+        <li>Twój <strong>dochód pasywny</strong> (z aktywów) przekroczy wszystkie miesięczne <strong>wydatki</strong></li>
+        <li>Trafisz na <strong>Freedom Track</strong> i wylądujesz na przestrzeni swojego marzenia</li>
+        <li>Wykupisz marzenie za zebrane pieniądze</li>
+      </ol>
+
+      <!-- Przebieg tury -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🎲 Przebieg tury</h3>
+      <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.12);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+          <li>Rzuć kostką — kliknij przycisk lub naciśnij <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:1px 6px;font-size:12px;">Spacja</kbd></li>
+          <li>Wykonaj akcję pola, na którym wylądujesz</li>
+          <li>Zakończ turę — ponownie <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:1px 6px;font-size:12px;">Spacja</kbd> lub przycisk Next</li>
         </ol>
-        <h3 style="margin:0 0 10px;color:var(--accent);">⚙️ How to play</h3>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💰</span><span><strong>PAYDAY</strong> — collect salary and asset income, pay expenses. If passive income ≥ expenses — move to Freedom Track.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🃏</span><span><strong>DEAL</strong> — buy assets (real estate, stocks, businesses) that generate passive income.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">💸</span><span><strong>SPLURGE</strong> — unexpected expense. Teaches the value of a cash reserve.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">❤️</span><span><strong>CHARITY</strong> — donate. Roll 2 dice for the next 3 turns.</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:18px;flex-shrink:0;">🚀</span><span><strong>Freedom Track</strong> — outer track for financially-free players. Reach your dream space and buy it!</span></div>
-        </div>
-        <h3 style="margin:0 0 10px;color:var(--accent);">💡 Key to winning</h3>
-        <p style="margin:0 0 16px;">Don't chase cash — chase <strong>assets</strong>. Loans can speed up asset purchases — but repayments eat into your cashflow.</p>
-        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
-          <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiration — Cashflow 101</div>
-          <p style="margin:0 0 8px;">MoneyPath is inspired by <strong>Cashflow 101</strong> by Robert Kiyosaki. If the game hooked you — <strong>I strongly encourage</strong> you to try the original. It goes deeper and is packed with financial lessons.</p>
-          <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath is an independent creative work — not affiliated with Rich Dad Company.</p>
-        </div>
-        <div style="text-align:center;padding:10px 0 2px;border-top:1px solid rgba(56,189,248,0.1);">
-          <div style="font-size:13px;color:var(--muted);">Enjoy the game — see you on the Freedom Track! 🏆</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers School of Talents</div>
-        </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="closeModal()">Let's play! 🎲</button>`
-  },
-  howtoplay: {
-    title: '📖 Jak grać w MoneyPath',
-    body: `
-      <div style="line-height:1.7;font-size:14px;">
-        <h3 style="margin-bottom:8px;color:var(--accent);">🎯 Cel gry</h3>
-        <p style="margin-bottom:12px;">Osiągnij <strong>wolność finansową</strong> — twój dochód pasywny musi przekroczyć twoje miesięczne wydatki. Następnie kup swoje <strong>Marzenie</strong>!</p>
 
-        <h3 style="margin-bottom:8px;color:var(--accent);">🎲 Przebieg tury</h3>
-        <ol style="margin:0 0 12px 16px;">
-          <li>Rzuć kostką (lub naciśnij <strong>Spację</strong>)</li>
-          <li>Wyląduj na polu i wykonaj akcję</li>
-          <li>Naciśnij <strong>Spację</strong> aby zakończyć turę</li>
+      <!-- Pola na planszy -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🏦 Pola na planszy</h3>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#22c55e;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">PAYDAY</span><span>Wypłata: pensja + dochód z aktywów − wydatki. Jeśli dochód pasywny ≥ wydatki — wchodzisz na Freedom Track!</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#38bdf8;color:#082032;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">DEAL</span><span>Możesz kupić aktywo (nieruchomość, biznes, akcje) generujące dochód pasywny.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#fb3f5f;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">SPLURGE</span><span>Niespodziewany wydatek — uczysz się utrzymywać rezerwę gotówki.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#f59e0b;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">BABY</span><span>Nowe dziecko — miesięczne wydatki rosną.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">LAYOFF</span><span>Zwolnienie z pracy — tracisz pensję na kilka tur.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#84cc16;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">CHARITY</span><span>Darowizna — przez 3 tury rzucasz dwiema kostkami naraz.</span></div>
+      </div>
+
+      <!-- Aktywa i pożyczki -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">💡 Klucz do wygranej</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">🏠</span><span>Kupuj <strong>nieruchomości i biznesy</strong> — generują stały miesięczny dochód pasywny.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">📈</span><span>Graj na <strong>giełdzie</strong> — kupuj akcje przy niskiej cenie, sprzedawaj po wzroście. Możesz też shortować.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">🏦</span><span><strong>Pożyczki bankowe</strong> przyspieszają zakup aktywów — ale raty co miesiąc obciążają cashflow.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">⚠️</span><span>Unikaj <strong>Lichwy</strong> — 100% odsetek i obowiązek spłaty w ciągu 10 tur, inaczej game over!</span></div>
+      </div>
+
+      <!-- Tryb online -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🌐 Tryb online</h3>
+      <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.12);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
+          <li>Wszyscy gracze wchodzą na tę stronę na swoich urządzeniach</li>
+          <li>Kliknij <strong>Play Online</strong> i wpisz swoje imię</li>
+          <li>Jeden gracz klika <strong>Create Game</strong> (opcjonalnie ustawia hasło)</li>
+          <li>Pozostali widzą grę na liście i klikają <strong>JOIN</strong></li>
+          <li>Host klika <strong>Start Game</strong> — każdy wybiera marzenie i zaczyna!</li>
         </ol>
+      </div>
 
-        <h3 style="margin-bottom:8px;color:var(--accent);">🏦 Pola na planszy</h3>
-        <ul style="margin:0 0 12px 16px;">
-          <li><strong style="color:#22c55e;">PAYDAY</strong> — otrzymujesz cashflow (przychody − wydatki)</li>
-          <li><strong style="color:#38bdf8;">DEAL</strong> — możesz kupić aktywo (nieruchomość, biznes, akcje)</li>
-          <li><strong style="color:#fb3f5f;">SPLURGE</strong> — niespodziewany wydatek</li>
-          <li><strong style="color:#f59e0b;">BABY</strong> — nowe dziecko, rosną wydatki</li>
-          <li><strong style="color:#ef4444;">LAYOFF</strong> — tracisz pracę na kilka tur</li>
-          <li><strong style="color:#84cc16;">CHARITY</strong> — darowizna daje bonus przy następnym rzucie</li>
-        </ul>
+      <!-- Cashflow 101 -->
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:18px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,158,11,0.6),transparent);"></div>
+        <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiracja — Cashflow 101</div>
+        <p style="margin:0 0 8px;">MoneyPath zainspirowana jest grą <strong>Cashflow 101</strong> Roberta Kiyosaki. Jeśli gra cię wciągnęła — <strong>gorąco zachęcam</strong> do oryginalnej wersji. Jest głębsza i pełna lekcji finansowych.</p>
+        <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath to niezależna praca twórcza — nie jest powiązana z Rich Dad Company.</p>
+      </div>
 
-        <h3 style="margin-bottom:8px;color:var(--accent);">💡 Wskazówki</h3>
-        <ul style="margin:0 0 12px 16px;">
-          <li>Kupuj aktywa — generują <strong>dochód pasywny</strong></li>
-          <li>Spłacaj długi — zmniejszają cashflow</li>
-          <li>Obserwuj giełdę — kupuj tanio, sprzedawaj drogo</li>
-          <li>Uważaj na <strong>Lichwy</strong> — 10 tur na spłatę!</li>
-        </ul>
+      <!-- Sign-off -->
+      <div style="text-align:center;padding:12px 0 4px;border-top:1px solid rgba(56,189,248,0.12);">
+        <div style="font-size:13px;color:var(--muted);">Miłej gry i do zobaczenia na wolności finansowej! 🏆</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers Szkoła Talentów</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:18px;padding:14px;font-size:15px;" onclick="closeModal()">Zaczynam grać! 🎲</button>`;
 
-        <h3 style="margin-bottom:8px;color:var(--accent);">🌐 Tryb online</h3>
-        <p>Jeden gracz tworzy pokój → podaje kod → pozostali dołączają → host startuje grę. Każdy gra na swoim urządzeniu.</p>
-      </div>`
-  }
-};
+  /* ── ENGLISH ── */
+  return `
+    <div style="line-height:1.75;font-size:14px;">
+
+      <!-- Creator word -->
+      <div style="background:linear-gradient(135deg,rgba(56,189,248,0.09),rgba(34,197,94,0.06));border:1px solid rgba(56,189,248,0.22);border-radius:14px;padding:18px 20px;margin-bottom:22px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,0.5),transparent);"></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px;">A word from the creator</div>
+        <p style="margin:0 0 10px;">Hi! I'm <strong>Jakub Krawczyk</strong>, co-founder of <strong>Little Explorers sp. z o.o. — School of Talents</strong>.</p>
+        <p style="margin:0 0 10px;">I've spent years working with children and young people, teaching them — among other things — how to think wisely about money. MoneyPath grew from one simple observation: <em>most people were never taught how financial freedom works</em>.</p>
+        <p style="margin:0;">I built this game so you can change that — by playing together with family or friends.</p>
+      </div>
+
+      <!-- Goal -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🎯 Goal</h3>
+      <p style="margin:0 0 8px;">Achieve <strong>financial freedom</strong> and buy your <strong>dream</strong>. You win when:</p>
+      <ol style="margin:0 0 20px;padding-left:22px;display:flex;flex-direction:column;gap:5px;">
+        <li>Your <strong>passive income</strong> (from assets) exceeds all monthly <strong>expenses</strong></li>
+        <li>You reach the <strong>Freedom Track</strong> and land on your dream space</li>
+        <li>You buy your dream with accumulated cash</li>
+      </ol>
+
+      <!-- Turn flow -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🎲 How a turn works</h3>
+      <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.12);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+          <li>Roll the dice — click the button or press <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:1px 6px;font-size:12px;">Space</kbd></li>
+          <li>Perform the action for the space you land on</li>
+          <li>End your turn — press <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:1px 6px;font-size:12px;">Space</kbd> again or click Next</li>
+        </ol>
+      </div>
+
+      <!-- Board spaces -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🏦 Board spaces</h3>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#22c55e;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">PAYDAY</span><span>Collect salary + asset income, pay expenses. If passive income ≥ expenses — you move to the Freedom Track!</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#38bdf8;color:#082032;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">DEAL</span><span>Buy assets (real estate, businesses, stocks) that generate passive monthly income.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#fb3f5f;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">SPLURGE</span><span>Unexpected expense — teaches you to keep a cash reserve.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#f59e0b;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">BABY</span><span>New child — monthly expenses increase.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">LAYOFF</span><span>Laid off — lose your salary for a few turns.</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="background:#84cc16;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:0.5px;">CHARITY</span><span>Donate — roll two dice for the next 3 turns.</span></div>
+      </div>
+
+      <!-- Key to winning -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">💡 Key to winning</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">🏠</span><span>Buy <strong>real estate &amp; businesses</strong> — they generate stable monthly passive income.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">📈</span><span>Play the <strong>stock market</strong> — buy low, sell high. You can also short-sell.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">🏦</span><span><strong>Bank loans</strong> can speed up asset purchases — but monthly repayments reduce your cashflow.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:17px;flex-shrink:0;">⚠️</span><span>Avoid <strong>Loan Sharks</strong> — 100% interest and you must repay within 10 turns or it's game over!</span></div>
+      </div>
+
+      <!-- Online mode -->
+      <h3 style="margin:0 0 10px;color:var(--accent);font-size:15px;">🌐 Online multiplayer</h3>
+      <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.12);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
+          <li>Everyone opens this page on their own device</li>
+          <li>Click <strong>Play Online</strong> and enter your name</li>
+          <li>One player clicks <strong>Create Game</strong> (optional: set a password)</li>
+          <li>Others see the game in the list and click <strong>JOIN</strong></li>
+          <li>The host clicks <strong>Start Game</strong> — everyone picks their dream and plays!</li>
+        </ol>
+      </div>
+
+      <!-- Cashflow 101 -->
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 18px;margin-bottom:18px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,158,11,0.6),transparent);"></div>
+        <div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:8px;">✨ Inspiration — Cashflow 101</div>
+        <p style="margin:0 0 8px;">MoneyPath is inspired by <strong>Cashflow 101</strong> by Robert Kiyosaki. If the game hooked you — <strong>I strongly encourage</strong> you to try the original. It goes deeper and is packed with financial lessons.</p>
+        <p style="margin:0;font-size:12px;color:var(--muted);">MoneyPath is an independent creative work — not affiliated with Rich Dad Company.</p>
+      </div>
+
+      <!-- Sign-off -->
+      <div style="text-align:center;padding:12px 0 4px;border-top:1px solid rgba(56,189,248,0.12);">
+        <div style="font-size:13px;color:var(--muted);">Enjoy the game — see you on the Freedom Track! 🏆</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">— Jakub Krawczyk &nbsp;·&nbsp; Little Explorers School of Talents</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:18px;padding:14px;font-size:15px;" onclick="closeModal()">Let's play! 🎲</button>`;
+}
 
 function showMenuModal(key) {
-  const m = MENU_MODALS[key];
-  if (!m) return;
-  const title  = typeof m.title === 'function' ? m.title() : m.title;
-  const body   = typeof m.body  === 'function' ? m.body()  : m.body;
-  const footer = key === 'mission' ? '' : `<button class="btn btn-secondary" style="width:100%;margin-top:14px;" onclick="closeModal()">${LANG === 'pl' ? 'Zamknij' : 'Close'}</button>`;
-  setModal(title, body + footer);
+  if (key === 'mission') {
+    const title = LANG === 'pl' ? '🎯 Misja i Instrukcja Gry' : '🎯 Mission &amp; Game Instructions';
+    setModal(title, buildMissionBody());
+  }
 }
 </script>
 
