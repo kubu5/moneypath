@@ -2429,13 +2429,13 @@ function setStockSellPreset(pct) {
 function showShortModal(symbol) {
   const p = currentPlayer();
   const price = state.market[symbol] || state.currentCard?.sharePrice || 1;
-  const maxShares = Math.floor(p.cash / (price * 0.5)); // 50% margin
+  const maxShares = Math.floor(p.cash / price); // 100% depozyt — brak dźwigni
   const html = `
     <h2 style="margin-bottom:4px;">Otwórz Short — ${symbol}</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Zakładasz że cena spadnie. Wymagany depozyt: 50% wartości pozycji.<button class="info-btn" onclick="showInfoModal('short')" style="vertical-align:middle;margin-left:6px;">?</button></p>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Zakładasz że cena spadnie. Depozyt: 100% wartości pozycji (brak dźwigni).<button class="info-btn" onclick="showInfoModal('short')" style="vertical-align:middle;margin-left:6px;">?</button></p>
     <div style="padding:12px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:10px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--muted);font-size:12px;">Cena wejścia</span><strong>$${price}</strong></div>
-      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:12px;">Maks. ilość (przy depozycie 50%)</span><strong>${maxShares} szt</strong></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:12px;">Maks. ilość (depozyt 100% = cała gotówka)</span><strong>${maxShares} szt</strong></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
       <span style="color:var(--muted);font-size:13px;min-width:50px;">Ilość:</span>
@@ -2443,9 +2443,9 @@ function showShortModal(symbol) {
     </div>
     <div class="tt-presets" style="margin-bottom:12px;">
       <button class="tt-preset" onclick="document.getElementById('short-qty').value=${maxShares};updateShortCost(${price})">ALL-IN</button>
-      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${Math.floor(maxShares*0.5)};updateShortCost(${price})">50%</button>
-      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${Math.floor(maxShares*0.25)};updateShortCost(${price})">25%</button>
-      <button class="tt-preset" onclick="document.getElementById('short-qty').value=Math.max(1,(parseInt(document.getElementById('short-qty').value)||0)+5);updateShortCost(${price})">+5</button>
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${Math.floor(maxShares*0.5)||1};updateShortCost(${price})">50%</button>
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=${Math.floor(maxShares*0.25)||1};updateShortCost(${price})">25%</button>
+      <button class="tt-preset" onclick="document.getElementById('short-qty').value=Math.min(${maxShares},Math.max(1,(parseInt(document.getElementById('short-qty').value)||0)+5));updateShortCost(${price})">+5</button>
     </div>
     <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px;">
       <span style="color:var(--muted);">Depozyt (z gotówki):</span>
@@ -2461,14 +2461,14 @@ function showShortModal(symbol) {
 function updateShortCost(price) {
   const qty = parseInt(document.getElementById('short-qty')?.value, 10) || 0;
   const el = document.getElementById('short-cost-display');
-  if (el) el.textContent = '$' + Math.round(qty * price * 0.5).toLocaleString();
+  if (el) el.textContent = '$' + (qty * price).toLocaleString();
 }
 
 function confirmShort(symbol, entryPrice) {
   const p = currentPlayer();
   const qty = parseInt(document.getElementById('short-qty')?.value, 10) || 0;
   if (qty < 1) { showNotif('Minimalna ilość: 1', 'error'); return; }
-  const margin = Math.round(qty * entryPrice * 0.5);
+  const margin = qty * entryPrice; // 100% depozyt — brak dźwigni
   if (p.cash < margin) { showNotif(`Niewystarczająca gotówka na depozyt ($${margin.toLocaleString()})`, 'error'); return; }
   p.cash -= margin;
   if (!p.shorts) p.shorts = [];
@@ -3045,9 +3045,10 @@ function showPayLiabilityModal() {
     <div style="display:flex; flex-direction:column; gap:10px;">`;
   p.liabilities.forEach((l,i) => {
     const canPay = p.cash >= l.value;
-    html += `<button class="btn ${canPay?'btn-primary':'btn-secondary'}" onclick="payLiability(${i})" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
-      <span>${l.name}</span>
-      <span>${canPay ? `$${l.value.toLocaleString()}` : `Need $${(l.value-p.cash).toLocaleString()} more`}</span>
+    const sharkTag = l.type === 'loanshark' ? `<span style="color:var(--warning);font-size:11px;font-weight:800;">⏳ ${l.turnsLeft} tur</span>` : '';
+    html += `<button class="btn ${canPay?'btn-primary':'btn-secondary'}" onclick="payLiability(${i})" style="text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <span style="flex:1;">${l.name} ${sharkTag}</span>
+      <span>${canPay ? `$${l.value.toLocaleString()}` : `<span style="color:var(--loss);font-size:12px;">Brakuje $${(l.value-p.cash).toLocaleString()}</span>`}</span>
     </button>`;
   });
   html += `<button class="btn btn-secondary" onclick="closeModal()">CANCEL</button></div>`;
@@ -3069,35 +3070,91 @@ function payLiability(liabilityIndex) {
 
 function showTakeLoanModal() {
   const p = currentPlayer();
-  const html = `<h2 style="margin-bottom:16px;">Take a Loan</h2>
-    <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1)); padding:14px; border-radius:10px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
-      <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Cash</div>
-      <div style="font-size:26px; font-weight:900; color:#fff;">$${p.cash.toLocaleString()}</div>
+  const html = `
+    <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1));padding:12px;border-radius:10px;margin-bottom:14px;text-align:center;border:1px solid rgba(56,189,248,0.2);">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Twoja gotówka</div>
+      <div style="font-size:26px;font-weight:900;">$${p.cash.toLocaleString()}</div>
     </div>
-    <p style="color:var(--muted); margin-bottom:16px; font-size:14px;">Borrow money at 10% interest (repay 110% of the loan amount).</p>
-    <div style="display:flex; gap:10px; margin-bottom:14px;">
-      <input type="number" id="loan-amount" min="100" step="100" placeholder="Loan amount" style="flex:1; padding:12px; border-radius:8px; border:1px solid rgba(56,189,248,0.2); background:rgba(4,12,28,0.9); color:#e2e8f0;">
-      <button class="btn btn-primary" onclick="confirmTakeLoan()">BORROW</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <input type="number" id="loan-amount" min="100" step="100" placeholder="Kwota pożyczki" class="tt-qty-input" style="flex:1;padding:12px;">
     </div>
-    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">CANCEL</button>`;
-  setModal("Loans", html);
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-primary" onclick="confirmTakeLoan(10)" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;">
+        <span>🏦 Kredyt bankowy</span>
+        <span style="font-size:12px;opacity:.8;">10% · rata 10%/mies.</span>
+      </button>
+      <button class="btn btn-secondary" onclick="confirmTakeLoan(25)" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid rgba(245,158,11,0.4);">
+        <span>💳 Pożyczka prywatna</span>
+        <span style="font-size:12px;opacity:.8;">25% · rata 25%/mies.</span>
+      </button>
+      <button class="btn btn-secondary" onclick="confirmLoanShark()" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.08);">
+        <span style="color:var(--loss);">💀 Lichwa</span>
+        <span style="font-size:12px;color:var(--loss);">100% · spłata w 10 turach!</span>
+      </button>
+    </div>
+    <button class="btn btn-secondary" style="width:100%;" onclick="closeModal()">Anuluj</button>`;
+  setModal("Pożyczki", html);
   document.getElementById("loan-amount").focus();
 }
 
-function confirmTakeLoan() {
+function confirmTakeLoan(rate = 10) {
   const p = currentPlayer();
   const amount = parseInt(document.getElementById("loan-amount").value, 10);
-  if (Number.isNaN(amount) || amount < 100) { showNotif("Minimum amount: $100.", "error"); return; }
-  const repayAmount = Math.round(amount * 1.1);
+  if (Number.isNaN(amount) || amount < 100) { showNotif("Minimalna kwota: $100.", "error"); return; }
+  const repayAmount = Math.round(amount * (1 + rate / 100));
+  const monthPayment = Math.round(repayAmount * rate / 100);
   p.cash += amount;
-  p.liabilities.push({name:"Bank Loan", value:repayAmount, payment:Math.round(repayAmount*0.1), type:"loan"});
+  p.liabilities.push({name:`Kredyt bankowy (${rate}%)`, value:repayAmount, payment:monthPayment, type:"loan"});
   recalcPassive(p);
   renderGame();
   closeModal();
-  showNotif(`Borrowed $${amount.toLocaleString()} (repay: $${repayAmount.toLocaleString()})`, "success");
-  // Return to deal card if loan was taken during a deal
+  showNotif(`Pożyczono $${amount.toLocaleString()} · do spłaty: $${repayAmount.toLocaleString()} · rata: $${monthPayment.toLocaleString()}/mies.`, "success");
   if (state.currentCard) {
     setTimeout(() => state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard(), 200);
+  }
+}
+
+function confirmLoanShark() {
+  const p = currentPlayer();
+  const amount = parseInt(document.getElementById("loan-amount").value, 10);
+  if (Number.isNaN(amount) || amount < 100) { showNotif("Minimalna kwota: $100.", "error"); return; }
+  const repayAmount = amount * 2; // 100% interest
+  p.cash += amount;
+  p.liabilities.push({
+    name: "💀 Lichwa",
+    value: repayAmount,
+    payment: 0, // no automatic deduction — must repay manually within 10 turns
+    type: "loanshark",
+    turnsLeft: 10
+  });
+  recalcPassive(p);
+  renderGame();
+  closeModal();
+  showNotif(`⚠️ Lichwa: pożyczono $${amount.toLocaleString()} · do spłaty $${repayAmount.toLocaleString()} w 10 turach!`, "error");
+  if (state.currentCard) {
+    setTimeout(() => state.currentCard.isStockMarket ? showStockDealCard(state.currentCard) : showDealCard(), 200);
+  }
+}
+
+function triggerLoanSharkGameOver(player) {
+  const debt = player.liabilities.filter(l => l.type === 'loanshark').reduce((s,l) => s + l.value, 0);
+  // Remove from game
+  player.liabilities = player.liabilities.filter(l => l.type !== 'loanshark');
+  if (state.players.length > 1) {
+    state.players = state.players.filter(p => p !== player);
+    state.players.forEach((p, i) => { p.idx = i; });
+    if (state.currentPlayerIdx >= state.players.length) state.currentPlayerIdx = 0;
+    renderGame();
+    showNotif(`💀 ${player.name} nie spłacił lichwy ($${debt.toLocaleString()}) na czas — odpada z gry!`, "error");
+  } else {
+    // Last player → game over screen
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac" style="text-align:center;padding:30px;">
+        <div style="font-size:48px;margin-bottom:12px;">💀</div>
+        <div class="ac-title" style="color:var(--loss);">Koniec gry — Lichwa!</div>
+        <p style="color:var(--muted);margin:12px 0;">${player.name} nie spłacił długu $${debt.toLocaleString()} w terminie.</p>
+        <button class="btn btn-primary" onclick="location.reload()">Zagraj ponownie</button>
+      </div>`;
   }
 }
 
@@ -3308,15 +3365,17 @@ function confirmPlayerLoan(borrowerIdx, lenderIdx) {
   if (lender.cash < amount) { showNotif(`${lender.name} nie ma wystarczającej gotówki.`, 'error'); return; }
 
   const repayAmount  = Math.round(amount * (1 + rate / 100));
-  const monthPayment = Math.round(repayAmount * 0.1);
+  const monthPayment = Math.round(repayAmount * rate / 100); // rate% of repayAmount per month
+  const isShark = rate >= 100;
 
   lender.cash   -= amount;
   borrower.cash += amount;
   borrower.liabilities.push({
-    name: `Pożyczka od ${lender.name} (${rate}%)`,
+    name: isShark ? `💀 Lichwa od ${lender.name}` : `Pożyczka od ${lender.name} (${rate}%)`,
     value: repayAmount,
-    payment: monthPayment,
-    type: 'loan'
+    payment: isShark ? 0 : monthPayment,
+    type: isShark ? 'loanshark' : 'loan',
+    ...(isShark ? {turnsLeft: 10} : {})
   });
   lender.assets.push({
     name: `Należność od ${borrower.name}`,
@@ -3401,6 +3460,18 @@ function updateMarketPrices() {
 
 // ==================== NEXT TURN + CONFIRMATION ====================
 function nextTurn() {
+  // Decrement loan shark countdown for the player whose turn is ending
+  const endingPlayer = currentPlayer();
+  const sharkLoans = endingPlayer.liabilities.filter(l => l.type === 'loanshark');
+  sharkLoans.forEach(l => {
+    l.turnsLeft = (l.turnsLeft || 1) - 1;
+    if (l.turnsLeft <= 0) {
+      // Game over for this player
+      triggerLoanSharkGameOver(endingPlayer);
+      return;
+    }
+  });
+
   updateMarketPrices();
   playTurnSwitch();
   state.currentPlayerIdx = (state.currentPlayerIdx + 1) % state.players.length;
@@ -3511,7 +3582,8 @@ function renderFS() {
   const investmentAssets = p.assets.filter(a=>a.type==="stock"||a.type==="fund"||a.type==="cd");
   const businessAssets   = p.assets.filter(a=>a.type==="rental"||a.type==="business");
   const fixedLiabilities = p.liabilities.filter(l=>["home","student","car","credit","retail"].includes(l.type));
-  const loanLiabilities  = p.liabilities.filter(l=>l.type==="loan");
+  const loanLiabilities   = p.liabilities.filter(l=>l.type==="loan");
+  const sharkLiabilities  = p.liabilities.filter(l=>l.type==="loanshark");
   const row = (label, value, cls="") => `
     <div class="fs-row ${cls}">
       <span>${label}</span>
@@ -3586,6 +3658,14 @@ function renderFS() {
           <div class="fs-section-title">Zobowiązania</div>
           ${fixedLiabilities.map(l=>row(plLiabName(l.name), money(l.value))).join("")}
           ${loanLiabilities.length ? loanLiabilities.map(l=>row(plLiabName(l.name), money(l.value))).join("") : emptyRows(2)}
+          ${sharkLiabilities.map(l=>`
+            <div class="fs-row" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:4px 8px;margin:2px 0;">
+              <span style="color:var(--loss);">💀 ${l.name.replace('💀 ','')}</span>
+              <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+                <span style="color:var(--loss);font-weight:900;">${money(l.value)}</span>
+                <span style="font-size:10px;color:var(--warning);font-weight:800;">⏳ ${l.turnsLeft} tur</span>
+              </span>
+            </div>`).join("")}
         </div>
       </div>
     </div>`;
@@ -4196,7 +4276,8 @@ function handleServerMsg(msg) {
         const repay = Math.round(msg.amount * (1 + msg.rate / 100));
         lender.cash   -= msg.amount;
         borrower.cash += msg.amount;
-        borrower.liabilities.push({ name:`Pożyczka od ${lender.name} (${msg.rate}%)`, value:repay, payment:Math.round(repay*0.1), type:'loan' });
+        const isShk = msg.rate >= 100;
+        borrower.liabilities.push({ name: isShk ? `💀 Lichwa od ${lender.name}` : `Pożyczka od ${lender.name} (${msg.rate}%)`, value:repay, payment: isShk ? 0 : Math.round(repay*msg.rate/100), type: isShk ? 'loanshark' : 'loan', ...(isShk ? {turnsLeft:10} : {}) });
         lender.assets.push({ name:`Należność od ${borrower.name}`, value:repay, cashflow:Math.round(repay*0.1), type:'fund', symbol:null, shares:0 });
         recalcPassive(lender); recalcPassive(borrower);
         renderGame();
