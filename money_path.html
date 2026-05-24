@@ -1911,10 +1911,14 @@ body { padding-top: 44px; }
           style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:15px; font-family:inherit; box-sizing:border-box;">
       </div>
 
-      <div style="display:flex; gap:10px; margin-bottom:24px;">
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
         <input id="online-game-name" type="text" data-i18n-ph="online.game_name_ph" placeholder="Game name (optional)" maxlength="30"
           style="flex:1; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box;">
         <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()" data-i18n="online.create">🎮 Create</button>
+      </div>
+      <div style="margin-bottom:24px;">
+        <input id="online-game-password" type="text" data-i18n-ph="online.password_ph" placeholder="🔒 Password (optional — leave blank for open game)" maxlength="30"
+          style="width:100%; padding:10px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.2); background:var(--glass); color:var(--text); font-size:13px; font-family:inherit; box-sizing:border-box; opacity:0.85;">
       </div>
 
       <div>
@@ -1955,9 +1959,8 @@ body { padding-top: 44px; }
       </div>
 
       <div style="text-align:center; margin-bottom:24px;">
-        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;" data-i18n="room.share_code">Share this code with friends</div>
-        <div id="room-code-display" class="room-code-box" title="Click to copy" onclick="copyRoomCode()">·····</div>
-        <div id="copy-hint" style="font-size:11px; color:var(--muted); margin-top:6px;" data-i18n="room.click_copy">Click code to copy</div>
+        <div id="room-game-name" style="font-size:22px; font-weight:900; color:var(--accent); letter-spacing:1px; margin-bottom:6px;">···</div>
+        <div id="room-password-info" style="font-size:13px; color:var(--muted); margin-top:4px; min-height:20px;"></div>
       </div>
 
       <div style="margin-bottom:20px;">
@@ -2178,6 +2181,7 @@ const STRINGS = {
     'online.your_name':      'Your Name',
     'online.name_ph':        'Enter your name',
     'online.game_name_ph':   'Game name (optional)',
+    'online.password_ph':    '🔒 Password (optional — leave blank for open game)',
     'online.create':         '🎮 Create',
     'online.available':      'Available Games',
     'online.refresh':        '🔄 Refresh',
@@ -2190,9 +2194,6 @@ const STRINGS = {
     'online.checking':       'Checking for games...',
     'online.loading':        'Loading…',
     // Room
-    'room.share_code':       'Share this code with friends',
-    'room.click_copy':       'Click code to copy',
-    'room.copied':           'Copied!',
     'room.players_in_room':  'Players in room',
     'room.waiting':          'Waiting for more players...',
     'room.start':            '▶ Start Game',
@@ -2542,6 +2543,7 @@ const STRINGS = {
     'online.your_name':      'Twoje imię',
     'online.name_ph':        'Wpisz swoje imię',
     'online.game_name_ph':   'Nazwa gry (opcjonalnie)',
+    'online.password_ph':    '🔒 Hasło (opcjonalnie — zostaw puste dla gry otwartej)',
     'online.create':         '🎮 Utwórz',
     'online.available':      'Dostępne gry',
     'online.refresh':        '🔄 Odśwież',
@@ -2554,9 +2556,6 @@ const STRINGS = {
     'online.checking':       'Wyszukiwanie gier...',
     'online.loading':        'Ładowanie…',
     // Room
-    'room.share_code':       'Udostępnij ten kod znajomym',
-    'room.click_copy':       'Kliknij kod, aby skopiować',
-    'room.copied':           'Skopiowano!',
     'room.players_in_room':  'Gracze w pokoju',
     'room.waiting':          'Oczekiwanie na graczy...',
     'room.start':            '▶ Rozpocznij grę',
@@ -6359,12 +6358,12 @@ async function refreshLobby() {
       return;
     }
     el.innerHTML = gs.map(g => `
-      <div class="lobby-game-card" onclick="onlineJoinGame('${g.id}')">
+      <div class="lobby-game-card" onclick="onlineJoinGame('${g.id}',${!!g.hasPassword})">
         <div>
-          <div style="font-weight:700;font-size:15px;">${htmlEsc(g.name)}</div>
-          <div style="font-size:12px;color:var(--muted);">Host: ${htmlEsc(g.host)} · ${g.players}/${g.maxPlayers} players</div>
+          <div style="font-weight:700;font-size:15px;">${htmlEsc(g.name)}${g.hasPassword ? ' <span style="font-size:14px;">🔒</span>' : ''}</div>
+          <div style="font-size:12px;color:var(--muted);">Host: ${htmlEsc(g.host)} · ${g.players}/${g.maxPlayers} ${LANG==='pl'?'graczy':'players'}</div>
         </div>
-        <button class="btn btn-invest" style="padding:8px 18px;font-size:13px;pointer-events:none;">JOIN</button>
+        <button class="btn btn-invest" style="padding:8px 18px;font-size:13px;pointer-events:none;">${g.hasPassword ? '🔒' : ''} JOIN</button>
       </div>`).join('');
   } catch {
     el.innerHTML = '<div style="color:var(--loss);text-align:center;padding:16px;font-size:13px;">Cannot reach server. Is it running?</div>';
@@ -6382,23 +6381,51 @@ function getOnlineName() {
 // ── Create / Join ─────────────────────────────────────────────
 function onlineCreateGame() {
   const name = getOnlineName();
-  if (!name) return alert('Enter your name first');
+  if (!name) return showNotif(LANG==='pl' ? '⚠️ Podaj swoje imię' : '⚠️ Enter your name first', 'error');
   const gameName = document.getElementById('online-game-name').value.trim() || `${name}'s game`;
+  const password = document.getElementById('online-game-password')?.value.trim() || '';
   myPlayerId  = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
   myPlayerIdx = 0;
   isHost      = true;
   connectWS(() => {
-    wsSend({ type: 'create_game', playerName: name, gameName, playerId: myPlayerId, color: PCOLORS[0], maxPlayers: 4 });
+    wsSend({ type: 'create_game', playerName: name, gameName, password: password || undefined, playerId: myPlayerId, color: PCOLORS[0], maxPlayers: 4 });
   });
 }
 
-function onlineJoinGame(gameId) {
+function onlineJoinGame(gameId, hasPassword) {
   const name = getOnlineName();
-  if (!name) return alert('Enter your name first');
+  if (!name) return showNotif(LANG==='pl' ? '⚠️ Podaj swoje imię' : '⚠️ Enter your name first', 'error');
+  if (hasPassword) {
+    // Ask for password first
+    setModal(LANG==='pl' ? '🔒 Hasło wymagane' : '🔒 Password Required', `
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">${LANG==='pl'?'Ta gra jest chroniona hasłem. Podaj hasło aby dołączyć.':'This game is password protected. Enter the password to join.'}</p>
+      <input id="join-pw-input" type="text" placeholder="${LANG==='pl'?'Hasło':'Password'}" maxlength="30" autofocus
+        style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid rgba(150,112,184,0.3);background:var(--glass);color:var(--text);font-size:15px;font-family:inherit;box-sizing:border-box;margin-bottom:14px;"
+        onkeydown="if(event.key==='Enter') confirmJoinWithPassword('${gameId}')">
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" style="flex:1;padding:14px;" onclick="confirmJoinWithPassword('${gameId}')">${LANG==='pl'?'Dołącz':'Join Game'}</button>
+        <button class="btn btn-secondary" style="flex:0 0 auto;padding:14px 18px;" onclick="closeModal()">${LANG==='pl'?'Anuluj':'Cancel'}</button>
+      </div>`);
+    setTimeout(() => document.getElementById('join-pw-input')?.focus(), 80);
+    return;
+  }
+  _doJoinGame(gameId, '');
+}
+
+function confirmJoinWithPassword(gameId) {
+  const pw = document.getElementById('join-pw-input')?.value.trim() || '';
+  closeModal();
+  _doJoinGame(gameId, pw);
+}
+
+let _lastJoinGameId = null;
+function _doJoinGame(gameId, password) {
+  _lastJoinGameId = gameId;
+  const name = getOnlineName();
   myPlayerId  = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
   isHost      = false;
   connectWS(() => {
-    wsSend({ type: 'join_game', gameId, playerName: name, playerId: myPlayerId, color: PCOLORS[1] });
+    wsSend({ type: 'join_game', gameId, password: password || undefined, playerName: name, playerId: myPlayerId, color: PCOLORS[1] });
   });
 }
 
@@ -6429,12 +6456,24 @@ function updateRoomUI(players) {
   if (btn) btn.style.display = (isHost && players.length >= 2) ? 'block' : 'none';
 }
 
-function copyRoomCode() {
-  const code = document.getElementById('room-code-display').textContent;
-  navigator.clipboard?.writeText(code).then(() => {
-    document.getElementById('copy-hint').textContent = '✅ ' + t('room.copied');
-    setTimeout(() => { document.getElementById('copy-hint').textContent = t('room.click_copy'); }, 2000);
-  });
+// ── Room screen info display ──────────────────────────────────
+let _currentGamePassword = ''; // stored so host can share verbally
+
+function updateRoomGameInfo(gameName, hasPassword, isCreator) {
+  const nameEl = document.getElementById('room-game-name');
+  const pwEl   = document.getElementById('room-password-info');
+  if (nameEl) nameEl.textContent = gameName || '···';
+  if (!pwEl) return;
+  if (hasPassword && isCreator) {
+    // Host sees the password they set, so they can tell friends
+    const pw = document.getElementById('online-game-password')?.value.trim() || '?';
+    _currentGamePassword = pw;
+    pwEl.innerHTML = `🔒 ${LANG==='pl'?'Hasło':'Password'}: <strong style="color:var(--accent);letter-spacing:2px;">${htmlEsc(pw)}</strong> <span style="font-size:11px;color:var(--muted);">(${LANG==='pl'?'podaj znajomym':'share with friends'})</span>`;
+  } else if (hasPassword) {
+    pwEl.innerHTML = `🔒 ${LANG==='pl'?'Gra chroniona hasłem':'Password-protected game'}`;
+  } else {
+    pwEl.innerHTML = `🔓 ${LANG==='pl'?'Gra otwarta — brak hasła':'Open game — no password'}`;
+  }
 }
 
 function leaveRoom() {
@@ -6492,7 +6531,7 @@ function handleServerMsg(msg) {
 
     case 'game_created': {
       _savedGameId = msg.gameId;
-      document.getElementById('room-code-display').textContent = msg.gameId;
+      updateRoomGameInfo(msg.gameName, msg.hasPassword, true);
       updateRoomUI(msg.players);
       goScreen('room');
       break;
@@ -6501,7 +6540,7 @@ function handleServerMsg(msg) {
     case 'joined_game': {
       _savedGameId = msg.gameId;
       myPlayerIdx  = msg.playerIdx;
-      document.getElementById('room-code-display').textContent = msg.gameId;
+      updateRoomGameInfo(msg.gameName, msg.hasPassword, false);
       updateRoomUI(msg.players);
       goScreen('room');
       break;
@@ -6731,7 +6770,13 @@ function handleServerMsg(msg) {
     case 'pong': break; // heartbeat reply — connection is alive
 
     case 'error': {
-      alert(msg.message);
+      if (msg.code === 'wrong_password') {
+        showNotif(LANG==='pl' ? '🔒 Błędne hasło — spróbuj ponownie' : '🔒 Wrong password — try again', 'error');
+        // Re-open password modal with same gameId
+        if (_lastJoinGameId) onlineJoinGame(_lastJoinGameId, true);
+      } else {
+        showNotif(msg.message || 'Error', 'error');
+      }
       break;
     }
 
