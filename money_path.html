@@ -626,8 +626,10 @@ input:focus, select:focus {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2,6,15,0.88);
-  backdrop-filter: blur(6px);
+  /* Dark overlay: tinted but transparent enough to see the blurred game behind */
+  background: rgba(2,6,15,0.48);
+  backdrop-filter: blur(26px) saturate(160%) brightness(0.72);
+  -webkit-backdrop-filter: blur(26px) saturate(160%) brightness(0.72);
   display: none;
   align-items: center;
   justify-content: center;
@@ -637,8 +639,11 @@ input:focus, select:focus {
 .modal-overlay.active { display: flex; }
 
 .modal {
-  background: linear-gradient(155deg, rgba(10,24,50,0.95), rgba(6,16,36,0.98));
-  border: 1.5px solid rgba(56,189,248,0.22);
+  /* Modal is its own frosted glass layer floating ABOVE the blurred backdrop */
+  background: linear-gradient(155deg, rgba(10,24,50,0.80), rgba(6,16,36,0.88));
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.08);
+  border: 1.5px solid rgba(56,189,248,0.26);
   border-radius: 24px;
   width: 540px;
   max-width: 94vw;
@@ -646,19 +651,26 @@ input:focus, select:focus {
   display: flex;
   flex-direction: column;
   box-shadow:
-    0 40px 100px rgba(0,0,0,0.70),
-    0 2px 0 rgba(255,255,255,0.09) inset,
+    0 48px 120px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(56,189,248,0.06) inset,
+    0 2px 0 rgba(255,255,255,0.10) inset,
     0 -1px 0 rgba(0,0,0,0.35) inset;
   position: relative;
   overflow: hidden;
+  /* 3D pop-in animation */
+  animation: modal-rise 0.28s cubic-bezier(0.34,1.45,0.64,1);
 }
-/* Liquid glass: soft specular band on upper portion */
+@keyframes modal-rise {
+  from { transform: scale(0.88) translateY(28px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+/* Liquid glass: specular sweep on upper half */
 .modal::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 45%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 50%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -691,8 +703,9 @@ input:focus, select:focus {
 #turn-confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2,6,15,0.82);
-  backdrop-filter: blur(8px);
+  background: rgba(2,6,15,0.44);
+  backdrop-filter: blur(26px) saturate(160%) brightness(0.72);
+  -webkit-backdrop-filter: blur(26px) saturate(160%) brightness(0.72);
   display: none;
   align-items: center;
   justify-content: center;
@@ -702,23 +715,25 @@ input:focus, select:focus {
 #turn-confirm-overlay.active { display: flex; }
 
 .turn-confirm-card {
-  background: linear-gradient(155deg, rgba(10,26,54,0.97), rgba(6,18,40,0.99));
-  border: 1px solid rgba(56,189,248,0.35);
-  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(10,26,54,0.82), rgba(6,18,40,0.90));
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.08);
+  border: 1.5px solid rgba(56,189,248,0.30);
+  border-radius: 28px;
   padding: 48px 40px;
   text-align: center;
   max-width: 440px;
   width: 90vw;
   box-shadow:
-    0 48px 120px rgba(0,0,0,0.7),
-    0 0 0 1px rgba(56,189,248,0.06) inset,
-    0 1px 0 rgba(255,255,255,0.07) inset;
-  animation: confirm-pop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    0 48px 120px rgba(0,0,0,0.60),
+    0 2px 0 rgba(255,255,255,0.10) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset;
+  animation: confirm-pop 0.28s cubic-bezier(0.34,1.45,0.64,1);
 }
 
 @keyframes confirm-pop {
-  from { transform: scale(0.88) translateY(20px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
+  from { transform: scale(0.88) translateY(24px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
 }
 
 /* ===== NOTIFICATION ===== */
@@ -984,19 +999,25 @@ input:focus, select:focus {
 :root .btn-danger-act { background: linear-gradient(135deg, #c0392b, var(--loss)); color: #fff; }
 :root .btn-add { border-color: rgba(176,145,210,0.4); color: var(--pur-d); }
 
-/* Modal */
-:root .modal-overlay { background: rgba(100,80,140,0.38); backdrop-filter: blur(8px); }
+/* Modal — light mode */
+:root .modal-overlay {
+  background: rgba(80,50,120,0.18);
+  backdrop-filter: blur(28px) saturate(160%) brightness(0.88);
+  -webkit-backdrop-filter: blur(28px) saturate(160%) brightness(0.88);
+}
 :root .modal {
-  background: linear-gradient(155deg, rgba(255,255,255,0.93), rgba(243,232,255,0.95));
-  border: 1.5px solid rgba(255,255,255,0.65);
+  background: linear-gradient(155deg, rgba(255,255,255,0.78), rgba(243,232,255,0.86));
+  backdrop-filter: blur(36px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.05);
+  border: 1.5px solid rgba(255,255,255,0.68);
   box-shadow:
-    0 32px 80px rgba(149,112,184,0.22),
-    0 2px 0 rgba(255,255,255,0.92) inset,
-    0 -1px 0 rgba(149,112,184,0.10) inset;
+    0 48px 120px rgba(149,112,184,0.30),
+    0 2px 0 rgba(255,255,255,0.95) inset,
+    0 -1px 0 rgba(149,112,184,0.12) inset;
   color: #2d2d2d;
 }
 :root .modal::before {
-  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.14) 50%, transparent 100%);
 }
 :root #modal-head-txt {
   background: rgba(243,232,255,0.6);
@@ -1007,11 +1028,17 @@ input:focus, select:focus {
 :root #modal-content::-webkit-scrollbar-thumb { background: rgba(176,145,210,0.3); }
 
 /* Turn confirm overlay */
-:root #turn-confirm-overlay { background: rgba(100,80,140,0.4); }
+:root #turn-confirm-overlay {
+  background: rgba(80,50,120,0.18);
+  backdrop-filter: blur(28px) saturate(160%) brightness(0.88);
+  -webkit-backdrop-filter: blur(28px) saturate(160%) brightness(0.88);
+}
 :root .turn-confirm-card {
-  background: #ffffff;
-  border: 1.5px solid rgba(176,145,210,0.35);
-  box-shadow: 0 32px 80px rgba(149,112,184,0.22);
+  background: linear-gradient(155deg, rgba(255,255,255,0.80), rgba(243,232,255,0.88));
+  backdrop-filter: blur(36px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.05);
+  border: 1.5px solid rgba(255,255,255,0.68);
+  box-shadow: 0 48px 120px rgba(149,112,184,0.28), 0 2px 0 rgba(255,255,255,0.95) inset;
   color: #2d2d2d;
 }
 
@@ -1106,12 +1133,26 @@ input:focus, select:focus {
 [data-theme="dark"] .stock-icon { background: linear-gradient(145deg,rgba(56,189,248,0.28),rgba(34,197,94,0.18)); border-color: rgba(125,211,252,0.22); color: #e6f6ff; }
 [data-theme="dark"] .btn-primary { background: linear-gradient(135deg,#0ea5e9,#22c55e); }
 [data-theme="dark"] .btn-secondary { background: rgba(30,42,68,0.9); border: 1px solid rgba(56,189,248,0.2); color: #e6f6ff; }
-[data-theme="dark"] .modal-overlay { background: rgba(2,6,15,0.88); }
-[data-theme="dark"] .modal { background: linear-gradient(155deg,rgba(10,24,50,0.96),rgba(6,16,36,0.98)); border: 1px solid rgba(56,189,248,0.28); color: #e6f6ff; }
+[data-theme="dark"] .modal-overlay {
+  background: rgba(2,6,15,0.48);
+  backdrop-filter: blur(26px) saturate(160%) brightness(0.68);
+  -webkit-backdrop-filter: blur(26px) saturate(160%) brightness(0.68);
+}
+[data-theme="dark"] .modal {
+  background: linear-gradient(155deg,rgba(10,24,50,0.80),rgba(6,16,36,0.88));
+  border: 1.5px solid rgba(56,189,248,0.28); color: #e6f6ff;
+}
 [data-theme="dark"] #modal-head-txt { background: rgba(4,12,28,0.8); border-bottom-color: rgba(56,189,248,0.15); color: #e6f6ff; }
 [data-theme="dark"] #modal-content { color: #e6f6ff; }
-[data-theme="dark"] #turn-confirm-overlay { background: rgba(2,6,15,0.82); }
-[data-theme="dark"] .turn-confirm-card { background: linear-gradient(155deg,rgba(10,26,54,0.97),rgba(6,18,40,0.99)); border: 1px solid rgba(56,189,248,0.35); color: #e6f6ff; }
+[data-theme="dark"] #turn-confirm-overlay {
+  background: rgba(2,6,15,0.44);
+  backdrop-filter: blur(26px) saturate(160%) brightness(0.68);
+  -webkit-backdrop-filter: blur(26px) saturate(160%) brightness(0.68);
+}
+[data-theme="dark"] .turn-confirm-card {
+  background: linear-gradient(155deg,rgba(10,26,54,0.82),rgba(6,18,40,0.90));
+  border: 1.5px solid rgba(56,189,248,0.35); color: #e6f6ff;
+}
 [data-theme="dark"] .notif { background: linear-gradient(135deg,rgba(10,24,50,0.97),rgba(6,16,36,0.99)); border: 1px solid rgba(56,189,248,0.3); border-left: 4px solid var(--accent); color: #e6f6ff; }
 [data-theme="dark"] .breakout-badge.up   { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4); color: #4ade80; }
 [data-theme="dark"] .breakout-badge.down { background: rgba(251,63,95,0.15); border-color: rgba(251,63,95,0.4); color: #fb7185; }
@@ -1260,8 +1301,8 @@ input:focus, select:focus {
 }
 :root .terminal-symbol-badge { color: #3d1060; }
 :root .terminal-sector-txt   { color: #8b5ccc; }
-/* chart stays dark for readability */
-:root .terminal-chart-wrap   { background: #08101e; border-bottom-color: rgba(149,112,184,0.18); }
+/* chart background is now painted by the SVG itself (theme-aware) */
+:root .terminal-chart-wrap   { background: rgba(248,242,255,0.98); border-bottom-color: rgba(149,112,184,0.18); }
 :root .terminal-price-row    { background: rgba(243,232,255,0.96); border-bottom-color: rgba(149,112,184,0.18); }
 :root .terminal-vol-center   {
   background: rgba(255,255,255,0.80);
@@ -3871,8 +3912,28 @@ function buildCandleChart(symbol) {
   const history = (state.stockHistory?.[symbol] || []);
   const currentPrice = state.market?.[symbol] || history.at?.(-1)?.close || 0;
 
+  // ── Theme palette ──────────────────────────────────────────────────────────
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  const T = isDark ? {
+    bg:       '#020810',
+    colUp:    '#22c55e',
+    colDn:    '#ef4444',
+    priceLine:'#38bdf8',
+    labelBg:  '#061828',
+    labelTxt: '#38bdf8',
+    noData:   '#4a7fa8',
+  } : {
+    bg:       'rgba(248,242,255,0.98)',
+    colUp:    '#16a34a',
+    colDn:    '#dc2626',
+    priceLine:'#7c5aa0',
+    labelBg:  'rgba(237,224,252,0.97)',
+    labelTxt: '#6d28a8',
+    noData:   '#9570b8',
+  };
+
   if (!history.length) {
-    return `<div style="text-align:center;line-height:${svgH}px;font-size:11px;color:#4a7fa8;width:100%;">No data yet</div>`;
+    return `<div style="text-align:center;line-height:${svgH}px;font-size:11px;color:${T.noData};width:100%;">No data yet</div>`;
   }
 
   // Include current price in range so the indicator always fits
@@ -3884,10 +3945,10 @@ function buildCandleChart(symbol) {
   const hi = rawMax + margin;
   const range = hi - lo;
 
-  // SVG logical dimensions (preserveAspectRatio:none stretches to fill width — correct for a price chart)
+  // SVG logical dimensions (preserveAspectRatio:none stretches to fill width)
   const VW = 500;
   const VH = svgH;
-  const padT = 5, padB = 5, padL = 2, padR = 46; // padR = room for price label inside SVG
+  const padT = 5, padB = 5, padL = 2, padR = 46;
   const plotW = VW - padL - padR;
   const plotH = VH - padT - padB;
 
@@ -3901,7 +3962,7 @@ function buildCandleChart(symbol) {
   // ── Candles ──
   const candlesSVG = history.map((c, i) => {
     const up  = c.close >= c.open;
-    const col = up ? '#22c55e' : '#ef4444';
+    const col = up ? T.colUp : T.colDn;
     const bT  = py(Math.max(c.open, c.close));
     const bB  = py(Math.min(c.open, c.close));
     const bH  = Math.max(1, bB - bT);
@@ -3910,23 +3971,27 @@ function buildCandleChart(symbol) {
     const x   = cx(i);
     const isBreakout = c.breakout;
     return [
-      `<line x1="${x.toFixed(1)}" y1="${wT.toFixed(1)}" x2="${x.toFixed(1)}" y2="${wB.toFixed(1)}" stroke="${col}" stroke-width="1" opacity="${isBreakout?'1':'0.6'}"/>`,
-      `<rect x="${(x-bodyW/2).toFixed(1)}" y="${bT.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bH.toFixed(1)}" fill="${col}" rx="1" opacity="${isBreakout?'1':'0.9'}"/>`
+      `<line x1="${x.toFixed(1)}" y1="${wT.toFixed(1)}" x2="${x.toFixed(1)}" y2="${wB.toFixed(1)}" stroke="${col}" stroke-width="1" opacity="${isBreakout?'1':'0.65'}"/>`,
+      `<rect x="${(x-bodyW/2).toFixed(1)}" y="${bT.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bH.toFixed(1)}" fill="${col}" rx="1" opacity="${isBreakout?'1':'0.90'}"/>`
     ].join('');
   }).join('');
 
-  // ── Current price dashed line ──
-  const priceY = py(currentPrice).toFixed(1);
+  // ── Current price indicator ──
+  const priceY  = py(currentPrice).toFixed(1);
   const lineEnd = (VW - padR + 2).toFixed(1);
+  const lbX     = parseFloat(lineEnd);
+  const lbY     = parseFloat(priceY);
+  const lbW     = padR - 4;
   const priceSVG = [
-    `<line x1="${padL}" y1="${priceY}" x2="${lineEnd}" y2="${priceY}" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.75"/>`,
-    // Label box
-    `<rect x="${lineEnd}" y="${(parseFloat(priceY)-8).toFixed(1)}" width="${(padR-4).toFixed(1)}" height="16" fill="#061828" rx="3" stroke="#38bdf8" stroke-width="0.6" opacity="0.95"/>`,
-    // Price text — font-size kept small to avoid distortion under preserveAspectRatio:none
-    `<text x="${(parseFloat(lineEnd)+(padR-4)/2).toFixed(1)}" y="${(parseFloat(priceY)+4.5).toFixed(1)}" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-family="monospace" font-weight="700">$${currentPrice.toLocaleString()}</text>`
+    // Dashed line
+    `<line x1="${padL}" y1="${priceY}" x2="${lineEnd}" y2="${priceY}" stroke="${T.priceLine}" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.80"/>`,
+    // Label background
+    `<rect x="${lbX.toFixed(1)}" y="${(lbY-8).toFixed(1)}" width="${lbW.toFixed(1)}" height="16" fill="${T.labelBg}" rx="3" stroke="${T.priceLine}" stroke-width="0.7" opacity="0.97"/>`,
+    // Price text
+    `<text x="${(lbX+lbW/2).toFixed(1)}" y="${(lbY+4.5).toFixed(1)}" text-anchor="middle" fill="${T.labelTxt}" font-size="8.5" font-family="monospace" font-weight="700">$${currentPrice.toLocaleString()}</text>`
   ].join('');
 
-  return `<svg viewBox="0 0 ${VW} ${VH}" width="100%" height="${svgH}" style="display:block;" preserveAspectRatio="none">${candlesSVG}${priceSVG}</svg>`;
+  return `<svg viewBox="0 0 ${VW} ${VH}" width="100%" height="${svgH}" style="display:block;background:${T.bg};" preserveAspectRatio="none">${candlesSVG}${priceSVG}</svg>`;
 }
 
 function getTrend(symbol) {
