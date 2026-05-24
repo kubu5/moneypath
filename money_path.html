@@ -2606,7 +2606,6 @@ const STRINGS = {
     'deal.sell_sym':         sym => `SELL ${sym}`,
     'deal.sell_lbl':         'SELL',
     'deal.buy_lbl':          'BUY',
-    'deal.pass':             'PASS',
     'deal.price_share':      'Price',
     'deal.normal_range':     'Range',
     'deal.owned':            'Owned',
@@ -2958,9 +2957,6 @@ const STRINGS = {
     'dream.target':          'Cel:',
     'dream.land_to_win':     'Wyląduj na polu marzenia będąc finansowo wolnym, aby wygrać!',
     'dream.lets_play':       'Zaczynam grać! 🎲',
-    // Turn confirm overlay
-    'confirm.label':         'Następny gracz',
-    'confirm.start':         'ZACZYNAM TURĘ →',
     // Layoff
     'turn.laid_off':         (n,turns) => `${n} jest zwolniony — brak wynagrodzenia, wydatki nadal naliczane. Zostało tur: ${turns}`,
     // Space messages
@@ -3004,7 +3000,6 @@ const STRINGS = {
     'deal.sell_sym':         sym => `SPRZEDAJ ${sym}`,
     'deal.sell_lbl':         'SPRZEDAJ',
     'deal.buy_lbl':          'KUP',
-    'deal.pass':             'POMIŃ',
     'deal.price_share':      'Cena',
     'deal.normal_range':     'Zakres',
     'deal.owned':            'Posiadane',
@@ -3760,10 +3755,7 @@ function recalcPassive(p) {
 function childExpenses(p) { return (p.children || 0) * 350; }
 
 function totalExpenses(p) {
-  return p.taxes + p.otherExpenses + childExpenses(p) + p.liabilities.reduce((sum,l) => {
-    if (l.type==='loan') return sum + (l.value * 0.1);
-    return sum + (l.payment||0);
-  }, 0);
+  return p.taxes + p.otherExpenses + childExpenses(p) + p.liabilities.reduce((sum,l) => sum + (l.payment||0), 0);
 }
 
 function monthlyCashflow(p) {
@@ -4018,7 +4010,7 @@ function showDealCard() {
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; padding:14px; background:rgba(4,12,28,0.6); border-radius:10px; border:1px solid rgba(56,189,248,0.12);">
             <div><div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">${t('deal.down_payment')}</div><div style="font-size:20px; font-weight:900; color:var(--accent);">$${card.downpayment.toLocaleString()}</div></div>
             <div>
-              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:4px;">${t('deal.monthly_cf')} <button class="info-btn" onclick="showInfo('cashflow')" title="Info" style="font-size:10px;width:16px;height:16px;">ℹ</button></div>
+              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:4px;">${t('deal.monthly_cf')} <button class="info-btn" onclick="showInfo('success')" title="Info" style="font-size:10px;width:16px;height:16px;">ℹ</button></div>
               <div style="font-size:20px; font-weight:900; color:var(--profit);">+$${card.cashflow}${t('player.per_mo')}</div>
             </div>
           </div>
@@ -4373,39 +4365,6 @@ function openShort(qty) {
   renderAction_EndTurn(LANG==='pl' ? `Krótka sprzedaż otwarta: ${qty} × ${card.symbol}` : `Short position opened: ${qty} × ${card.symbol}`);
 }
 
-function showManageShortsModal() {
-  const p = currentPlayer();
-  if (!p.shorts || !p.shorts.length) { showNotif(LANG==='pl'?'Brak otwartych shortów':'No open short positions', 'info'); return; }
-  let html = `<h2 style="margin-bottom:16px;">${LANG==='pl'?'Otwarte Shorty':'Open Short Positions'}</h2><div style="display:flex;flex-direction:column;gap:10px;">`;
-  p.shorts.forEach((s, idx) => {
-    const currentPrice = state.market[s.symbol] || s.openPrice;
-    const pnl = (s.openPrice - currentPrice) * s.qty;
-    const margin = s.margin != null ? s.margin : s.qty * s.openPrice;
-    const returnAmount = Math.max(0, margin + pnl);
-    const liquidationPrice = s.openPrice * 2;
-    const nearLiquidation = currentPrice >= liquidationPrice * 0.8;
-    const pnlColor = pnl >= 0 ? 'var(--profit)' : 'var(--loss)';
-    const pnlStr = pnl >= 0 ? `+$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`;
-    html += `<div style="background:rgba(14,165,233,0.08);padding:12px;border-radius:10px;border:1px solid ${nearLiquidation?'rgba(239,68,68,0.5)':'rgba(56,189,248,0.15)'};">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <strong style="color:var(--accent);font-size:15px;">${s.symbol}</strong>
-        <span style="color:${pnlColor};font-weight:900;">${pnlStr}</span>
-      </div>
-      ${nearLiquidation ? `<div style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;padding:5px 8px;font-size:11px;color:#fca5a5;margin-bottom:8px;">⚠️ ${LANG==='pl'?'Uwaga: cena blisko likwidacji ($'+liquidationPrice.toLocaleString()+')':'Warning: price near liquidation ($'+liquidationPrice.toLocaleString()+')'}</div>` : ''}
-      <div style="font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
-        <span>${LANG==='pl'?'Ilość':'Qty'}: <strong>${s.qty}</strong></span>
-        <span>${LANG==='pl'?'Otwarcie':'Opened at'}: <strong>$${s.openPrice.toLocaleString()}</strong></span>
-        <span>${LANG==='pl'?'Teraz':'Now'}: <strong style="color:${currentPrice>s.openPrice?'var(--loss)':'var(--profit)'};">$${currentPrice.toLocaleString()}</strong></span>
-        <span>${LANG==='pl'?'Zabezpieczenie':'Margin'}: <strong>$${margin.toLocaleString()}</strong></span>
-        <span>${LANG==='pl'?'Zwrot po zamknięciu':'Return on close'}: <strong style="color:${returnAmount>0?'var(--profit)':'var(--loss)'};">$${returnAmount.toLocaleString()}</strong></span>
-      </div>
-      <button class="btn ${pnl>=0?'btn-invest':'btn-danger-act'}" onclick="closeShort(${idx})" style="width:100%;font-size:13px;">${LANG==='pl'?'Zamknij (Cover)':'Cover Position'} ← $${returnAmount.toLocaleString()} ${LANG==='pl'?'zwrot':'returned'}</button>
-    </div>`;
-  });
-  html += `<button class="btn btn-secondary" onclick="closeModal()">${LANG==='pl'?'Zamknij':'Close'}</button></div>`;
-  setModal(LANG==='pl' ? '📉 Zarządzaj Shortami' : '📉 Manage Shorts', html);
-}
-
 function closeShort(idx) {
   const p = currentPlayer();
   if (!p.shorts || !p.shorts[idx]) return;
@@ -4658,9 +4617,6 @@ function calcCreditTiers(p) {
   // Expose gross limits for display purposes
   return { standard, extended, grossStandard, grossExtended, loanBalance };
 }
-
-// Legacy helper kept for compatibility — returns standard limit only
-function calcCreditLimit(p) { return calcCreditTiers(p).standard; }
 
 // Return interest rate and monthly payment rate for a given loan amount
 function loanTermsForAmount(amount, tiers) {
@@ -5379,7 +5335,6 @@ function confirmTakeLoan() {
 }
 
 function showTakeLoanThenDeal() {
-  state._loanFromDeal = true;
   showTakeLoanModal();
 }
 
@@ -5974,7 +5929,7 @@ function renderFS() {
       ${loanReceivables.length ? row(`💸 ${LANG==='pl'?'Odsetki od pożyczek':'Loan Interest'}`, money(loanReceivables.reduce((s,a)=>s+(a.cashflow||0),0)), "subtle") : ''}
 
       <div class="fs-summary">
-        <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px;">${t('fs.freedom_progress')} <button class="info-btn" onclick="showInfo('cashflow')" title="Info" style="font-size:10px;width:16px;height:16px;">ℹ</button></div>
+        <div style="font-size:12px; color:var(--muted); text-align:center; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px;">${t('fs.freedom_progress')} <button class="info-btn" onclick="showInfo('success')" title="Info" style="font-size:10px;width:16px;height:16px;">ℹ</button></div>
         <div class="fs-progress"><div class="fs-progress-fill" style="width:${progress}%"></div></div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted);">
           <span>${t('fs.passive')} <strong style="color:var(--profit);">${money(p.passiveIncome)}</strong></span>
@@ -6760,17 +6715,17 @@ function connectWS(onOpen) {
   };
 
   wsConn.onmessage = e => {
-    try { handleServerMsg(JSON.parse(e.data)); } catch(ex) { console.error(ex); }
+    try { handleServerMsg(JSON.parse(e.data)); } catch(_) {}
   };
 
-  wsConn.onerror = () => showNotif(t('notif.conn_error'), 'loss');
+  wsConn.onerror = () => showNotif(t('notif.conn_error'), 'error');
 
   wsConn.onclose = () => {
     stopHeartbeat();
     const wasInGame = isOnline;
     const wasInRoom = document.getElementById('room-screen')?.classList.contains('active');
     if (wasInGame || wasInRoom) {
-      showNotif(t('notif.disconnected'), 'loss');
+      showNotif(t('notif.disconnected'), 'error');
       scheduleReconnect();
     }
   };
@@ -6908,8 +6863,6 @@ function updateRoomUI(players) {
 }
 
 // ── Room screen info display ──────────────────────────────────
-let _currentGamePassword = ''; // stored so host can share verbally
-
 function updateRoomGameInfo(gameName, hasPassword, isCreator) {
   const nameEl = document.getElementById('room-game-name');
   const pwEl   = document.getElementById('room-password-info');
@@ -6918,7 +6871,6 @@ function updateRoomGameInfo(gameName, hasPassword, isCreator) {
   if (hasPassword && isCreator) {
     // Host sees the password they set, so they can tell friends
     const pw = document.getElementById('online-game-password')?.value.trim() || '?';
-    _currentGamePassword = pw;
     pwEl.innerHTML = `🔒 ${LANG==='pl'?'Hasło':'Password'}: <strong style="color:var(--accent);letter-spacing:2px;">${htmlEsc(pw)}</strong> <span style="font-size:11px;color:var(--muted);">(${LANG==='pl'?'podaj znajomym':'share with friends'})</span>`;
   } else if (hasPassword) {
     pwEl.innerHTML = `🔒 ${LANG==='pl'?'Gra chroniona hasłem':'Password-protected game'}`;
@@ -7013,7 +6965,7 @@ function handleServerMsg(msg) {
         // Tag new host in state so sidebar badge updates
         if (myPlayerId) state.hostPlayerId = myPlayerId;
       }
-      showNotif(t('notif.you_host', msg.newHostName || '?'), 'cashflow');
+      showNotif(t('notif.you_host', msg.newHostName || '?'), 'success');
       renderGame();
       if (isMyTurn()) {
         setTimeout(() => showTurnConfirmation(currentPlayer(), () => beginTurn()), 400);
@@ -7067,7 +7019,7 @@ function handleServerMsg(msg) {
         const iAmNewHost = msg.newHostPlayerId === myPlayerId;
         if (iAmNewHost) {
           isHost = true;
-          showNotif(t('notif.you_host', msg.newHostName), 'cashflow');
+          showNotif(t('notif.you_host', msg.newHostName), 'success');
         } else {
           isHost = false;
           showNotif(t('notif.new_host', dcName, msg.newHostName), 'info');
@@ -7176,10 +7128,6 @@ function handleServerMsg(msg) {
       break;
     }
 
-    case 'player_action': {
-      // Legacy: server now broadcasts state_update directly. Ignored on the client.
-      break;
-    }
 
     case 'rejoined_game': {
       myPlayerIdx = msg.playerIdx;
@@ -7197,7 +7145,7 @@ function handleServerMsg(msg) {
       const _rejoinBar = document.getElementById('online-ingame-bar');
       if (_rejoinBar) _rejoinBar.style.display = 'block';
       renderGame();
-      showNotif('🔄 ' + t('online.rejoin_btn').replace('🔄 ', '') + ' ✓', 'cashflow');
+      showNotif('🔄 ' + t('online.rejoin_btn').replace('🔄 ', '') + ' ✓', 'success');
       // If it's my turn, start it; otherwise show waiting bar
       if (isMyTurn()) {
         setTimeout(() => showTurnConfirmation(currentPlayer(), () => beginTurn()), 600);
