@@ -2714,6 +2714,11 @@ const STRINGS = {
     'loan.limit_reached':    'You already took a loan this turn.',
     'liq.purchase_price':    'purchase price',
     'bankrupt.deal_forfeited': 'Deal forfeited — crisis takes priority.',
+    'bankrupt.exceed_limit':   '🚫 Exceeds High-Risk Credit Limit',
+    'bankrupt.exceed_sub':     'Bank refuses all credit. Usury or P2P loan are your only options.',
+    'bankrupt.p2p_btn':        '🤝 Request P2P Loan',
+    'bankrupt.p2p_sub':        name => `Ask another player — if they decline, next turn is game over for ${name}`,
+    'bankrupt.gameover_next_turn': '⚠️ P2P loan declined — next turn triggers automatic bankruptcy',
     // Charity
     'charity.hd':            'CHARITY',
     'charity.title_ac':      'Charity — roll two dice',
@@ -3108,6 +3113,11 @@ const STRINGS = {
     'loan.limit_reached':    'Już wzięłeś pożyczkę w tej turze.',
     'liq.purchase_price':    'cena zakupu',
     'bankrupt.deal_forfeited': 'Oferta przepada — kryzys ma priorytet.',
+    'bankrupt.exceed_limit':   '🚫 Przekroczono limit kredytu podwyższonego',
+    'bankrupt.exceed_sub':     'Bank odmawia wszelkich kredytów. Lichwa lub pożyczka P2P to jedyne opcje.',
+    'bankrupt.p2p_btn':        '🤝 Poproś o Pożyczkę P2P',
+    'bankrupt.p2p_sub':        name => `Zapytaj innego gracza — jeśli odmówi, następna tura to bankructwo dla ${name}`,
+    'bankrupt.gameover_next_turn': '⚠️ Pożyczka P2P odrzucona — następna tura kończy grę automatycznym bankructwem',
     // Charity
     'charity.hd':            'DAROWIZNA',
     'charity.title_ac':      'Darowizna — rzuć dwiema kostkami',
@@ -4685,6 +4695,17 @@ function showBankruptcyModal(p) {
       </button>`;
   }
 
+  // ── P2P button — always shown when other players are present
+  const _otherPlayersExist = state.players.length > 1;
+  function p2pBtn() {
+    if (!_otherPlayersExist) return '';
+    return `
+      <button class="btn btn-secondary" onclick="closeModal();showRequestLoanModal()" style="border-color:rgba(249,115,22,0.5);">
+        <div style="font-size:15px;font-weight:900;color:var(--warning);">${t('bankrupt.p2p_btn')}</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:3px;">${t('bankrupt.p2p_sub', p.name)}</div>
+      </button>`;
+  }
+
   const neededAmount  = Math.ceil(deficit / 100) * 100;
   const stdAmount     = Math.min(neededAmount, tiers.standard);
   const extAmount     = Math.min(neededAmount, tiers.extended);
@@ -4717,9 +4738,12 @@ function showBankruptcyModal(p) {
     // Deficit fits in extended tier — offer both options
     loanSection = loanBtn(stdAmount, 'standard') + loanBtn(extAmount, 'extended');
   } else {
-    // Deficit exceeds even extended limit — partial loans only
-    if (tiers.standard > 0) loanSection += loanBtn(tiers.standard, 'standard');
-    if (tiers.extended > tiers.standard) loanSection += loanBtn(tiers.extended, 'extended');
+    // Deficit exceeds even extended limit — bank refuses all credit; usury is the only bank option
+    loanSection = `
+      <div style="padding:12px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;text-align:center;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:700;color:var(--loss);">${t('bankrupt.exceed_limit')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${t('bankrupt.exceed_sub')}</div>
+      </div>` + usuryloanBtn(neededAmount);
   }
 
   setModal(t('bankrupt.title'), `
@@ -4734,6 +4758,7 @@ function showBankruptcyModal(p) {
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${loanSection}
+      ${p2pBtn()}
       <button class="btn btn-secondary" onclick="showSellStocksFromBankruptcy()">
         <div style="font-size:15px;font-weight:900;">${t('bankrupt.sell_btn')}</div>
         <div style="font-size:12px;opacity:0.75;margin-top:3px;">${t('bankrupt.sell_sub')}</div>
@@ -4841,6 +4866,7 @@ function liquidateSell(idx) {
   }
 
   p.cash += proceeds;
+  if (p.cash >= 0) p.p2pCrisisFailed = false; // crisis resolved — clear P2P game-over flag
   recalcPassive(p);
   renderGame();
   closeModal();
@@ -4868,6 +4894,7 @@ function emergencyLoan(amount, interestRate = 0.10, monthlyRate = 0.10) {
   p.cash += amount;
   p.liabilities.push({name: loanName, value: repayAmount, payment, type: "loan"});
   state.loansThisTurn++;
+  if (p.cash >= 0) p.p2pCrisisFailed = false; // crisis resolved — clear P2P game-over flag
   recalcPassive(p);
   renderGame();
   closeModal();
@@ -5432,7 +5459,7 @@ function showLoanCounterModal(borrowerIdx, lenderIdx, requestedAmount) {
     <div id="offer-preview" style="padding:8px 12px;border-radius:8px;background:rgba(14,165,233,0.07);border:1px solid rgba(56,189,248,0.12);font-size:12px;color:var(--muted);min-height:36px;margin-bottom:12px;"></div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-invest" style="flex:2;" onclick="submitLoanOffer(${borrowerIdx},${lenderIdx},${requestedAmount})">${t('loan.offer_accept')}</button>
-      <button class="btn btn-danger-act" style="flex:1;" onclick="closeModal();showNotif(LANG==='pl'?'Prośba odrzucona':'Request declined','info')">${t('loan.offer_decline')}</button>
+      <button class="btn btn-danger-act" style="flex:1;" onclick="declineLoanOffer(${borrowerIdx},${lenderIdx})">${t('loan.offer_decline')}</button>
     </div>`);
   updateOfferPreview(requestedAmount);
 }
@@ -5502,8 +5529,38 @@ function showLoanDecisionModal(borrowerIdx, lenderIdx, amount, rate) {
     </div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-invest" style="flex:2;" onclick="acceptP2PLoan(${borrowerIdx},${lenderIdx},${amount},${rate})">${t('loan.final_accept')}</button>
-      <button class="btn btn-danger-act" style="flex:1;" onclick="closeModal();showNotif(LANG==='pl'?'Pożyczka odrzucona':'Loan declined','info')">${t('loan.final_decline')}</button>
+      <button class="btn btn-danger-act" style="flex:1;" onclick="declineLoanDecision(${borrowerIdx})">${t('loan.final_decline')}</button>
     </div>`);
+}
+
+// Lender declines — sets P2P crisis flag on borrower when borrower is in the red
+function declineLoanOffer(borrowerIdx, lenderIdx) {
+  closeModal();
+  if (isOnline) {
+    // Notify borrower's device; borrower's WS handler sets the flag locally
+    wsSend({ type: 'loan_declined', fromIdx: lenderIdx, toIdx: borrowerIdx, playerId: myPlayerId });
+    showNotif(LANG === 'pl' ? 'Prośba odrzucona' : 'Request declined', 'info');
+    return;
+  }
+  const borrower = state.players[borrowerIdx];
+  if (borrower && borrower.cash < 0) {
+    borrower.p2pCrisisFailed = true;
+    showNotif(t('bankrupt.gameover_next_turn'), 'error');
+  } else {
+    showNotif(LANG === 'pl' ? 'Prośba odrzucona' : 'Request declined', 'info');
+  }
+}
+
+// Borrower declines the lender's offer — same flag logic
+function declineLoanDecision(borrowerIdx) {
+  closeModal();
+  const borrower = state.players[borrowerIdx];
+  if (borrower && borrower.cash < 0) {
+    borrower.p2pCrisisFailed = true;
+    showNotif(t('bankrupt.gameover_next_turn'), 'error');
+  } else {
+    showNotif(LANG === 'pl' ? 'Pożyczka odrzucona' : 'Loan declined', 'info');
+  }
 }
 
 // Step 6: Execute the agreed loan
@@ -5525,6 +5582,7 @@ function acceptP2PLoan(borrowerIdx, lenderIdx, amount, rate) {
   });
 
   borrower.cash += amount;
+  if (borrower.cash >= 0) borrower.p2pCrisisFailed = false; // P2P resolved — clear game-over flag
   borrower.liabilities.push({
     name: LANG==='pl' ? `Pożyczka od ${lender.name}` : `Loan from ${lender.name}`,
     value: amount, payment: monthlyPayment, type: 'player_loan',
@@ -5732,6 +5790,12 @@ function nextTurn() {
   // Block turn end while player has negative cash — must resolve crisis first
   const _cp = currentPlayer();
   if (_cp && _cp.cash < 0) {
+    if (_cp.p2pCrisisFailed) {
+      // P2P loan was declined while in the red — automatic bankruptcy
+      showNotif(t('bankrupt.gameover_next_turn'), 'error');
+      setTimeout(() => declareBankruptcy(), 1500);
+      return;
+    }
     showNotif(t('bankrupt.deal_forfeited').replace('Deal forfeited', 'Resolve crisis first').replace('Oferta przepada', 'Najpierw rozwiąż kryzys'), 'error');
     showBankruptcyModal(_cp);
     return;
@@ -7211,6 +7275,19 @@ function handleServerMsg(msg) {
         ? `💸 ${lender.name} oferuje $${msg.amount.toLocaleString()} @ ${msg.rate}%`
         : `💸 ${lender.name} offers $${msg.amount.toLocaleString()} @ ${msg.rate}%`, 'info');
       showLoanDecisionModal(msg.toIdx, msg.fromIdx, msg.amount, msg.rate);
+      break;
+    }
+
+    case 'loan_declined': {
+      // Lender refused MY loan request — if I'm in the red, mark P2P crisis
+      if (msg.toIdx !== myPlayerIdx) break;
+      const mySelf = state.players[myPlayerIdx];
+      if (mySelf && mySelf.cash < 0) {
+        mySelf.p2pCrisisFailed = true;
+        showNotif(t('bankrupt.gameover_next_turn'), 'error');
+      } else {
+        showNotif(LANG==='pl' ? 'Prośba odrzucona' : 'Request declined', 'info');
+      }
       break;
     }
   }
