@@ -1098,8 +1098,13 @@ input:focus, select:focus {
 @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
 .terminal-chart-wrap {
   background: #020810;
-  padding: 4px 0;
+  padding: 4px 2px;
   border-bottom: 1px solid rgba(56,189,248,0.1);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  overflow: hidden;
+  gap: 2px;
 }
 .terminal-price-row {
   display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
@@ -1287,6 +1292,31 @@ input:focus, select:focus {
 @media (max-width: 700px) {
   .chat-toggle-btn { bottom: 66px; }
   .chat-panel { width: calc(100vw - 24px); bottom: 122px; right: 12px; max-height: 55vh; }
+
+  /* ── Trading terminal compact mobile layout ── */
+  .terminal-topbar { padding: 5px 10px; gap: 4px; }
+  .terminal-symbol-badge { font-size: 13px; letter-spacing: 1px; }
+  .terminal-sector-txt { font-size: 9px; letter-spacing: 0.5px; }
+  .terminal-live-dot { width: 6px; height: 6px; }
+
+  .terminal-stats-strip { }
+  .terminal-stat-cell { padding: 4px 6px; }
+  .terminal-stat-lbl { font-size: 8px; }
+  .terminal-stat-val { font-size: 11px; margin-top: 1px; }
+
+  .terminal-sell-btn,
+  .terminal-buy-btn { padding: 7px 6px; gap: 1px; font-size: 13px !important; }
+  .terminal-sell-btn span, .terminal-buy-btn span { font-size: inherit !important; }
+
+  .terminal-vol-center { padding: 6px 5px; gap: 3px; }
+  .terminal-vol-input { width: 58px; font-size: 12px; padding: 4px 4px; }
+  .terminal-vol-label { font-size: 8px; }
+
+  .terminal-pct-btns { padding: 4px 8px; gap: 3px; }
+  .terminal-pct-btn { padding: 3px 2px; font-size: 9px; border-radius: 4px; }
+
+  .terminal-action-row { padding: 5px 8px; gap: 4px; }
+  .terminal-secondary-btn { padding: 6px 3px; font-size: 9px; border-radius: 6px; }
 }
 
 /* ══════════════════════════════════════════
@@ -3562,14 +3592,16 @@ function showDealCard() {
 }
 
 function buildCandleChart(symbol) {
-  const history = ((state.stockHistory && state.stockHistory[symbol]) || []).slice(-14);
-  if (!history.length) return '<div style="color:var(--muted);text-align:center;width:100%;line-height:100px;">No data</div>';
+  const isMobile = window.innerWidth <= 700;
+  const maxCandles = isMobile ? 10 : 14;
+  const chartH = isMobile ? 54 : 88;
+  const history = ((state.stockHistory && state.stockHistory[symbol]) || []).slice(-maxCandles);
+  if (!history.length) return `<div style="color:var(--muted);text-align:center;width:100%;line-height:${chartH}px;font-size:11px;">No data</div>`;
 
   const allPrices = history.flatMap(c => [c.high, c.low]);
   const minP = Math.min(...allPrices);
   const maxP = Math.max(...allPrices);
   const range = maxP - minP || 1;
-  const chartH = 100;
 
   return history.map(c => {
     const upward = c.close >= c.open;
@@ -3579,13 +3611,12 @@ function buildCandleChart(symbol) {
     const wickTopPx = ((maxP - c.high) / range) * chartH;
     const wickBotPx = ((c.low - minP) / range) * chartH;
     const bodyTopPx = ((maxP - Math.max(c.open, c.close)) / range) * chartH;
-    const bodyH = Math.max(3, (Math.abs(c.close - c.open) / range) * chartH);
+    const bodyH = Math.max(2, (Math.abs(c.close - c.open) / range) * chartH);
     const wickH = chartH - wickTopPx - wickBotPx;
 
-    return `<div style="flex:1;min-width:8px;position:relative;height:${chartH}px;display:flex;flex-direction:column;align-items:center;">
-      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:${wickH + wickTopPx}px;background:rgba(226,246,255,0.55);margin-top:${wickTopPx}px;border-radius:2px;"></div>
-      <div style="position:absolute;top:${bodyTopPx}px;width:65%;height:${bodyH}px;background:${color};border-radius:3px;box-shadow:0 0 8px ${glow};"></div>
-      <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:2px;height:${wickBotPx}px;background:rgba(226,246,255,0.55);border-radius:2px;"></div>
+    return `<div style="flex:1;min-width:0;position:relative;height:${chartH}px;display:flex;flex-direction:column;align-items:center;">
+      <div style="position:absolute;top:${wickTopPx}px;left:50%;transform:translateX(-50%);width:1px;height:${wickH}px;background:rgba(226,246,255,0.55);border-radius:1px;"></div>
+      <div style="position:absolute;top:${bodyTopPx}px;left:1px;right:1px;height:${bodyH}px;background:${color};border-radius:2px;box-shadow:0 0 6px ${glow};"></div>
     </div>`;
   }).join('');
 }
