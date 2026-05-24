@@ -63,9 +63,10 @@
 body {
   background: var(--bg);
   background-image:
-    radial-gradient(ellipse at 15% 10%, rgba(176,145,210,0.18) 0%, transparent 38%),
-    radial-gradient(ellipse at 88% 15%, rgba(76,175,125,0.12) 0%, transparent 34%),
-    radial-gradient(ellipse at 50% 100%, rgba(255,166,153,0.10) 0%, transparent 40%);
+    radial-gradient(ellipse at 15% 10%, rgba(176,145,210,0.28) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 15%, rgba(76,175,125,0.18) 0%, transparent 38%),
+    radial-gradient(ellipse at 70% 75%, rgba(56,189,248,0.10) 0%, transparent 38%),
+    radial-gradient(ellipse at 20% 85%, rgba(255,166,153,0.14) 0%, transparent 40%);
   background-size: auto;
   font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
   color: var(--text);
@@ -73,50 +74,83 @@ body {
   overflow: hidden;
 }
 
-/* ===== GLASS SYSTEM ===== */
+/* ===== GLASS SYSTEM — Liquid Glass ===== */
 .glass {
   background: var(--glass);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(125, 211, 252, 0.18);
-  border-radius: 16px;
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.06);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.06);
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.42);
   box-shadow:
-    0 24px 64px rgba(0,0,0,0.5),
-    0 1px 0 rgba(255,255,255,0.06) inset,
-    0 -1px 0 rgba(0,0,0,0.3) inset;
-  border: 1px solid rgba(176,145,210,0.25);
-  box-shadow: 0 8px 32px rgba(149,112,184,0.10);
+    0 8px 32px rgba(149,112,184,0.14),
+    0 2px 0 rgba(255,255,255,0.65) inset,
+    0 -1px 0 rgba(0,0,0,0.06) inset,
+    1px 0 0 rgba(255,255,255,0.32) inset;
+}
+[data-theme="dark"] .glass {
+  background: rgba(8,20,40,0.58);
+  border-color: rgba(125,211,252,0.20);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.55),
+    0 1px 0 rgba(255,255,255,0.09) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset;
 }
 
 .glass-premium {
-  background: linear-gradient(135deg, rgba(15,35,65,0.72), rgba(8,20,40,0.82));
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(125,211,252,0.28);
-  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(12,30,60,0.72), rgba(6,18,42,0.84));
+  backdrop-filter: blur(36px) saturate(220%) brightness(1.02);
+  -webkit-backdrop-filter: blur(36px) saturate(220%) brightness(1.02);
+  border: 1.5px solid rgba(125,211,252,0.22);
+  border-radius: 22px;
   box-shadow:
     0 32px 80px rgba(0,0,0,0.55),
-    0 2px 0 rgba(255,255,255,0.08) inset,
-    0 0 0 1px rgba(56,189,248,0.06) inset;
+    0 2px 0 rgba(255,255,255,0.10) inset,
+    0 -1px 0 rgba(0,0,0,0.40) inset,
+    1px 0 0 rgba(255,255,255,0.07) inset;
   position: relative;
   overflow: hidden;
 }
-
+/* Liquid glass: specular highlight sweeping top half (convex lens look) */
 .glass-premium::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(125,211,252,0.5), transparent);
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.10) 0%,
+    rgba(255,255,255,0.04) 45%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
 }
-
+/* Liquid glass: diagonal lens sheen from top-left */
 .glass-premium::after {
   content: "";
   position: absolute;
   top: 0; left: 0;
-  width: 60%; height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent 60%);
+  width: 55%; height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent 65%);
   pointer-events: none;
+  z-index: 0;
+}
+/* Light theme: bright frosted glass card */
+:root .glass-premium {
+  background: linear-gradient(155deg, rgba(255,255,255,0.84), rgba(243,232,255,0.74));
+  border-color: rgba(255,255,255,0.60);
+  box-shadow:
+    0 16px 48px rgba(149,112,184,0.18),
+    0 2px 0 rgba(255,255,255,0.90) inset,
+    0 -1px 0 rgba(149,112,184,0.12) inset,
+    1px 0 0 rgba(255,255,255,0.55) inset;
+}
+:root .glass-premium::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.44) 0%, rgba(255,255,255,0.12) 45%, transparent 100%);
+}
+:root .glass-premium::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.24), transparent 65%);
 }
 
 /* ===== HEADER ===== */
@@ -603,25 +637,30 @@ input:focus, select:focus {
 .modal-overlay.active { display: flex; }
 
 .modal {
-  background: linear-gradient(155deg, rgba(10,24,50,0.96), rgba(6,16,36,0.98));
-  border: 1px solid rgba(56,189,248,0.28);
-  border-radius: 20px;
+  background: linear-gradient(155deg, rgba(10,24,50,0.95), rgba(6,16,36,0.98));
+  border: 1.5px solid rgba(56,189,248,0.22);
+  border-radius: 24px;
   width: 540px;
   max-width: 94vw;
   max-height: 82vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset;
+  box-shadow:
+    0 40px 100px rgba(0,0,0,0.70),
+    0 2px 0 rgba(255,255,255,0.09) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset;
   position: relative;
   overflow: hidden;
 }
-
+/* Liquid glass: soft specular band on upper portion */
 .modal::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent);
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 #modal-head-txt {
@@ -946,14 +985,19 @@ input:focus, select:focus {
 :root .btn-add { border-color: rgba(176,145,210,0.4); color: var(--pur-d); }
 
 /* Modal */
-:root .modal-overlay { background: rgba(100,80,140,0.45); }
+:root .modal-overlay { background: rgba(100,80,140,0.38); backdrop-filter: blur(8px); }
 :root .modal {
-  background: #ffffff;
-  border: 1.5px solid rgba(176,145,210,0.3);
-  box-shadow: 0 24px 80px rgba(149,112,184,0.25);
+  background: linear-gradient(155deg, rgba(255,255,255,0.93), rgba(243,232,255,0.95));
+  border: 1.5px solid rgba(255,255,255,0.65);
+  box-shadow:
+    0 32px 80px rgba(149,112,184,0.22),
+    0 2px 0 rgba(255,255,255,0.92) inset,
+    0 -1px 0 rgba(149,112,184,0.10) inset;
   color: #2d2d2d;
 }
-:root .modal::before { background: linear-gradient(90deg, transparent, rgba(176,145,210,0.5), transparent); }
+:root .modal::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+}
 :root #modal-head-txt {
   background: rgba(243,232,255,0.6);
   border-bottom: 1px solid rgba(176,145,210,0.2);
@@ -1023,9 +1067,13 @@ input:focus, select:focus {
     linear-gradient(135deg, #04101e, #081c38 55%, #04101e);
 }
 [data-theme="dark"] .glass-premium {
-  background: linear-gradient(135deg, rgba(15,35,65,0.72), rgba(8,20,40,0.82));
-  border: 1px solid rgba(125,211,252,0.28);
-  box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 2px 0 rgba(255,255,255,0.08) inset;
+  background: linear-gradient(155deg, rgba(12,30,60,0.72), rgba(6,18,42,0.84));
+  border: 1.5px solid rgba(125,211,252,0.22);
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.60),
+    0 2px 0 rgba(255,255,255,0.10) inset,
+    0 -1px 0 rgba(0,0,0,0.40) inset,
+    1px 0 0 rgba(255,255,255,0.07) inset;
 }
 [data-theme="dark"] .header {
   background: linear-gradient(90deg, rgba(4,12,28,0.98), rgba(10,28,55,0.94));
@@ -1075,10 +1123,11 @@ input:focus, select:focus {
    ══════════════════════════════════════════ */
 .trade-terminal {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(56,189,248,0.25);
+  border: 1.5px solid rgba(56,189,248,0.28);
 }
+/* ── Terminal: DARK MODE (default) ── */
 .terminal-topbar {
   background: linear-gradient(90deg,#050f1e,#0a1a30);
   border-bottom: 1px solid rgba(56,189,248,0.18);
@@ -1106,30 +1155,38 @@ input:focus, select:focus {
   overflow: hidden;
   gap: 2px;
 }
+/* Price row: flex with padding so rounded buttons float nicely */
 .terminal-price-row {
-  display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+  display: flex; gap: 6px; padding: 6px;
+  background: #04101e;
   border-bottom: 1px solid rgba(56,189,248,0.12);
 }
 .terminal-sell-btn {
+  flex: 1;
   background: linear-gradient(135deg, #7f1d1d, #991b1b);
-  color: #fff; border: none; padding: 14px 10px; cursor: pointer;
+  color: #fff; border: none; padding: 13px 10px; cursor: pointer;
   font-family: inherit; font-weight: 900; text-align: center;
-  transition: filter 0.15s; border-radius: 0;
+  transition: filter 0.15s, transform 0.1s; border-radius: 12px;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
-.terminal-sell-btn:hover:not(:disabled) { filter: brightness(1.2); }
+.terminal-sell-btn:hover:not(:disabled) { filter: brightness(1.18); transform: scale(1.02); }
+.terminal-sell-btn:active:not(:disabled) { transform: scale(0.97); }
 .terminal-sell-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .terminal-buy-btn {
+  flex: 1;
   background: linear-gradient(135deg, #14532d, #166534);
-  color: #fff; border: none; padding: 14px 10px; cursor: pointer;
+  color: #fff; border: none; padding: 13px 10px; cursor: pointer;
   font-family: inherit; font-weight: 900; text-align: center;
-  transition: filter 0.15s; border-radius: 0;
+  transition: filter 0.15s, transform 0.1s; border-radius: 12px;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
-.terminal-buy-btn:hover:not(:disabled) { filter: brightness(1.2); }
+.terminal-buy-btn:hover:not(:disabled) { filter: brightness(1.18); transform: scale(1.02); }
+.terminal-buy-btn:active:not(:disabled) { transform: scale(0.97); }
 .terminal-buy-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .terminal-vol-center {
-  background: #040c1c;
+  min-width: 80px;
+  background: rgba(4,12,28,0.9);
+  border-radius: 12px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 10px 8px; gap: 6px;
 }
@@ -1137,7 +1194,7 @@ input:focus, select:focus {
   font-size: 9px; color: #7dd3fc; text-transform: uppercase; letter-spacing: 1px;
 }
 .terminal-vol-input {
-  width: 72px; padding: 5px 6px; border-radius: 6px;
+  width: 68px; padding: 5px 6px; border-radius: 8px;
   border: 1px solid rgba(56,189,248,0.3);
   background: rgba(2,8,20,0.9); color: #e2e8f0;
   font-family: inherit; font-size: 13px; text-align: center;
@@ -1149,7 +1206,7 @@ input:focus, select:focus {
   border-bottom: 1px solid rgba(56,189,248,0.1);
 }
 .terminal-pct-btn {
-  padding: 5px 2px; border-radius: 5px; border: 1px solid rgba(56,189,248,0.22);
+  padding: 5px 2px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.22);
   background: rgba(14,30,60,0.8); color: #7dd3fc; font-size: 10px; font-weight: 700;
   cursor: pointer; transition: all 0.12s; text-align: center; font-family: inherit;
 }
@@ -1176,7 +1233,7 @@ input:focus, select:focus {
   flex-wrap: wrap;
 }
 .terminal-secondary-btn {
-  flex: 1; padding: 9px 6px; border-radius: 8px;
+  flex: 1; padding: 9px 6px; border-radius: 10px;
   border: 1px solid rgba(56,189,248,0.2);
   background: rgba(14,30,60,0.7); color: #7dd3fc;
   font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
@@ -1191,19 +1248,57 @@ input:focus, select:focus {
   font-size: 11px; color: #4a7fa8;
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
-/* Light theme overrides for terminal */
-:root .trade-terminal { border-color: rgba(149,112,184,0.3); }
-:root .terminal-topbar { background: linear-gradient(90deg,#1a2030,#243050); }
-:root .terminal-chart-wrap { background: #0c1428; }
-:root .terminal-price-row { background: #0f1e38; }
-:root .terminal-vol-center { background: #0c1428; }
-:root .terminal-pct-btns { background: #0a1220; }
-:root .terminal-stats-strip { background: #0c1428; }
-:root .terminal-action-row { background: #08101e; }
-:root .terminal-info-bar { background: #060e1a; }
-/* Short sell terminal pct label */
+
+/* ── Terminal: LIGHT MODE overrides ── */
+:root .trade-terminal {
+  border-color: rgba(149,112,184,0.35);
+  box-shadow: 0 8px 32px rgba(149,112,184,0.14);
+}
+:root .terminal-topbar {
+  background: linear-gradient(90deg, rgba(243,232,255,0.98), rgba(235,220,255,0.96));
+  border-bottom-color: rgba(149,112,184,0.20);
+}
+:root .terminal-symbol-badge { color: #3d1060; }
+:root .terminal-sector-txt   { color: #8b5ccc; }
+/* chart stays dark for readability */
+:root .terminal-chart-wrap   { background: #08101e; border-bottom-color: rgba(149,112,184,0.18); }
+:root .terminal-price-row    { background: rgba(243,232,255,0.96); border-bottom-color: rgba(149,112,184,0.18); }
+:root .terminal-vol-center   {
+  background: rgba(255,255,255,0.80);
+  border: 1px solid rgba(149,112,184,0.20);
+}
+:root .terminal-vol-label    { color: #8b5ccc; }
+:root .terminal-vol-input    {
+  background: rgba(255,255,255,0.95); color: #3d1060;
+  border-color: rgba(149,112,184,0.40);
+}
+:root .terminal-pct-btns     { background: rgba(237,224,252,0.97); border-bottom-color: rgba(149,112,184,0.14); }
+:root .terminal-pct-btn      { background: rgba(255,255,255,0.75); color: #7c5aa0; border-color: rgba(149,112,184,0.30); }
+:root .terminal-pct-btn:hover { background: rgba(149,112,184,0.15); color: #3d1060; border-color: rgba(149,112,184,0.55); }
+:root .terminal-pct-btn.allin { border-color: rgba(180,130,0,0.45); color: #8a6010; background: rgba(255,215,80,0.18); }
+:root .terminal-pct-btn.allin:hover { background: rgba(255,215,80,0.30); }
+:root .terminal-pct-sell     { border-color: rgba(200,50,50,0.30); color: #b52020; background: rgba(255,100,100,0.12); }
+:root .terminal-pct-sell:hover { background: rgba(200,50,50,0.18); color: #8a0a0a; }
+:root .terminal-stats-strip  { background: rgba(242,232,255,0.97); border-bottom-color: rgba(149,112,184,0.12); }
+:root .terminal-stat-cell    { border-right-color: rgba(149,112,184,0.12); }
+:root .terminal-stat-lbl     { color: #9570b8; }
+:root .terminal-stat-val     { color: #3d1060; }
+:root .terminal-action-row   { background: rgba(248,242,255,0.98); }
+:root .terminal-secondary-btn {
+  background: rgba(255,255,255,0.75); color: #7c5aa0;
+  border-color: rgba(149,112,184,0.30);
+}
+:root .terminal-secondary-btn:hover { background: rgba(149,112,184,0.14); color: #3d1060; }
+:root .terminal-secondary-btn.short-btn { border-color: rgba(200,50,50,0.38); color: #b52020; }
+:root .terminal-secondary-btn.short-btn:hover { background: rgba(200,50,50,0.12); color: #8a0a0a; }
+:root .terminal-secondary-btn.pass-btn { border-color: rgba(149,112,184,0.22); color: #9570b8; }
+:root .terminal-info-bar     { background: rgba(243,232,255,0.98); color: #9570b8; }
+
+/* Short sell pct label */
 .terminal-pct-short { border-color: rgba(239,68,68,0.35); color: #f87171; background: rgba(80,10,10,0.25); }
 .terminal-pct-short:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
+:root .terminal-pct-short { border-color: rgba(200,50,50,0.30); color: #b52020; background: rgba(255,100,100,0.12); }
+:root .terminal-pct-short:hover { background: rgba(200,50,50,0.18); color: #8a0a0a; }
 
 /* Info button */
 .info-btn {
@@ -1304,19 +1399,19 @@ input:focus, select:focus {
   .terminal-stat-lbl { font-size: 8px; }
   .terminal-stat-val { font-size: 11px; margin-top: 1px; }
 
+  .terminal-price-row { gap: 4px; padding: 4px; }
   .terminal-sell-btn,
-  .terminal-buy-btn { padding: 7px 6px; gap: 1px; font-size: 13px !important; }
+  .terminal-buy-btn { padding: 7px 5px; gap: 1px; font-size: 13px !important; border-radius: 10px; }
   .terminal-sell-btn span, .terminal-buy-btn span { font-size: inherit !important; }
-
-  .terminal-vol-center { padding: 6px 5px; gap: 3px; }
-  .terminal-vol-input { width: 58px; font-size: 12px; padding: 4px 4px; }
+  .terminal-vol-center { padding: 6px 4px; gap: 3px; min-width: 68px; border-radius: 10px; }
+  .terminal-vol-input { width: 56px; font-size: 12px; padding: 4px 4px; }
   .terminal-vol-label { font-size: 8px; }
 
   .terminal-pct-btns { padding: 4px 8px; gap: 3px; }
-  .terminal-pct-btn { padding: 3px 2px; font-size: 9px; border-radius: 4px; }
+  .terminal-pct-btn { padding: 3px 2px; font-size: 9px; border-radius: 6px; }
 
   .terminal-action-row { padding: 5px 8px; gap: 4px; }
-  .terminal-secondary-btn { padding: 6px 3px; font-size: 9px; border-radius: 6px; }
+  .terminal-secondary-btn { padding: 6px 3px; font-size: 9px; border-radius: 8px; }
 }
 
 /* ══════════════════════════════════════════
@@ -2548,14 +2643,45 @@ const STRINGS = {
     'deal.stock_solrx.desc': 'Clean energy basket dips after supply-chain news.',
     'deal.stock_cldai.desc': 'Data center demand is strong, but the stock pulled back.',
     'deal.stock_robox.desc': 'Automation names sell off after a weak quarter.',
-    // Splurges
-    'splurge.phone_upgrade.title':  'Phone Upgrade',       'splurge.phone_upgrade.desc':  'Flagship device on launch week',
-    'splurge.music_festival.title': 'Music Festival',      'splurge.music_festival.desc': 'Tickets, travel, and merch',
-    'splurge.laptop_repair.title':  'Laptop Repair',       'splurge.laptop_repair.desc':  'Main board failure before a deadline',
-    'splurge.sneaker_drop.title':   'Sneaker Drop',        'splurge.sneaker_drop.desc':   'Limited release temptation',
-    'splurge.gaming_setup.title':   'Gaming Setup',        'splurge.gaming_setup.desc':   'Monitor, chair, lights, and headset',
-    'splurge.vet_bill.title':       'Emergency Vet Bill',  'splurge.vet_bill.desc':       'Unexpected medical visit for a pet',
-    'splurge.online_course.title':  'Online Course Bundle','splurge.online_course.desc':  'Skill upgrade that hits cash now',
+    // Splurges — small
+    'splurge.coffee_habit.title':    'Coffee & Snacks Month',    'splurge.coffee_habit.desc':    'A month of premium coffee and daily snacks',
+    'splurge.parking_tickets.title': 'Parking Tickets',           'splurge.parking_tickets.desc': 'Three unpaid fines, finally cleared',
+    'splurge.takeout_streak.title':  'Takeaway Week',             'splurge.takeout_streak.desc':  'Takeaway every night, no cooking, no regrets',
+    'splurge.streaming_all.title':   'Every Streaming Platform',  'splurge.streaming_all.desc':   'Subscribed to all of them in one evening',
+    'splurge.impulse_buy.title':     'Bookshop Spree',            'splurge.impulse_buy.desc':     'Weekend browsing turned into a full basket',
+    'splurge.gym_signup.title':      'Gym & Gear',                'splurge.gym_signup.desc':      'Signed up, bought everything, went twice',
+    'splurge.birthday_tab.title':    'Birthday Dinner Tab',       'splurge.birthday_tab.desc':    'Picked up the bill for the whole table',
+    'splurge.plant_haul.title':      'Garden Centre Haul',        'splurge.plant_haul.desc':      'Couldn\'t resist the plants and the pots',
+    'splurge.snack_box.title':       'Snack Subscription',        'splurge.snack_box.desc':       'International snack boxes for six months',
+    'splurge.forgotten_sub.title':   'Forgotten Subscriptions',   'splurge.forgotten_sub.desc':   'Found twelve active plans — cancelled after paying',
+    // Splurges — medium
+    'splurge.phone_upgrade.title':   'Phone Upgrade',             'splurge.phone_upgrade.desc':   'Flagship device on launch week',
+    'splurge.sneaker_drop.title':    'Sneaker Drop',              'splurge.sneaker_drop.desc':    'Limited release temptation',
+    'splurge.online_course.title':   'Online Course Bundle',      'splurge.online_course.desc':   'Skill upgrade that hits cash now',
+    'splurge.gaming_setup.title':    'Gaming Setup',              'splurge.gaming_setup.desc':    'Monitor, chair, lights, and headset',
+    'splurge.vet_bill.title':        'Emergency Vet Bill',        'splurge.vet_bill.desc':        'Unexpected medical visit for a pet',
+    'splurge.laptop_repair.title':   'Laptop Repair',             'splurge.laptop_repair.desc':   'Main board failure before a deadline',
+    'splurge.music_festival.title':  'Music Festival',            'splurge.music_festival.desc':  'Tickets, travel, and merch',
+    'splurge.weekend_getaway.title': 'Weekend Getaway',           'splurge.weekend_getaway.desc': 'Last-minute city break for two, upgraded hotel',
+    'splurge.concert_vip.title':     'Concert VIP Tickets',       'splurge.concert_vip.desc':     'Front-row experience for a sold-out show',
+    'splurge.car_service.title':     'Car Service & Tyres',       'splurge.car_service.desc':     'Full service plus two new tyres',
+    'splurge.new_sofa.title':        'Impulse Sofa',              'splurge.new_sofa.desc':        'Spotted the perfect sofa, bought it on the spot',
+    'splurge.kitchen_gadgets.title': 'Kitchen Upgrade',           'splurge.kitchen_gadgets.desc': 'New appliances after the old ones gave up',
+    'splurge.dental_emergency.title':'Emergency Dentist',         'splurge.dental_emergency.desc':'Surprise root canal, no dental cover',
+    'splurge.flight_rebook.title':   'Missed Flight Rebook',      'splurge.flight_rebook.desc':   'Missed check-in, rebooked last-minute at full price',
+    'splurge.ebike.title':           'Electric Bike',             'splurge.ebike.desc':           'Zero-emission commute impulse purchase',
+    // Splurges — large
+    'splurge.car_repair.title':      'Engine Fault Repair',       'splurge.car_repair.desc':      'Major engine fault, out of warranty',
+    'splurge.holiday_splurge.title': 'Luxury Holiday',            'splurge.holiday_splurge.desc': 'Two weeks abroad, upgraded everything twice',
+    'splurge.home_reno.title':       'Bathroom Renovation',       'splurge.home_reno.desc':       'Renovation that ran way over budget',
+    'splurge.medical_bill.title':    'Medical Bill',              'splurge.medical_bill.desc':    'Out-of-network procedure, insurance said no',
+    'splurge.legal_fees.title':      'Legal Fees',                'splurge.legal_fees.desc':      'Dispute needed a solicitor, settled fast but costly',
+    'splurge.luxury_watch.title':    'Luxury Watch',              'splurge.luxury_watch.desc':    'Limited edition — told yourself it\'s an investment',
+    'splurge.roof_repair.title':     'Roof Storm Damage',         'splurge.roof_repair.desc':     'Storm damage, had to be fixed immediately',
+    'splurge.wedding_trip.title':    'Destination Wedding',       'splurge.wedding_trip.desc':    'Gift, flights, and hotel for a friend\'s big day',
+    'splurge.stolen_laptop.title':   'Laptop Stolen',             'splurge.stolen_laptop.desc':   'Snatched at a café, replaced the same day',
+    'splurge.tax_surprise.title':    'Surprise Tax Bill',         'splurge.tax_surprise.desc':    'Accountant found an underpayment from two years ago',
+    'splurge.burst_pipe.title':      'Burst Pipe Damage',         'splurge.burst_pipe.desc':      'Flooded the kitchen, plumber and repairs',
   },
   pl: {
     'app.subtitle':          'Wolność Finansowa',
@@ -2913,14 +3039,45 @@ const STRINGS = {
     'deal.stock_solrx.desc': 'Koszyk czystej energii spada po wiadomościach o problemach z łańcuchem dostaw.',
     'deal.stock_cldai.desc': 'Popyt na centra danych jest silny, ale akcje cofnęły się.',
     'deal.stock_robox.desc': 'Spółki automatyzacyjne wyprzedają się po słabym kwartale.',
-    // Splurges
-    'splurge.phone_upgrade.title':  'Nowy Telefon',          'splurge.phone_upgrade.desc':  'Flagowe urządzenie w tygodniu premiery',
-    'splurge.music_festival.title': 'Festiwal Muzyczny',     'splurge.music_festival.desc': 'Bilety, podróż i gadżety',
-    'splurge.laptop_repair.title':  'Naprawa Laptopa',       'splurge.laptop_repair.desc':  'Awaria płyty głównej przed ważnym terminem',
-    'splurge.sneaker_drop.title':   'Limitowane Sneakersy',  'splurge.sneaker_drop.desc':   'Pokusa limitowanej edycji',
-    'splurge.gaming_setup.title':   'Zestaw do Gamingu',     'splurge.gaming_setup.desc':   'Monitor, krzesło, oświetlenie i słuchawki',
-    'splurge.vet_bill.title':       'Rachunek od Weterynarza','splurge.vet_bill.desc':       'Niespodziewana wizyta dla zwierzaka',
-    'splurge.online_course.title':  'Pakiet Kursów Online',  'splurge.online_course.desc':  'Inwestycja w umiejętności, która uderza teraz w kasę',
+    // Zachcianki — małe
+    'splurge.coffee_habit.title':    'Miesiąc Kawy i Przekąsek', 'splurge.coffee_habit.desc':    'Miesiąc premium kawy i codziennych przekąsek',
+    'splurge.parking_tickets.title': 'Mandaty Parkingowe',        'splurge.parking_tickets.desc': 'Trzy zaległe mandaty, w końcu opłacone',
+    'splurge.takeout_streak.title':  'Tydzień na Dowóz',          'splurge.takeout_streak.desc':  'Jedzenie na dowóz każdego wieczoru, bez żalu',
+    'splurge.streaming_all.title':   'Wszystkie Platformy',       'splurge.streaming_all.desc':   'Subskrypcja wszystkich streamingów jednym wieczorem',
+    'splurge.impulse_buy.title':     'Wypad do Księgarni',        'splurge.impulse_buy.desc':     'Weekendowe przeglądanie zamieniło się w pełen koszyk',
+    'splurge.gym_signup.title':      'Siłownia i Sprzęt',         'splurge.gym_signup.desc':      'Zapis, zakup wszystkiego, dwa treningi',
+    'splurge.birthday_tab.title':    'Urodzinowy Rachunek',       'splurge.birthday_tab.desc':    'Opłaciłeś/aś rachunek za cały stół',
+    'splurge.plant_haul.title':      'Wypad do Ogrodu',           'splurge.plant_haul.desc':      'Nie dało się oprzeć roślinom i doniczkom',
+    'splurge.snack_box.title':       'Subskrypcja Przekąsek',     'splurge.snack_box.desc':       'Zagraniczne pudełka z przekąskami przez pół roku',
+    'splurge.forgotten_sub.title':   'Zapomniane Subskrypcje',    'splurge.forgotten_sub.desc':   'Znalazłeś/aś dwanaście aktywnych — anulowane po opłaceniu',
+    // Zachcianki — średnie
+    'splurge.phone_upgrade.title':   'Nowy Telefon',              'splurge.phone_upgrade.desc':   'Flagowe urządzenie w tygodniu premiery',
+    'splurge.sneaker_drop.title':    'Limitowane Sneakersy',      'splurge.sneaker_drop.desc':    'Pokusa limitowanej edycji',
+    'splurge.online_course.title':   'Pakiet Kursów Online',      'splurge.online_course.desc':   'Inwestycja w umiejętności, która uderza teraz w kasę',
+    'splurge.gaming_setup.title':    'Zestaw do Gamingu',         'splurge.gaming_setup.desc':    'Monitor, krzesło, oświetlenie i słuchawki',
+    'splurge.vet_bill.title':        'Rachunek od Weterynarza',   'splurge.vet_bill.desc':        'Niespodziewana wizyta dla zwierzaka',
+    'splurge.laptop_repair.title':   'Naprawa Laptopa',           'splurge.laptop_repair.desc':   'Awaria płyty głównej przed ważnym terminem',
+    'splurge.music_festival.title':  'Festiwal Muzyczny',         'splurge.music_festival.desc':  'Bilety, podróż i gadżety',
+    'splurge.weekend_getaway.title': 'Weekendowy Wypad',          'splurge.weekend_getaway.desc': 'Spontaniczny city-break dla dwojga, lepszy hotel',
+    'splurge.concert_vip.title':     'Bilety VIP na Koncert',     'splurge.concert_vip.desc':     'Pierwsza rząd na wyprzedanym koncercie',
+    'splurge.car_service.title':     'Serwis i Opony',            'splurge.car_service.desc':     'Pełny serwis plus dwie nowe opony',
+    'splurge.new_sofa.title':        'Impulsowa Kanapa',          'splurge.new_sofa.desc':        'Zobaczyłeś/aś idealną kanapę i od razu ją kupiłeś/aś',
+    'splurge.kitchen_gadgets.title': 'Nowe Sprzęty Kuchenne',     'splurge.kitchen_gadgets.desc': 'Stare się popsuły, wymiana wyszła drożej niż planowano',
+    'splurge.dental_emergency.title':'Awaryjny Dentysta',         'splurge.dental_emergency.desc':'Niespodziewane leczenie kanałowe bez ubezpieczenia',
+    'splurge.flight_rebook.title':   'Spóźniony Samolot',         'splurge.flight_rebook.desc':   'Nie zdążyłeś/aś, nowy bilet w ostatniej chwili',
+    'splurge.ebike.title':           'Rower Elektryczny',         'splurge.ebike.desc':           'Impulsowy zakup dla ekologicznego dojazdu',
+    // Zachcianki — duże
+    'splurge.car_repair.title':      'Awaria Silnika',            'splurge.car_repair.desc':      'Poważna awaria, poza gwarancją',
+    'splurge.holiday_splurge.title': 'Luksusowe Wakacje',         'splurge.holiday_splurge.desc': 'Dwa tygodnie za granicą, wszystko upgradowane',
+    'splurge.home_reno.title':       'Remont Łazienki',           'splurge.home_reno.desc':       'Remont, który wyszedł dużo drożej niż zakładano',
+    'splurge.medical_bill.title':    'Rachunek Medyczny',         'splurge.medical_bill.desc':    'Zabieg poza siecią ubezpieczyciela',
+    'splurge.legal_fees.title':      'Koszty Prawne',             'splurge.legal_fees.desc':      'Spór wymagał adwokata, szybko zakończony, drogo',
+    'splurge.luxury_watch.title':    'Luksusowy Zegarek',         'splurge.luxury_watch.desc':    'Limitowana edycja — powiedziałeś/aś sobie, że to inwestycja',
+    'splurge.roof_repair.title':     'Uszkodzony Dach',           'splurge.roof_repair.desc':     'Szkody burzowe, naprawa niezbędna od zaraz',
+    'splurge.wedding_trip.title':    'Ślub za Granicą',           'splurge.wedding_trip.desc':    'Prezent, loty i hotel na wesele przyjaciela',
+    'splurge.stolen_laptop.title':   'Skradziony Laptop',         'splurge.stolen_laptop.desc':   'Wyrwany w kawiarni, zastąpiony tego samego dnia',
+    'splurge.tax_surprise.title':    'Niespodziewany Podatek',    'splurge.tax_surprise.desc':    'Księgowy znalazł niedopłatę sprzed dwóch lat',
+    'splurge.burst_pipe.title':      'Pęknięta Rura',             'splurge.burst_pipe.desc':      'Zalana kuchnia, hydraulik i naprawa',
   }
 };
 
@@ -3167,13 +3324,45 @@ function initStockPrices() {
 }
 
 const SPLURGES = [
-  {key:"phone_upgrade",  title:"Phone Upgrade",        desc:"Flagship device on launch week", cost:1200},
-  {key:"music_festival", title:"Music Festival",        desc:"Tickets, travel, and merch", cost:1800},
-  {key:"laptop_repair",  title:"Laptop Repair",         desc:"Main board failure before a deadline", cost:950},
-  {key:"sneaker_drop",   title:"Sneaker Drop",          desc:"Limited release temptation", cost:650},
-  {key:"gaming_setup",   title:"Gaming Setup",          desc:"Monitor, chair, lights, and headset", cost:1400},
-  {key:"vet_bill",       title:"Emergency Vet Bill",    desc:"Unexpected medical visit for a pet", cost:1100},
-  {key:"online_course",  title:"Online Course Bundle",  desc:"Skill upgrade that hits cash now", cost:700}
+  // ── Small ($80–$500) ──
+  {key:"coffee_habit",    title:"Coffee & Snacks Month",   desc:"A month of premium coffee and daily snacks",              cost:150},
+  {key:"parking_tickets", title:"Parking Tickets",          desc:"Three unpaid fines, finally cleared",                     cost:180},
+  {key:"takeout_streak",  title:"Takeaway Week",            desc:"Takeaway every night, no cooking, no regrets",            cost:220},
+  {key:"streaming_all",   title:"Every Streaming Platform", desc:"Subscribed to all of them in one evening",                cost:130},
+  {key:"impulse_buy",     title:"Bookshop Spree",           desc:"Weekend browsing turned into a full basket",              cost:95},
+  {key:"gym_signup",      title:"Gym & Gear",               desc:"Signed up, bought everything, went twice",               cost:280},
+  {key:"birthday_tab",   title:"Birthday Dinner Tab",      desc:"Picked up the bill for the whole table",                 cost:350},
+  {key:"plant_haul",      title:"Garden Centre Haul",       desc:"Couldn't resist the plants and the pots",                cost:160},
+  {key:"snack_box",       title:"Snack Subscription",       desc:"International snack boxes for six months",               cost:175},
+  {key:"forgotten_sub",   title:"Forgotten Subscriptions",  desc:"Found twelve active plans, cancelled all — after paying", cost:420},
+  // ── Medium ($600–$2 000) ──
+  {key:"phone_upgrade",   title:"Phone Upgrade",            desc:"Flagship device on launch week",                         cost:1200},
+  {key:"sneaker_drop",    title:"Sneaker Drop",             desc:"Limited release temptation",                             cost:650},
+  {key:"online_course",   title:"Online Course Bundle",     desc:"Skill upgrade that hits cash now",                      cost:700},
+  {key:"gaming_setup",    title:"Gaming Setup",             desc:"Monitor, chair, lights, and headset",                   cost:1400},
+  {key:"vet_bill",        title:"Emergency Vet Bill",       desc:"Unexpected medical visit for a pet",                    cost:1100},
+  {key:"laptop_repair",   title:"Laptop Repair",            desc:"Main board failure before a deadline",                  cost:950},
+  {key:"music_festival",  title:"Music Festival",           desc:"Tickets, travel, and merch",                            cost:1800},
+  {key:"weekend_getaway", title:"Weekend Getaway",          desc:"Last-minute city break for two, upgraded hotel",         cost:850},
+  {key:"concert_vip",     title:"Concert VIP Tickets",      desc:"Front-row experience for a sold-out show",              cost:780},
+  {key:"car_service",     title:"Car Service & Tyres",      desc:"Full service plus two new tyres",                       cost:920},
+  {key:"new_sofa",        title:"Impulse Sofa",             desc:"Spotted the perfect sofa, bought it on the spot",       cost:1350},
+  {key:"kitchen_gadgets", title:"Kitchen Upgrade",          desc:"New appliances after the old ones gave up",             cost:1600},
+  {key:"dental_emergency",title:"Emergency Dentist",        desc:"Surprise root canal, no dental cover",                  cost:880},
+  {key:"flight_rebook",   title:"Missed Flight Rebook",     desc:"Missed check-in, rebooked last-minute at full price",   cost:700},
+  {key:"ebike",           title:"Electric Bike",            desc:"Zero-emission commute impulse purchase",                 cost:1900},
+  // ── Large ($2 500–$8 000) ──
+  {key:"car_repair",      title:"Engine Fault Repair",      desc:"Major engine fault, out of warranty",                   cost:3200},
+  {key:"holiday_splurge", title:"Luxury Holiday",           desc:"Two weeks abroad, upgraded everything twice",            cost:4500},
+  {key:"home_reno",       title:"Bathroom Renovation",      desc:"Renovation that ran way over budget",                   cost:6000},
+  {key:"medical_bill",    title:"Medical Bill",             desc:"Out-of-network procedure, insurance said no",            cost:5500},
+  {key:"legal_fees",      title:"Legal Fees",               desc:"Dispute needed a solicitor, settled fast but costly",   cost:4000},
+  {key:"luxury_watch",    title:"Luxury Watch",             desc:"Limited edition — told yourself it's an investment",    cost:3800},
+  {key:"roof_repair",     title:"Roof Storm Damage",        desc:"Storm damage, had to be fixed immediately",             cost:7500},
+  {key:"wedding_trip",    title:"Destination Wedding",      desc:"Gift, flights, and hotel for a friend's big day",       cost:2600},
+  {key:"stolen_laptop",   title:"Laptop Stolen",            desc:"Snatched at a café, replaced the same day",            cost:2200},
+  {key:"tax_surprise",    title:"Surprise Tax Bill",        desc:"Accountant found an underpayment from two years ago",   cost:3500},
+  {key:"burst_pipe",      title:"Burst Pipe Damage",        desc:"Flooded the kitchen, plumber and repairs",              cost:2900},
 ];
 
 const FAST_TRACK_DREAMS = [
