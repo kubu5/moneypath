@@ -1458,23 +1458,6 @@ input:focus, select:focus {
 /* ══════════════════════════════════════════
    DARK THEME — LOBBY / ONLINE SCREENS
    ══════════════════════════════════════════ */
-[data-theme="dark"] .lobby-game-card {
-  background: rgba(8,20,40,0.8);
-  border-color: rgba(56,189,248,0.15);
-}
-[data-theme="dark"] .lobby-game-card:hover {
-  background: rgba(15,35,70,0.95);
-  border-color: rgba(56,189,248,0.4);
-}
-[data-theme="dark"] .room-player-chip {
-  background: rgba(56,189,248,0.1);
-  border-color: rgba(56,189,248,0.2);
-  color: #e6f6ff;
-}
-[data-theme="dark"] .room-code-box {
-  background: rgba(56,189,248,0.08);
-  border-color: rgba(56,189,248,0.3);
-}
 [data-theme="dark"] #online-waiting-bar {
   background: rgba(56,189,248,0.07);
   border-color: rgba(56,189,248,0.2);
@@ -1482,54 +1465,157 @@ input:focus, select:focus {
 }
 [data-theme="dark"] .setup-card .subtitle { color: #7ab0d2; }
 [data-theme="dark"] .setup-card label { color: #7ab0d2 !important; }
-[data-theme="dark"] .setup-card > div[style*="rgba(176,145,210"] {
-  background: rgba(56,189,248,0.06) !important;
-  border-color: rgba(56,189,248,0.15) !important;
-  color: #7ab0d2 !important;
-}
 
 /* ══════════════════════════════════════════
-   ONLINE MULTIPLAYER UI
+   ONLINE MULTIPLAYER — LOBBY & ROOM
    ══════════════════════════════════════════ */
+
+/* ── Lobby card: consistent glass panel ── */
+.lobby-card {
+  background: var(--glass);
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.06);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.06);
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.42);
+  box-shadow: 0 8px 32px rgba(149,112,184,0.14), 0 2px 0 rgba(255,255,255,0.65) inset;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+[data-theme="dark"] .lobby-card {
+  background: rgba(8,20,40,0.58);
+  border-color: rgba(125,211,252,0.20);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.09) inset;
+}
+
+/* ── Top bar of each card ── */
+.lobby-top {
+  padding: 18px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(149,112,184,0.14);
+  background: rgba(255,255,255,0.18);
+}
+[data-theme="dark"] .lobby-top {
+  background: rgba(56,189,248,0.04);
+  border-bottom-color: rgba(56,189,248,0.12);
+}
+
+/* ── Card body sections ── */
+.lobby-body { padding: 20px 24px; }
+
+.lobby-section { margin-bottom: 20px; }
+.lobby-section:last-child { margin-bottom: 0; }
+.lobby-section + .lobby-section {
+  border-top: 1px solid rgba(149,112,184,0.10);
+  padding-top: 20px;
+}
+[data-theme="dark"] .lobby-section + .lobby-section { border-top-color: rgba(56,189,248,0.10); }
+
+.lobby-section-hd {
+  font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ── Lobby inputs ── */
+.lob-input {
+  width: 100%; padding: 11px 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(149,112,184,0.22);
+  background: rgba(255,255,255,0.65);
+  color: var(--text); font-size: 14px; font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+.lob-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(149,112,184,0.15);
+}
+.lob-input::placeholder { color: var(--muted); opacity: 0.75; }
+[data-theme="dark"] .lob-input {
+  background: rgba(8,20,40,0.55);
+  border-color: rgba(56,189,248,0.18);
+  color: #e6f6ff;
+}
+[data-theme="dark"] .lob-input:focus {
+  border-color: rgba(56,189,248,0.55);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+}
+[data-theme="dark"] .lob-input::placeholder { opacity: 0.5; }
+
+/* ── Lobby badge (online indicator) ── */
+.lobby-online-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #22c55e;
+}
+.lobby-online-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #22c55e;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* ── Game card in lobby list ── */
 .lobby-game-card {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; border-radius: 12px;
-  background: var(--glass);
-  border: 1.5px solid rgba(150,112,184,0.2);
-  cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+  padding: 11px 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.55);
+  border: 1.5px solid rgba(149,112,184,0.18);
+  cursor: pointer; transition: all 0.18s; margin-bottom: 7px;
 }
 .lobby-game-card:hover {
-  border-color: rgba(150,112,184,0.5);
-  background: rgba(150,112,184,0.1);
+  border-color: rgba(149,112,184,0.50);
+  background: rgba(243,232,255,0.70);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(149,112,184,0.14);
 }
-:root .lobby-game-card { background: rgba(255,255,255,0.7); }
-:root .lobby-game-card:hover { background: rgba(243,232,255,0.6); }
+[data-theme="dark"] .lobby-game-card {
+  background: rgba(8,20,40,0.70);
+  border-color: rgba(56,189,248,0.14);
+}
+[data-theme="dark"] .lobby-game-card:hover {
+  background: rgba(15,35,70,0.90);
+  border-color: rgba(56,189,248,0.40);
+}
 
+/* ── Player chip in room ── */
 .room-player-chip {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 7px 14px; border-radius: 20px;
-  background: rgba(150,112,184,0.1);
-  border: 1px solid rgba(150,112,184,0.25);
+  background: rgba(149,112,184,0.10);
+  border: 1px solid rgba(149,112,184,0.25);
   font-size: 13px; font-weight: 600; color: var(--text);
 }
-.room-code-box {
-  font-size: 38px; font-weight: 900; letter-spacing: 8px;
-  color: var(--accent); font-family: 'Baloo 2', monospace;
-  background: rgba(150,112,184,0.08); border: 2px solid rgba(150,112,184,0.2);
-  padding: 12px 20px; border-radius: 14px; display: inline-block;
-  cursor: pointer; user-select: all; transition: background 0.2s;
+[data-theme="dark"] .room-player-chip {
+  background: rgba(56,189,248,0.10);
+  border-color: rgba(56,189,248,0.22);
+  color: #e6f6ff;
 }
-.room-code-box:hover { background: rgba(150,112,184,0.16); }
 
+/* ── Connecting / waiting bar ── */
 #online-waiting-bar {
   display: none;
   padding: 10px 16px; margin-bottom: 10px;
   background: rgba(255,166,153,0.12);
-  border: 1.5px solid rgba(255,166,153,0.3);
+  border: 1.5px solid rgba(255,166,153,0.30);
   border-radius: 10px;
   font-size: 13px; font-weight: 700; color: var(--sal-d);
   text-align: center;
+}
+
+/* ── In-game online warning bar (mobile refresh guard) ── */
+#online-ingame-bar {
+  display: none;
+  padding: 5px 16px;
+  background: rgba(34,197,94,0.10);
+  border-bottom: 1px solid rgba(34,197,94,0.20);
+  font-size: 11px; font-weight: 700; color: #16a34a;
+  text-align: center; letter-spacing: 0.3px;
+}
+[data-theme="dark"] #online-ingame-bar {
+  background: rgba(34,197,94,0.08);
+  border-bottom-color: rgba(34,197,94,0.18);
+  color: #22c55e;
 }
 
 /* ══════════════════════════════════════════
@@ -1664,11 +1750,14 @@ input:focus, select:focus {
 
   /* ─────────────────────────────────────────────────────────────
      GAME SCREEN — only lock scroll when game is active
+     overscroll-behavior:contain prevents pull-to-refresh gesture
   ───────────────────────────────────────────────────────────── */
   body.game-active {
     overflow: hidden !important;
     position: fixed !important;
     width: 100% !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-x pan-y !important;
   }
 
   /* Active game screen: block layout filling full viewport */
@@ -2065,46 +2154,68 @@ body { padding-top: 44px; }
 ════════════════════════════════════════════ -->
 <div id="online-screen" class="screen">
   <div class="setup-container">
-    <div class="glass-premium setup-card">
-      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
-        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="logo-text">MoneyPath</span></div>
-        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">🌐 Online Lobby</div>
-      </div>
 
-      <div style="margin-bottom:18px;">
-        <label style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;" data-i18n="online.your_name">Your Name</label>
-        <input id="online-player-name" type="text" data-i18n-ph="online.name_ph" placeholder="Enter your name" maxlength="20"
-          style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:15px; font-family:inherit; box-sizing:border-box;">
-      </div>
-
-      <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <input id="online-game-name" type="text" data-i18n-ph="online.game_name_ph" placeholder="Game name (optional)" maxlength="30"
-          style="flex:1; padding:12px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.3); background:var(--glass); color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box;">
-        <button class="btn btn-primary" style="padding:12px 20px; font-size:14px; white-space:nowrap; flex-shrink:0;" onclick="onlineCreateGame()" data-i18n="online.create">🎮 Create</button>
-      </div>
-      <div style="margin-bottom:24px;">
-        <input id="online-game-password" type="text" data-i18n-ph="online.password_ph" placeholder="🔒 Password (optional — leave blank for open game)" maxlength="30"
-          style="width:100%; padding:10px 14px; border-radius:10px; border:1.5px solid rgba(150,112,184,0.2); background:var(--glass); color:var(--text); font-size:13px; font-family:inherit; box-sizing:border-box; opacity:0.85;">
-      </div>
-
-      <div>
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-          <span style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted);" data-i18n="online.available">Available Games</span>
-          <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="refreshLobby()" data-i18n="online.refresh">🔄 Refresh</button>
+    <!-- ── Brand card ── -->
+    <div class="lobby-card">
+      <div class="lobby-top">
+        <div class="logo">
+          <img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false">
+          <span class="logo-text">MoneyPath</span>
         </div>
-        <div id="lobby-list-items" style="min-height:70px;">
-          <div style="color:var(--muted); font-size:13px; text-align:center; padding:18px;" data-i18n="online.checking">Checking for games...</div>
+        <div class="lobby-online-badge">
+          <span class="lobby-online-dot"></span>ONLINE
         </div>
       </div>
 
-      <!-- Rejoin banner — shown only when a saved session exists -->
-      <div id="rejoin-banner" style="display:none; background:linear-gradient(135deg,rgba(56,189,248,0.12),rgba(34,197,94,0.10)); border:1.5px solid rgba(56,189,248,0.35); border-radius:12px; padding:14px 16px; margin-top:14px;">
-        <div style="font-size:12px; color:var(--muted); margin-bottom:6px;" data-i18n="online.rejoin_hint">You were in a game. Tap to reconnect.</div>
-        <button class="btn btn-primary" style="width:100%; padding:12px; font-size:14px;" onclick="onlineRejoinGame()" data-i18n="online.rejoin_btn">🔄 Rejoin Last Game</button>
-      </div>
+      <div class="lobby-body">
 
-      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:14px;" onclick="goScreen('menu')" data-i18n="online.back">← Back</button>
-    </div>
+        <!-- Your name -->
+        <div class="lobby-section">
+          <div class="lobby-section-hd" data-i18n="online.your_name">Your Name</div>
+          <input id="online-player-name" class="lob-input" type="text"
+            data-i18n-ph="online.name_ph" placeholder="Enter your name" maxlength="20">
+        </div>
+
+        <!-- Create a game -->
+        <div class="lobby-section">
+          <div class="lobby-section-hd" data-i18n="online.create_section">Create a Game</div>
+          <input id="online-game-name" class="lob-input" type="text"
+            data-i18n-ph="online.game_name_ph" placeholder="Game name (optional)" maxlength="30"
+            style="margin-bottom:8px;">
+          <div style="display:flex; gap:8px;">
+            <input id="online-game-password" class="lob-input" type="text"
+              data-i18n-ph="online.password_ph" placeholder="🔒 Password (optional)" maxlength="30" style="flex:1;">
+            <button class="btn btn-primary" style="padding:11px 18px; font-size:14px; white-space:nowrap; flex-shrink:0; border-radius:12px;"
+              onclick="onlineCreateGame()" data-i18n="online.create">🎮 Create</button>
+          </div>
+        </div>
+
+        <!-- Join a game -->
+        <div class="lobby-section">
+          <div class="lobby-section-hd">
+            <span data-i18n="online.available">Available Games</span>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;"
+              onclick="refreshLobby()" data-i18n="online.refresh">🔄 Refresh</button>
+          </div>
+          <div id="lobby-list-items" style="min-height:60px;">
+            <div style="color:var(--muted); font-size:13px; text-align:center; padding:18px;"
+              data-i18n="online.checking">Checking for games...</div>
+          </div>
+        </div>
+
+        <!-- Rejoin banner -->
+        <div id="rejoin-banner" style="display:none; background:rgba(56,189,248,0.08); border:1.5px solid rgba(56,189,248,0.28); border-radius:12px; padding:12px 16px;">
+          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;" data-i18n="online.rejoin_hint">You were in a game. Tap to reconnect.</div>
+          <button class="btn btn-primary" style="width:100%; padding:10px; font-size:13px;"
+            onclick="onlineRejoinGame()" data-i18n="online.rejoin_btn">🔄 Rejoin Last Game</button>
+        </div>
+
+      </div><!-- /.lobby-body -->
+    </div><!-- /.lobby-card -->
+
+    <button class="btn btn-secondary" style="width:100%; padding:12px; margin-bottom:16px;"
+      onclick="goScreen('menu')" data-i18n="online.back">← Back</button>
+
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
       Designed &amp; developed by Jakub Krawczyk<br>
@@ -2118,30 +2229,46 @@ body { padding-top: 44px; }
 ════════════════════════════════════════════ -->
 <div id="room-screen" class="screen">
   <div class="setup-container">
-    <div class="glass-premium setup-card">
-      <div class="header" style="border-radius:14px 14px 0 0; margin:-36px -36px 28px -36px;">
-        <div class="logo"><img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false"><span class="logo-text">MoneyPath</span></div>
-        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">⏳ Waiting Room</div>
+
+    <div class="lobby-card">
+      <div class="lobby-top">
+        <div class="logo">
+          <img src="https://littleexplorers.pl/wp-content/uploads/2023/06/logo.png" alt="Little Explorers" draggable="false">
+          <span class="logo-text">MoneyPath</span>
+        </div>
+        <div class="lobby-online-badge">
+          <span class="lobby-online-dot"></span>
+          <span style="letter-spacing:1.5px;">⏳ WAITING</span>
+        </div>
       </div>
 
-      <div style="text-align:center; margin-bottom:24px;">
-        <div id="room-game-name" style="font-size:22px; font-weight:900; color:var(--accent); letter-spacing:1px; margin-bottom:6px;">···</div>
-        <div id="room-password-info" style="font-size:13px; color:var(--muted); margin-top:4px; min-height:20px;"></div>
-      </div>
+      <div class="lobby-body">
 
-      <div style="margin-bottom:20px;">
-        <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;" data-i18n="room.players_in_room">Players in room</div>
-        <div id="room-players-list" style="display:flex; flex-wrap:wrap; gap:8px; min-height:36px;"></div>
-      </div>
+        <!-- Game name + password info -->
+        <div class="lobby-section">
+          <div id="room-game-name" style="font-size:20px; font-weight:900; color:var(--accent); letter-spacing:0.5px; margin-bottom:4px;">···</div>
+          <div id="room-password-info" style="font-size:12px; color:var(--muted); min-height:18px;"></div>
+        </div>
 
-      <div id="room-status-msg" style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px; min-height:20px;" data-i18n="room.waiting">Waiting for more players...</div>
+        <!-- Players list -->
+        <div class="lobby-section">
+          <div class="lobby-section-hd" data-i18n="room.players_in_room">Players in room</div>
+          <div id="room-players-list" style="display:flex; flex-wrap:wrap; gap:8px; min-height:36px;"></div>
+        </div>
 
-      <button id="room-start-btn" class="btn btn-primary" style="width:100%; padding:16px; font-size:15px; display:none;" onclick="startOnlineGame()" data-i18n="room.start">
-        ▶ Start Game
-      </button>
+        <!-- Status + start -->
+        <div class="lobby-section">
+          <div id="room-status-msg" style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:14px; min-height:18px;" data-i18n="room.waiting">Waiting for more players...</div>
+          <button id="room-start-btn" class="btn btn-primary" style="width:100%; padding:15px; font-size:15px; display:none; border-radius:12px;" onclick="startOnlineGame()" data-i18n="room.start">
+            ▶ Start Game
+          </button>
+        </div>
 
-      <button class="btn btn-secondary" style="width:100%; padding:12px; margin-top:10px;" onclick="leaveRoom()" data-i18n="room.leave">← Leave Room</button>
-    </div>
+      </div><!-- /.lobby-body -->
+    </div><!-- /.lobby-card -->
+
+    <button class="btn btn-secondary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="leaveRoom()" data-i18n="room.leave">← Leave Room</button>
+
     <div class="screen-footer-copy">
       © 2025 <strong>Little Explorers sp. z o.o.</strong><br>
       Designed &amp; developed by Jakub Krawczyk<br>
@@ -2201,6 +2328,9 @@ body { padding-top: 44px; }
 
   <!-- Center - Board -->
   <div class="center-panel">
+    <!-- Online in-game warning bar (hidden unless playing online) -->
+    <div id="online-ingame-bar" data-i18n="game.online_bar">⚡ Online game — refreshing this page will disconnect you</div>
+
     <div class="turn-banner">
       <div>
         <div id="turn-who" style="font-size:22px; font-weight:800;"></div>
@@ -2346,6 +2476,7 @@ const STRINGS = {
     // Online lobby
     'online.your_name':      'Your Name',
     'online.name_ph':        'Enter your name',
+    'online.create_section': 'Create a Game',
     'online.game_name_ph':   'Game name (optional)',
     'online.password_ph':    '🔒 Password (optional — leave blank for open game)',
     'online.create':         '🎮 Create',
@@ -2374,6 +2505,7 @@ const STRINGS = {
     'setup.back':            '← Back to Menu',
     // Game panels
     'game.round':            'Round',
+    'game.online_bar':       '⚡ Online game — refreshing this page will disconnect you',
     'game.players_panel':    '👥 Players',
     'game.fs_panel':         '📊 Financial Statement',
     // Action area
@@ -2739,6 +2871,7 @@ const STRINGS = {
     // Online lobby
     'online.your_name':      'Twoje imię',
     'online.name_ph':        'Wpisz swoje imię',
+    'online.create_section': 'Utwórz grę',
     'online.game_name_ph':   'Nazwa gry (opcjonalnie)',
     'online.password_ph':    '🔒 Hasło (opcjonalnie — zostaw puste dla gry otwartej)',
     'online.create':         '🎮 Utwórz',
@@ -2767,6 +2900,7 @@ const STRINGS = {
     'setup.back':            '← Powrót do menu',
     // Game panels
     'game.round':            'Runda',
+    'game.online_bar':       '⚡ Gra online — odświeżenie strony spowoduje rozłączenie',
     'game.players_panel':    '👥 Gracze',
     'game.fs_panel':         '📊 Zestawienie finansowe',
     // Action area
@@ -6536,6 +6670,16 @@ window.addEventListener('beforeunload', function(e) {
   }
 });
 
+// pagehide fires on mobile Safari/Chrome when the page is frozen or navigated away.
+// beforeunload is suppressed on mobile — pagehide is the reliable signal.
+window.addEventListener('pagehide', function(e) {
+  // Persist the current online session so rejoin works if the player returns
+  if (isOnline && _savedGameId && myPlayerId) {
+    const me = state?.players?.[myPlayerIdx];
+    if (me) saveOnlineSession(_savedGameId, myPlayerId, me.name, me.color, myPlayerIdx);
+  }
+});
+
 // Push a dummy history entry so we can intercept the back button.
 history.pushState({ mp: true }, '');
 window.addEventListener('popstate', function() {
@@ -7061,6 +7205,9 @@ function handleServerMsg(msg) {
       initPanelsMobile();
       showChatToggle(true);
       applyLangChat();
+      // Show the online refresh-warning bar
+      const _ingameBar = document.getElementById('online-ingame-bar');
+      if (_ingameBar) _ingameBar.style.display = 'block';
       renderGame();
       // Dreams are pre-assigned by host — show each player their own dream
       const myDream = state.players[myPlayerIdx]?.dream;
@@ -7150,6 +7297,9 @@ function handleServerMsg(msg) {
       initPanelsMobile();
       showChatToggle(true);
       applyLangChat();
+      // Show the online refresh-warning bar on rejoin too
+      const _rejoinBar = document.getElementById('online-ingame-bar');
+      if (_rejoinBar) _rejoinBar.style.display = 'block';
       renderGame();
       showNotif('🔄 ' + t('online.rejoin_btn').replace('🔄 ', '') + ' ✓', 'cashflow');
       // If it's my turn, start it; otherwise show waiting bar
