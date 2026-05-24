@@ -4030,10 +4030,12 @@ function showDealCard() {
             <span>${t('deal.your_cash_lbl')} <strong style="color:${canBuy?'var(--profit)':'var(--loss)'}; font-size:18px;">$${p.cash.toLocaleString()}</strong></span>
             ${canBuy ? '' : `<span style="color:var(--loss); font-size:13px;">${t('deal.need_more', (card.downpayment - p.cash).toLocaleString())}</span>`}
           </div>
-          <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="flex:2;">${t('deal.buy_deal')}</button>
-            <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1.2;">${t('deal.loan_btn')}</button>
-            <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1;">${t('deal.pass')}</button>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-invest" onclick="buyDeal()" ${canBuy?'':'disabled'} style="width:100%; font-size:16px; padding:14px;">${t('deal.buy_deal')}</button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" onclick="showTakeLoanThenDeal()" style="flex:1; text-align:center;">${t('deal.loan_btn')}</button>
+              <button class="btn btn-secondary" onclick="renderAction_EndTurn(t('space.deal_passed'))" style="flex:1; text-align:center;">${t('deal.pass')}</button>
+            </div>
           </div>
         </div>
       </div>`;
@@ -5232,10 +5234,7 @@ function renderAction_EndTurn(msg) {
         <div style="display:flex; flex-direction:column; gap:10px; padding:0 20px 20px;">
           ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
           <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
-          ${state.players.length > 1 ? `<div style="display:flex;gap:8px;">
-            <button class="btn btn-secondary" style="flex:1;" onclick="showRequestLoanModal()">${t('loan.request_btn')}</button>
-            <button class="btn btn-secondary" style="flex:1;" onclick="showLendMoneyModal()">💸 ${LANG==='pl'?'Pożycz Graczowi':'Lend to Player'}</button>
-          </div>` : ''}
+          ${state.players.length > 1 ? `<button class="btn btn-secondary" style="width:100%;" onclick="showRequestLoanModal()">${t('loan.request_btn')}</button>` : ''}
           <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
         </div>
       </div>`;
@@ -5595,105 +5594,6 @@ function acceptP2PLoan(borrowerIdx, lenderIdx, amount, rate) {
     : `Loan $${amount.toLocaleString()} from ${lender.name} — payment: $${monthlyPayment}/mo`);
 }
 
-function showLendMoneyModal() {
-  const p = currentPlayer();
-  const others = state.players.map((pl, i) => ({pl, i})).filter(({i}) => i !== state.currentPlayerIdx);
-  if (!others.length) { showNotif(LANG==='pl'?'Brak innych graczy':'No other players to lend to.', 'info'); return; }
-
-  const playerOptions = others.map(({pl, i}) =>
-    `<option value="${i}">${pl.name} (cash: $${pl.cash.toLocaleString()})</option>`
-  ).join('');
-
-  setModal(LANG==='pl' ? '💸 Pożyczka dla Gracza' : '💸 Lend to Player', `
-    <h2 style="margin-bottom:14px;">${LANG==='pl'?'Pożycz pieniądze innemu graczowi':'Lend money to another player'}</h2>
-    <div style="margin-bottom:8px;font-size:12px;color:var(--muted);">${LANG==='pl'?'Twoja gotówka':'Your cash'}: <strong style="color:var(--profit)">$${p.cash.toLocaleString()}</strong></div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <select id="loan-to-player" style="padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;">${playerOptions}</select>
-      <input type="number" id="loan-p2p-amount" min="100" step="100" max="${p.cash}" placeholder="${LANG==='pl'?'Kwota pożyczki':'Loan amount'}"
-        style="padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;"
-        oninput="updateP2PLoanPreview()">
-      <select id="loan-p2p-rate" onchange="updateP2PLoanPreview()"
-        style="padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:#e2e8f0;">
-        <option value="5">5% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-        <option value="10" selected>10% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-        <option value="15">15% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-        <option value="20">20% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-        <option value="25">25% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-        <option value="30">30% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-        <option value="50">50% ${LANG==='pl'?'rocznie':'p.a.'}</option>
-      </select>
-      <div id="p2p-loan-preview" style="padding:10px;border-radius:8px;background:rgba(14,165,233,0.08);border:1px solid rgba(56,189,248,0.15);font-size:12px;color:var(--muted);min-height:40px;"></div>
-      <button class="btn btn-invest" onclick="confirmLendMoney()">${LANG==='pl'?'Potwierdź Pożyczkę':'Confirm Loan'}</button>
-      <button class="btn btn-secondary" onclick="closeModal()">${LANG==='pl'?'Anuluj':'Cancel'}</button>
-    </div>`);
-  updateP2PLoanPreview();
-}
-
-function updateP2PLoanPreview() {
-  const amount = parseInt(document.getElementById('loan-p2p-amount')?.value || 0, 10);
-  const rate = parseInt(document.getElementById('loan-p2p-rate')?.value || 10, 10);
-  const monthly = amount > 0 ? Math.round(amount * (rate/100) / 12) : 0;
-  const el = document.getElementById('p2p-loan-preview');
-  if (!el) return;
-  if (amount < 100) { el.textContent = LANG==='pl'?'Podaj kwotę pożyczki':'Enter loan amount'; return; }
-  el.innerHTML = LANG==='pl'
-    ? `Miesięczna rata: <strong style="color:var(--accent)">$${monthly.toLocaleString()}</strong> · Roczny koszt: <strong>$${(monthly*12).toLocaleString()}</strong>`
-    : `Monthly payment: <strong style="color:var(--accent)">$${monthly.toLocaleString()}</strong> · Annual cost: <strong>$${(monthly*12).toLocaleString()}</strong>`;
-}
-
-function confirmLendMoney() {
-  const p = currentPlayer();
-  const toIdx = parseInt(document.getElementById('loan-to-player')?.value, 10);
-  const amount = parseInt(document.getElementById('loan-p2p-amount')?.value || 0, 10);
-  const rate = parseInt(document.getElementById('loan-p2p-rate')?.value || 10, 10);
-
-  if (!amount || amount < 100) { showNotif(LANG==='pl'?'⚠️ Podaj kwotę min. $100':'⚠️ Enter amount (min. $100)', 'error'); return; }
-  if (p.cash < amount) { showNotif(LANG==='pl'?'⚠️ Za mało gotówki':'⚠️ Not enough cash', 'error'); return; }
-
-  const to = state.players[toIdx];
-  if (!to) return;
-
-  const monthlyPayment = Math.round(amount * (rate/100) / 12);
-  const loanId = Date.now();
-
-  p.cash -= amount;
-
-  // Lender gets a loan receivable asset (generates monthly cashflow)
-  p.assets.push({
-    name: LANG==='pl' ? `Pożyczka dla ${to.name}` : `Loan to ${to.name}`,
-    cashflow: monthlyPayment,
-    type: 'loan_receivable',
-    toPlayerId: to.id || String(toIdx),
-    toPlayerName: to.name,
-    value: amount,
-    rate,
-    loanId
-  });
-
-  // Borrower gets a liability
-  to.liabilities.push({
-    name: LANG==='pl' ? `Pożyczka od ${p.name}` : `Loan from ${p.name}`,
-    value: amount,
-    payment: monthlyPayment,
-    type: 'player_loan',
-    fromPlayerId: p.id || String(state.currentPlayerIdx),
-    fromPlayerName: p.name,
-    rate,
-    loanId
-  });
-
-  recalcPassive(p);
-  recalcPassive(to);
-  closeModal();
-  renderGame();
-  syncState();
-  showNotif(LANG==='pl'
-    ? `💸 Pożyczyłeś $${amount.toLocaleString()} dla ${to.name} @ ${rate}% rocznie`
-    : `💸 Lent $${amount.toLocaleString()} to ${to.name} @ ${rate}% p.a.`, 'success');
-  renderAction_EndTurn(LANG==='pl'
-    ? `Pożyczka $${amount.toLocaleString()} → ${to.name} (rata: $${monthlyPayment}/mies.)`
-    : `Lent $${amount.toLocaleString()} → ${to.name} (payment: $${monthlyPayment}/mo)`);
-}
 
 function showDealStockSell(prefillQty) {
   const card = state.currentCard;
