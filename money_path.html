@@ -3323,46 +3323,48 @@ function initStockPrices() {
   });
 }
 
+// weight: 5 = very common (small), 3 = common (medium), 1 = rare (large)
+// Probability breakdown: small ~47 %, medium ~42 %, large ~11 %
 const SPLURGES = [
-  // ── Small ($80–$500) ──
-  {key:"coffee_habit",    title:"Coffee & Snacks Month",   desc:"A month of premium coffee and daily snacks",              cost:150},
-  {key:"parking_tickets", title:"Parking Tickets",          desc:"Three unpaid fines, finally cleared",                     cost:180},
-  {key:"takeout_streak",  title:"Takeaway Week",            desc:"Takeaway every night, no cooking, no regrets",            cost:220},
-  {key:"streaming_all",   title:"Every Streaming Platform", desc:"Subscribed to all of them in one evening",                cost:130},
-  {key:"impulse_buy",     title:"Bookshop Spree",           desc:"Weekend browsing turned into a full basket",              cost:95},
-  {key:"gym_signup",      title:"Gym & Gear",               desc:"Signed up, bought everything, went twice",               cost:280},
-  {key:"birthday_tab",   title:"Birthday Dinner Tab",      desc:"Picked up the bill for the whole table",                 cost:350},
-  {key:"plant_haul",      title:"Garden Centre Haul",       desc:"Couldn't resist the plants and the pots",                cost:160},
-  {key:"snack_box",       title:"Snack Subscription",       desc:"International snack boxes for six months",               cost:175},
-  {key:"forgotten_sub",   title:"Forgotten Subscriptions",  desc:"Found twelve active plans, cancelled all — after paying", cost:420},
-  // ── Medium ($600–$2 000) ──
-  {key:"phone_upgrade",   title:"Phone Upgrade",            desc:"Flagship device on launch week",                         cost:1200},
-  {key:"sneaker_drop",    title:"Sneaker Drop",             desc:"Limited release temptation",                             cost:650},
-  {key:"online_course",   title:"Online Course Bundle",     desc:"Skill upgrade that hits cash now",                      cost:700},
-  {key:"gaming_setup",    title:"Gaming Setup",             desc:"Monitor, chair, lights, and headset",                   cost:1400},
-  {key:"vet_bill",        title:"Emergency Vet Bill",       desc:"Unexpected medical visit for a pet",                    cost:1100},
-  {key:"laptop_repair",   title:"Laptop Repair",            desc:"Main board failure before a deadline",                  cost:950},
-  {key:"music_festival",  title:"Music Festival",           desc:"Tickets, travel, and merch",                            cost:1800},
-  {key:"weekend_getaway", title:"Weekend Getaway",          desc:"Last-minute city break for two, upgraded hotel",         cost:850},
-  {key:"concert_vip",     title:"Concert VIP Tickets",      desc:"Front-row experience for a sold-out show",              cost:780},
-  {key:"car_service",     title:"Car Service & Tyres",      desc:"Full service plus two new tyres",                       cost:920},
-  {key:"new_sofa",        title:"Impulse Sofa",             desc:"Spotted the perfect sofa, bought it on the spot",       cost:1350},
-  {key:"kitchen_gadgets", title:"Kitchen Upgrade",          desc:"New appliances after the old ones gave up",             cost:1600},
-  {key:"dental_emergency",title:"Emergency Dentist",        desc:"Surprise root canal, no dental cover",                  cost:880},
-  {key:"flight_rebook",   title:"Missed Flight Rebook",     desc:"Missed check-in, rebooked last-minute at full price",   cost:700},
-  {key:"ebike",           title:"Electric Bike",            desc:"Zero-emission commute impulse purchase",                 cost:1900},
-  // ── Large ($2 500–$8 000) ──
-  {key:"car_repair",      title:"Engine Fault Repair",      desc:"Major engine fault, out of warranty",                   cost:3200},
-  {key:"holiday_splurge", title:"Luxury Holiday",           desc:"Two weeks abroad, upgraded everything twice",            cost:4500},
-  {key:"home_reno",       title:"Bathroom Renovation",      desc:"Renovation that ran way over budget",                   cost:6000},
-  {key:"medical_bill",    title:"Medical Bill",             desc:"Out-of-network procedure, insurance said no",            cost:5500},
-  {key:"legal_fees",      title:"Legal Fees",               desc:"Dispute needed a solicitor, settled fast but costly",   cost:4000},
-  {key:"luxury_watch",    title:"Luxury Watch",             desc:"Limited edition — told yourself it's an investment",    cost:3800},
-  {key:"roof_repair",     title:"Roof Storm Damage",        desc:"Storm damage, had to be fixed immediately",             cost:7500},
-  {key:"wedding_trip",    title:"Destination Wedding",      desc:"Gift, flights, and hotel for a friend's big day",       cost:2600},
-  {key:"stolen_laptop",   title:"Laptop Stolen",            desc:"Snatched at a café, replaced the same day",            cost:2200},
-  {key:"tax_surprise",    title:"Surprise Tax Bill",        desc:"Accountant found an underpayment from two years ago",   cost:3500},
-  {key:"burst_pipe",      title:"Burst Pipe Damage",        desc:"Flooded the kitchen, plumber and repairs",              cost:2900},
+  // ── Small ($80–$450)  weight:5 — quick annoyances, easy to recover ──
+  {key:"coffee_habit",    weight:5, title:"Coffee & Snacks Month",   desc:"A month of premium coffee and daily snacks",              cost:150},
+  {key:"parking_tickets", weight:5, title:"Parking Tickets",          desc:"Three unpaid fines, finally cleared",                     cost:180},
+  {key:"takeout_streak",  weight:5, title:"Takeaway Week",            desc:"Takeaway every night, no cooking, no regrets",            cost:220},
+  {key:"streaming_all",   weight:5, title:"Every Streaming Platform", desc:"Subscribed to all of them in one evening",                cost:130},
+  {key:"impulse_buy",     weight:5, title:"Bookshop Spree",           desc:"Weekend browsing turned into a full basket",              cost:95},
+  {key:"gym_signup",      weight:5, title:"Gym & Gear",               desc:"Signed up, bought everything, went twice",               cost:280},
+  {key:"birthday_tab",    weight:5, title:"Birthday Dinner Tab",      desc:"Picked up the bill for the whole table",                 cost:350},
+  {key:"plant_haul",      weight:5, title:"Garden Centre Haul",       desc:"Couldn't resist the plants and the pots",                cost:160},
+  {key:"snack_box",       weight:5, title:"Snack Subscription",       desc:"International snack boxes for six months",               cost:175},
+  {key:"forgotten_sub",   weight:5, title:"Forgotten Subscriptions",  desc:"Found twelve active plans, cancelled all — after paying", cost:420},
+  // ── Medium ($600–$2 000)  weight:3 — meaningful setbacks ──
+  {key:"phone_upgrade",   weight:3, title:"Phone Upgrade",            desc:"Flagship device on launch week",                         cost:1200},
+  {key:"sneaker_drop",    weight:3, title:"Sneaker Drop",             desc:"Limited release temptation",                             cost:650},
+  {key:"online_course",   weight:3, title:"Online Course Bundle",     desc:"Skill upgrade that hits cash now",                      cost:700},
+  {key:"gaming_setup",    weight:3, title:"Gaming Setup",             desc:"Monitor, chair, lights, and headset",                   cost:1400},
+  {key:"vet_bill",        weight:3, title:"Emergency Vet Bill",       desc:"Unexpected medical visit for a pet",                    cost:1100},
+  {key:"laptop_repair",   weight:3, title:"Laptop Repair",            desc:"Main board failure before a deadline",                  cost:950},
+  {key:"music_festival",  weight:3, title:"Music Festival",           desc:"Tickets, travel, and merch",                            cost:1800},
+  {key:"weekend_getaway", weight:3, title:"Weekend Getaway",          desc:"Last-minute city break for two, upgraded hotel",         cost:850},
+  {key:"concert_vip",     weight:3, title:"Concert VIP Tickets",      desc:"Front-row experience for a sold-out show",              cost:780},
+  {key:"car_service",     weight:3, title:"Car Service & Tyres",      desc:"Full service plus two new tyres",                       cost:920},
+  {key:"new_sofa",        weight:3, title:"Impulse Sofa",             desc:"Spotted the perfect sofa, bought it on the spot",       cost:1350},
+  {key:"kitchen_gadgets", weight:3, title:"Kitchen Upgrade",          desc:"New appliances after the old ones gave up",             cost:1600},
+  {key:"dental_emergency",weight:3, title:"Emergency Dentist",        desc:"Surprise root canal, no dental cover",                  cost:880},
+  {key:"flight_rebook",   weight:3, title:"Missed Flight Rebook",     desc:"Missed check-in, rebooked last-minute at full price",   cost:700},
+  {key:"ebike",           weight:3, title:"Electric Bike",            desc:"Zero-emission commute impulse purchase",                 cost:1900},
+  // ── Large ($2 200–$7 500)  weight:1 — rare disasters ──
+  {key:"car_repair",      weight:1, title:"Engine Fault Repair",      desc:"Major engine fault, out of warranty",                   cost:3200},
+  {key:"holiday_splurge", weight:1, title:"Luxury Holiday",           desc:"Two weeks abroad, upgraded everything twice",            cost:4500},
+  {key:"home_reno",       weight:1, title:"Bathroom Renovation",      desc:"Renovation that ran way over budget",                   cost:6000},
+  {key:"medical_bill",    weight:1, title:"Medical Bill",             desc:"Out-of-network procedure, insurance said no",            cost:5500},
+  {key:"legal_fees",      weight:1, title:"Legal Fees",               desc:"Dispute needed a solicitor, settled fast but costly",   cost:4000},
+  {key:"luxury_watch",    weight:1, title:"Luxury Watch",             desc:"Limited edition — told yourself it's an investment",    cost:3800},
+  {key:"roof_repair",     weight:1, title:"Roof Storm Damage",        desc:"Storm damage, had to be fixed immediately",             cost:7500},
+  {key:"wedding_trip",    weight:1, title:"Destination Wedding",      desc:"Gift, flights, and hotel for a friend's big day",       cost:2600},
+  {key:"stolen_laptop",   weight:1, title:"Laptop Stolen",            desc:"Snatched at a café, replaced the same day",            cost:2200},
+  {key:"tax_surprise",    weight:1, title:"Surprise Tax Bill",        desc:"Accountant found an underpayment from two years ago",   cost:3500},
+  {key:"burst_pipe",      weight:1, title:"Burst Pipe Damage",        desc:"Flooded the kitchen, plumber and repairs",              cost:2900},
 ];
 
 const FAST_TRACK_DREAMS = [
@@ -4991,7 +4993,11 @@ function showWin(p, details) {
 }
 
 function drawSplurge() {
-  const card = SPLURGES[Math.floor(Math.random() * SPLURGES.length)];
+  // Weighted random: small=5 (~47%), medium=3 (~42%), large=1 (~11%)
+  const totalW = SPLURGES.reduce((s, c) => s + (c.weight || 1), 0);
+  let r = Math.random() * totalW;
+  let card = SPLURGES[SPLURGES.length - 1];
+  for (const s of SPLURGES) { r -= (s.weight || 1); if (r <= 0) { card = s; break; } }
   setAction(() => {
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
@@ -4999,7 +5005,8 @@ function drawSplurge() {
         <div class="ac-title">${splurgeTitle(card)}</div>
         <div style="padding:20px;">
           <p style="color:#fca5a5; margin-bottom:12px;">${splurgeDesc(card)}</p>
-          <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:20px;">−$${card.cost.toLocaleString()}</div>
+          <div style="font-size:28px; font-weight:900; color:var(--loss); margin-bottom:12px;">−$${card.cost.toLocaleString()}</div>
+          ${card.weight===1 ? `<div style="display:inline-block;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.45);color:#fca5a5;font-size:10px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:20px;text-transform:uppercase;margin-bottom:14px;">⚠ ${LANG==='pl'?'Rzadkie zdarzenie':'Rare event'}</div>` : ''}
           <button class="btn btn-danger-act" style="width:100%;" onclick="paySplurge(${card.cost})">${t('splurge.pay_btn')}</button>
         </div>
       </div>`;
