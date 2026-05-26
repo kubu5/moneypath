@@ -2640,6 +2640,30 @@ const STRINGS = {
     'loan.final_decline':    'Decline',
     'loan.pass_to_lender':   name => `Pass device to ${name} (lender)`,
     'loan.pass_to_borrower': name => `Pass device back to ${name} (borrower)`,
+    'loan.no_players':       'No other players in this game.',
+    'loan.cash_label':       'cash',
+    'loan.request_info':     'Ask another player for a loan. They set the rate and can adjust the amount.',
+    'loan.req_hint':         'Enter amount (min. $100)',
+    'loan.req_preview':      amount => `Requesting <strong style="color:var(--accent)">$${amount}</strong> · Lender will set the interest rate`,
+    'loan.lender_no_cash':   (name, cash) => `⚠️ ${name} doesn't have enough cash ($${cash})`,
+    'loan.request_sent':     name => `💸 Request sent to ${name}`,
+    'loan.pass_device':      '📱 Pass Device',
+    'loan.requesting':       (name, amount) => `${name} is requesting $${amount}`,
+    'loan.i_am_ready':       name => `I am ${name} — Ready`,
+    'loan.per_annum':        'p.a.',
+    'loan.request_from_lbl': 'Request from',
+    'loan.leave_blank':      'leave blank to keep',
+    'loan.offer_preview':    (amount, monthly, annual) => `Amount: <strong style="color:var(--accent)">$${amount}</strong> · Monthly: <strong style="color:var(--warning)">$${monthly}/mo</strong> · Annual: $${annual}`,
+    'loan.offer_sent':       '💸 Offer sent',
+    'loan.pass_device_back': '📱 Pass Device Back',
+    'loan.lender_offers':    (name, amount, rate) => `${name} offers $${amount} @ ${rate}%`,
+    'loan.declined':         'Request declined',
+    'loan.loan_declined':    'Loan declined',
+    'loan.lender_no_longer': '⚠️ Lender no longer has enough cash',
+    'loan.to_player':        name => `Loan to ${name}`,
+    'loan.from_player':      name => `Loan from ${name}`,
+    'loan.accepted_notif':   (borrower, amount, lender, rate, payment) => `✅ ${borrower} borrowed $${amount} from ${lender} @ ${rate}% ($${payment}/mo)`,
+    'loan.accepted_action':  (amount, lender, payment) => `Loan $${amount} from ${lender} — payment: $${payment}/mo`,
     // Chat
     'chat.title':            '💬 Chat',
     'chat.placeholder':      'Type a message…',
@@ -2855,6 +2879,72 @@ const STRINGS = {
     'splurge.stolen_laptop.title':   'Laptop Stolen',             'splurge.stolen_laptop.desc':   'Snatched at a café, replaced the same day',
     'splurge.tax_surprise.title':    'Surprise Tax Bill',         'splurge.tax_surprise.desc':    'Accountant found an underpayment from two years ago',
     'splurge.burst_pipe.title':      'Burst Pipe Damage',         'splurge.burst_pipe.desc':      'Flooded the kitchen, plumber and repairs',
+    // Freedom Track UI
+    'ft.deal_header':        '💼 INVESTMENT DEAL',
+    'ft.leverage_header':    'Cash-Out Refinancing',
+    'ft.leverage_desc':      'The bank will lend you cash against the equity in your properties. You keep the asset, you get the liquidity.',
+    'ft.leverage_btn':       'With Leverage',
+    'ft.charity_header':     '🤲 CHARITY',
+    'ft.charity_title':      'Give Back',
+    'ft.charity_desc':       (amount, pct) => `Donate $${amount} (10% of your cash). Your generosity stacks — income bonus now +${pct}%.`,
+    'ft.charity_dice':       '2× dice for the next 3 turns',
+    'ft.charity_passive':    pct => `Passive income multiplier +${pct}% (permanent, stacks up to +20%)`,
+    'ft.charity_donate':     amount => `Donate $${amount}`,
+    'ft.charity_done':       (amount, pct) => `Donated $${amount}. Income bonus now +${pct}%.`,
+    'ft.event_header':       '⚡ EVENT',
+    'ft.event_continue':     'Continue',
+    'ft.cost':               'Down Payment',
+    'ft.monthly_cf':         'Monthly Cashflow',
+    'ft.exit_upside':        'Exit Upside',
+    'ft.venture_hint':       mult => `Exit target: ${mult} — no cashflow until exit event`,
+    'ft.fail_chance':        pct => `${pct}% failure risk`,
+    'ft.buy_btn':            'BUY',
+    'ft.skip_btn':           'SKIP',
+    'ft.bought':             (icon, name) => `${icon} ${name} added to portfolio.`,
+    'ft.bought_leveraged':   (icon, name, loan, pay) => `${icon} ${name} — leveraged $${loan} · payment $${pay}/mo.`,
+    'ft.lev_offer':          (loan, pay) => `Bank offers $${loan} · payment $${pay}/mo · `,
+    'ft.lev_net':            net => `net ${net >= 0 ? '+' : ''}$${net}/mo`,
+    'ft.lev_take':           'Take Cash-Out',
+    'ft.lev_done':           (name, amount) => `Cash-out on ${name}: +$${amount} in your account.`,
+    'ft.no_realty':          'No eligible properties for refinancing.',
+    // Freedom Track events
+    'ft.ev.ipo.title':       '🚀 Startup IPO!',
+    'ft.ev.ipo.desc':        (name, mult) => `${name} just went public! Investors are offering ${mult}× your investment.`,
+    'ft.ev.ipo.no_venture':  'None of your assets went public this time. Collect income.',
+    'ft.ev.ipo.sell':        'Sell Now',
+    'ft.ev.ipo.hold':        'Hold (risk reset)',
+    'ft.ev.ipo.sold':        amount => `IPO exit: +$${amount}`,
+    'ft.ev.black_swan.title':'📉 Black Swan',
+    'ft.ev.black_swan.desc': loss => `An unexpected global shock hits every market at once. Your portfolio loses 20% — total loss: $${loss}.`,
+    'ft.ev.acq.title':       '🤑 Acquisition Offer',
+    'ft.ev.acq.desc':        (name, offer) => `A strategic buyer wants ${name} at 2.5× value — $${offer}. You lose the cashflow but pocket the cash.`,
+    'ft.ev.acq.sell':        'Accept Offer',
+    'ft.ev.acq.keep':        'Keep Asset',
+    'ft.ev.acq.sold':        price => `Sold for $${price}`,
+    'ft.ev.cap_call.title':  '💸 Capital Call',
+    'ft.ev.cap_call.desc':   amount => `One of your funds needs additional capital. Pay $${amount} or lose your stake.`,
+    'ft.ev.decade.title':    '🏆 Deal of the Decade',
+    'ft.ev.decade.desc':     'Your network opens a rare opportunity. Pick one deal at 50% off.',
+    'ft.ev.tax_opt.title':   '📋 Tax Optimization',
+    'ft.ev.tax_opt.desc':    'Your accountant restructures your holdings. Taxes permanently reduced by 15%.',
+    'ft.ev.bull_run.title':  '📈 Bull Run',
+    'ft.ev.bull_run.desc':   'Rising tide lifts all boats. Your income is +25% for the next 3 turns.',
+    'ft.ev.renovation.title':'🏗️ Renovation Required',
+    'ft.ev.renovation.desc': (name, cost) => `${name} needs major repairs. Pay $${cost} (4% of property value).`,
+    'ft.ev.mentorship.title':'💼 Mentorship Circle',
+    'ft.ev.mentorship.desc': 'An elite investor takes you under their wing. Income +20% for 3 turns.',
+    'ft.ev.legal.title':     '⚖️ Legal Battle',
+    'ft.ev.legal.desc':      cost => `A shareholder dispute drags you to court. Legal fees: $${cost}.`,
+    'ft.ev.dividend.title':  '💰 Dividend Windfall',
+    'ft.ev.dividend.desc':   amount => `Record dividends declared across your portfolio. Bonus: +$${amount}`,
+    'ft.ev.refinance.title': '🔑 Refinancing Deal',
+    'ft.ev.refinance.desc':  (name, pay) => `Rates dropped. ${name} payment reduced to $${pay}/mo.`,
+    'ft.ev.volatility.title':'📊 Market Volatility',
+    'ft.ev.vol.bad':         (roll, loss) => `Rolled ${roll} — market dip. Lost $${loss}.`,
+    'ft.ev.vol.neutral':     roll => `Rolled ${roll} — nothing moves today.`,
+    'ft.ev.vol.good':        (roll, gain) => `Rolled ${roll} — momentum surge! +$${gain}.`,
+    'ft.ev.lucky.title':     '🎲 Lucky Streak',
+    'ft.ev.lucky.desc':      '2× dice rolls for your next 2 turns.',
   },
   pl: {
     'app.subtitle':          'Wolność Finansowa',
@@ -3039,6 +3129,30 @@ const STRINGS = {
     'loan.final_decline':    'Odmów',
     'loan.pass_to_lender':   name => `Podaj urządzenie do ${name} (pożyczkodawca)`,
     'loan.pass_to_borrower': name => `Oddaj urządzenie do ${name} (pożyczkobiorca)`,
+    'loan.no_players':       'Brak innych graczy w tej grze.',
+    'loan.cash_label':       'gotówka',
+    'loan.request_info':     'Poproś innego gracza o pożyczkę. Ustali on oprocentowanie i może zmienić kwotę.',
+    'loan.req_hint':         'Podaj kwotę min. $100',
+    'loan.req_preview':      amount => `Prosisz o <strong style="color:var(--accent)">$${amount}</strong> · Oprocentowanie ustali pożyczkodawca`,
+    'loan.lender_no_cash':   (name, cash) => `⚠️ ${name} nie ma dość gotówki ($${cash})`,
+    'loan.request_sent':     name => `💸 Prośba wysłana do ${name}`,
+    'loan.pass_device':      '📱 Podaj urządzenie',
+    'loan.requesting':       (name, amount) => `${name} prosi o $${amount}`,
+    'loan.i_am_ready':       name => `Jestem ${name} — gotowy`,
+    'loan.per_annum':        'rocznie',
+    'loan.request_from_lbl': 'Prośba od',
+    'loan.leave_blank':      'zostaw puste aby zachować',
+    'loan.offer_preview':    (amount, monthly, annual) => `Kwota: <strong style="color:var(--accent)">$${amount}</strong> · Rata: <strong style="color:var(--warning)">$${monthly}/mies.</strong> · Rocznie: $${annual}`,
+    'loan.offer_sent':       '💸 Oferta wysłana',
+    'loan.pass_device_back': '📱 Oddaj urządzenie',
+    'loan.lender_offers':    (name, amount, rate) => `${name} proponuje $${amount} @ ${rate}%`,
+    'loan.declined':         'Prośba odrzucona',
+    'loan.loan_declined':    'Pożyczka odrzucona',
+    'loan.lender_no_longer': '⚠️ Pożyczkodawca nie ma już tyle gotówki',
+    'loan.to_player':        name => `Pożyczka dla ${name}`,
+    'loan.from_player':      name => `Pożyczka od ${name}`,
+    'loan.accepted_notif':   (borrower, amount, lender, rate, payment) => `✅ ${borrower} pożyczył $${amount} od ${lender} @ ${rate}% (rata: $${payment}/mies.)`,
+    'loan.accepted_action':  (amount, lender, payment) => `Pożyczka $${amount} od ${lender} — rata: $${payment}/mies.`,
     // Chat
     'chat.title':            '💬 Czat',
     'chat.placeholder':      'Wpisz wiadomość…',
@@ -3254,6 +3368,72 @@ const STRINGS = {
     'splurge.stolen_laptop.title':   'Skradziony Laptop',         'splurge.stolen_laptop.desc':   'Wyrwany w kawiarni, zastąpiony tego samego dnia',
     'splurge.tax_surprise.title':    'Niespodziewany Podatek',    'splurge.tax_surprise.desc':    'Księgowy znalazł niedopłatę sprzed dwóch lat',
     'splurge.burst_pipe.title':      'Pęknięta Rura',             'splurge.burst_pipe.desc':      'Zalana kuchnia, hydraulik i naprawa',
+    // Freedom Track UI
+    'ft.deal_header':        '💼 INWESTYCJA',
+    'ft.leverage_header':    'Refinansowanie aktywów',
+    'ft.leverage_desc':      'Bank pożycza Ci gotówkę pod zastaw kapitału własnego w nieruchomościach. Zachowujesz aktywo, zyskujesz płynność.',
+    'ft.leverage_btn':       'Z dźwignią',
+    'ft.charity_header':     '🤲 DOBROCZYNNOŚĆ',
+    'ft.charity_title':      'Daj, a będzie Ci dane',
+    'ft.charity_desc':       (amount, pct) => `Przekaż $${amount} (10% gotówki). Twoja hojność się sumuje — bonus dochodowy teraz +${pct}%.`,
+    'ft.charity_dice':       '2× kostki przez kolejne 3 tury',
+    'ft.charity_passive':    pct => `Mnożnik dochodu pasywnego +${pct}% (stały, kumuluje się do +20%)`,
+    'ft.charity_donate':     amount => `Przekaż $${amount}`,
+    'ft.charity_done':       (amount, pct) => `Przekazano $${amount}. Bonus dochodowy teraz +${pct}%.`,
+    'ft.event_header':       '⚡ ZDARZENIE',
+    'ft.event_continue':     'Kontynuuj',
+    'ft.cost':               'Wkład własny',
+    'ft.monthly_cf':         'Cashflow miesięcznie',
+    'ft.exit_upside':        'Potencjał wyjścia',
+    'ft.venture_hint':       mult => `Cel wyjścia: ${mult} — brak cashflow do eventu wyjścia`,
+    'ft.fail_chance':        pct => `${pct}% ryzyko straty`,
+    'ft.buy_btn':            'KUP',
+    'ft.skip_btn':           'POMIŃ',
+    'ft.bought':             (icon, name) => `${icon} ${name} dodano do portfela.`,
+    'ft.bought_leveraged':   (icon, name, loan, pay) => `${icon} ${name} — dźwignia $${loan} · rata $${pay}/mies.`,
+    'ft.lev_offer':          (loan, pay) => `Bank oferuje $${loan} · rata $${pay}/mies. · `,
+    'ft.lev_net':            net => `netto ${net >= 0 ? '+' : ''}$${net}/mies.`,
+    'ft.lev_take':           'Weź gotówkę',
+    'ft.lev_done':           (name, amount) => `Refinansowanie ${name}: +$${amount} na koncie.`,
+    'ft.no_realty':          'Brak nieruchomości kwalifikujących się do refinansowania.',
+    // Freedom Track events
+    'ft.ev.ipo.title':       '🚀 IPO Startupu!',
+    'ft.ev.ipo.desc':        (name, mult) => `${name} właśnie debiutuje na giełdzie! Inwestorzy oferują ${mult}× Twojej inwestycji.`,
+    'ft.ev.ipo.no_venture':  'Żaden z Twoich aktywów nie wszedł na giełdę tym razem. Zbierz dochód.',
+    'ft.ev.ipo.sell':        'Sprzedaj teraz',
+    'ft.ev.ipo.hold':        'Trzymaj (ryzyko resetu)',
+    'ft.ev.ipo.sold':        amount => `Wyjście IPO: +$${amount}`,
+    'ft.ev.black_swan.title':'📉 Czarny Łabędź',
+    'ft.ev.black_swan.desc': loss => `Niespodziewany globalny wstrząs uderza w każdy rynek. Twój portfel traci 20% — łączna strata: $${loss}.`,
+    'ft.ev.acq.title':       '🤑 Oferta Przejęcia',
+    'ft.ev.acq.desc':        (name, offer) => `Nabywca strategiczny chce ${name} za 2,5× wartości — $${offer}. Tracisz cashflow, ale inkasisz gotówkę.`,
+    'ft.ev.acq.sell':        'Przyjmij ofertę',
+    'ft.ev.acq.keep':        'Zatrzymaj aktywo',
+    'ft.ev.acq.sold':        price => `Sprzedano za $${price}`,
+    'ft.ev.cap_call.title':  '💸 Wezwanie Kapitałowe',
+    'ft.ev.cap_call.desc':   amount => `Jeden z Twoich funduszy potrzebuje dodatkowego kapitału. Zapłać $${amount} lub stracisz udział.`,
+    'ft.ev.decade.title':    '🏆 Transakcja Dekady',
+    'ft.ev.decade.desc':     'Twoja sieć otwiera rzadką okazję. Wybierz jeden deal za 50% ceny.',
+    'ft.ev.tax_opt.title':   '📋 Optymalizacja Podatkowa',
+    'ft.ev.tax_opt.desc':    'Twój księgowy restrukturyzuje portfel. Podatki trwale obniżone o 15%.',
+    'ft.ev.bull_run.title':  '📈 Hossa',
+    'ft.ev.bull_run.desc':   'Wznosząca fala unosi wszystkie łodzie. Twój dochód +25% przez kolejne 3 tury.',
+    'ft.ev.renovation.title':'🏗️ Remont Konieczny',
+    'ft.ev.renovation.desc': (name, cost) => `${name} wymaga gruntownego remontu. Koszt: $${cost} (4% wartości nieruchomości).`,
+    'ft.ev.mentorship.title':'💼 Krąg Mentorski',
+    'ft.ev.mentorship.desc': 'Elitarny inwestor bierze Cię pod swoje skrzydła. Dochód +20% przez 3 tury.',
+    'ft.ev.legal.title':     '⚖️ Bitwa Sądowa',
+    'ft.ev.legal.desc':      cost => `Spór udziałowców ciągnie Cię do sądu. Koszty prawne: $${cost}.`,
+    'ft.ev.dividend.title':  '💰 Niespodziewana Dywidenda',
+    'ft.ev.dividend.desc':   amount => `Rekordowe dywidendy w całym portfelu. Bonus: +$${amount}`,
+    'ft.ev.refinance.title': '🔑 Okazja Refinansowania',
+    'ft.ev.refinance.desc':  (name, pay) => `Stopy spadły. Rata ${name} obniżona do $${pay}/mies.`,
+    'ft.ev.volatility.title':'📊 Wahania Rynkowe',
+    'ft.ev.vol.bad':         (roll, loss) => `Rzut ${roll} — korekta rynkowa. Strata: $${loss}.`,
+    'ft.ev.vol.neutral':     roll => `Rzut ${roll} — rynek stoi w miejscu.`,
+    'ft.ev.vol.good':        (roll, gain) => `Rzut ${roll} — impet wzrostowy! +$${gain}.`,
+    'ft.ev.lucky.title':     '🎲 Szczęśliwa Passa',
+    'ft.ev.lucky.desc':      '2× kostki przez kolejne 2 tury.',
   }
 };
 
@@ -3321,40 +3501,46 @@ const RAT_RACE_SPACES = [
 const SMALL_DEAL_LIMIT = 6000;
 
 const FAST_TRACK_SPACES = [
-  {type:"payday"},             // 0
-  {type:"charity"},            // 1
-  {type:"charity"},            // 2
-  {type:"dream", dreamId:0},   // 3  Beach House
-  {type:"payday"},             // 4
-  {type:"charity"},            // 5
-  {type:"charity"},            // 6
-  {type:"dream", dreamId:1},   // 7  Ski Chalet
-  {type:"payday"},             // 8
-  {type:"charity"},            // 9
-  {type:"charity"},            // 10
-  {type:"dream", dreamId:2},   // 11 World Travel Year
-  {type:"payday"},             // 12
-  {type:"charity"},            // 13
-  {type:"charity"},            // 14
-  {type:"dream", dreamId:3},   // 15 Own Business
-  {type:"payday"},             // 16
-  {type:"charity"},            // 17
-  {type:"charity"},            // 18
-  {type:"dream", dreamId:4},   // 19 The Ranch
-  {type:"payday"},             // 20
-  {type:"charity"},            // 21
-  {type:"charity"},            // 22
-  {type:"dream", dreamId:5},   // 23 Sailing Yacht
-  {type:"payday"},             // 24
-  {type:"charity"},            // 25
-  {type:"charity"},            // 26
-  {type:"dream", dreamId:6},   // 27 Charity Foundation
-  {type:"payday"},             // 28
-  {type:"charity"},            // 29
-  {type:"charity"},            // 30
-  {type:"dream", dreamId:7},   // 31 Investment Estate
-  {type:"payday"},             // 32
-  {type:"charity"},            // 33
+  {type:"payday"},              // 0
+  {type:"deal_ft"},             // 1
+  {type:"event"},               // 2
+  {type:"charity"},             // 3
+  {type:"dream", dreamId:0},    // 4
+  {type:"payday"},              // 5
+  {type:"leverage"},            // 6
+  {type:"event"},               // 7
+  {type:"deal_ft"},             // 8
+  {type:"dream", dreamId:1},    // 9
+  {type:"payday"},              // 10
+  {type:"deal_ft"},             // 11
+  {type:"charity"},             // 12
+  {type:"event"},               // 13
+  {type:"dream", dreamId:2},    // 14
+  {type:"payday"},              // 15
+  {type:"event"},               // 16
+  {type:"leverage"},            // 17
+  {type:"deal_ft"},             // 18
+  {type:"dream", dreamId:3},    // 19
+  {type:"payday"},              // 20
+  {type:"charity"},             // 21
+  {type:"deal_ft"},             // 22
+  {type:"event"},               // 23
+  {type:"dream", dreamId:4},    // 24
+  {type:"payday"},              // 25
+  {type:"deal_ft"},             // 26
+  {type:"leverage"},            // 27
+  {type:"charity"},             // 28
+  {type:"dream", dreamId:5},    // 29
+  {type:"payday"},              // 30
+  {type:"event"},               // 31
+  {type:"charity"},             // 32
+  {type:"deal_ft"},             // 33
+  {type:"dream", dreamId:6},    // 34
+  {type:"payday"},              // 35
+  {type:"leverage"},            // 36
+  {type:"deal_ft"},             // 37
+  {type:"event"},               // 38
+  {type:"dream", dreamId:7},    // 39
 ];
 
 const SMALL_DEALS = [
@@ -3544,14 +3730,52 @@ const SPLURGES = [
 ];
 
 const FAST_TRACK_DREAMS = [
-  {id:0, spaceIdx:3,  icon:"🏡", title:"Family Homestead",     desc:"Your own home on your own terms, paid in full.",              cost:650000},
-  {id:1, spaceIdx:7,  icon:"🎨", title:"Creative Studio",       desc:"A dedicated space to create, build, and share freely.",       cost:630000},
-  {id:2, spaceIdx:11, icon:"🌍", title:"Around the World",      desc:"A year of travel with no schedule and no return ticket.",     cost:620000},
-  {id:3, spaceIdx:15, icon:"🌱", title:"Social Enterprise",     desc:"Launch a venture that turns a profit and does real good.",    cost:680000},
-  {id:4, spaceIdx:19, icon:"📚", title:"Learning Academy",      desc:"Build and fund an education centre for your community.",      cost:660000},
-  {id:5, spaceIdx:23, icon:"🏕️", title:"Off-Grid Retreat",      desc:"Live simply on your own land, away from the noise.",         cost:640000},
-  {id:6, spaceIdx:27, icon:"🍽️", title:"Restaurant & Café",     desc:"Open the eatery you have always dreamed about.",             cost:670000},
-  {id:7, spaceIdx:31, icon:"🏗️", title:"Real Estate Portfolio", desc:"A collection of income properties that work while you rest.", cost:700000},
+  {id:0, spaceIdx:4,  icon:"🏡", title:"Family Homestead",     desc:"Your own home on your own terms, paid in full.",              cost:650000},
+  {id:1, spaceIdx:9,  icon:"🎨", title:"Creative Studio",       desc:"A dedicated space to create, build, and share freely.",       cost:630000},
+  {id:2, spaceIdx:14, icon:"🌍", title:"Around the World",      desc:"A year of travel with no schedule and no return ticket.",     cost:620000},
+  {id:3, spaceIdx:19, icon:"🌱", title:"Social Enterprise",     desc:"Launch a venture that turns a profit and does real good.",    cost:680000},
+  {id:4, spaceIdx:24, icon:"📚", title:"Learning Academy",      desc:"Build and fund an education centre for your community.",      cost:660000},
+  {id:5, spaceIdx:29, icon:"🏕️", title:"Off-Grid Retreat",      desc:"Live simply on your own land, away from the noise.",         cost:640000},
+  {id:6, spaceIdx:34, icon:"🍽️", title:"Restaurant & Café",     desc:"Open the eatery you have always dreamed about.",             cost:670000},
+  {id:7, spaceIdx:39, icon:"🏗️", title:"Real Estate Portfolio", desc:"A collection of income properties that work while you rest.", cost:700000},
+];
+
+// Freedom Track premium deals — 3 risk tiers
+const FREEDOM_DEALS = [
+  // 🟢 Safe
+  {key:"ft_reit",        risk:"safe",        icon:"🏢", title:"Dividend REIT Fund",    desc:"Institutional-grade real estate fund. Stable quarterly distributions.",                  cost:30000,  cashflow:1200, price:300000,  type:"fund",        ltvMax:0},
+  {key:"ft_parking",     risk:"safe",        icon:"🅿️", title:"Parking Portfolio",     desc:"12 premium parking locations in city centers. Boring and reliable.",                    cost:45000,  cashflow:1800, price:420000,  type:"rental",      ltvMax:0.55},
+  {key:"ft_infra_bond",  risk:"safe",        icon:"🔋", title:"Infrastructure Bond",   desc:"Government-backed energy infrastructure. Capital-protected yield.",                     cost:25000,  cashflow:900,  price:250000,  type:"fund",        ltvMax:0},
+  // 🟡 Growth
+  {key:"ft_office",      risk:"growth",      icon:"🏛️", title:"Office Park Stake",     desc:"25% stake in a Class-A commercial complex. Blue-chip tenants, long leases.",           cost:85000,  cashflow:3800, price:850000,  type:"rental",      ltvMax:0.65},
+  {key:"ft_franchise",   risk:"growth",      icon:"🍔", title:"Multi-Unit Franchise",   desc:"5 franchise locations in high-traffic zones. Proven playbook, steady distributions.",  cost:70000,  cashflow:3200, price:480000,  type:"business",    ltvMax:0.50},
+  {key:"ft_hotel",       risk:"growth",      icon:"🏨", title:"Boutique Hotel",         desc:"60-room designer hotel in a tourist hub. Third-party managed.",                        cost:120000, cashflow:5500, price:1200000, type:"business",    ltvMax:0.60},
+  {key:"ft_apartments",  risk:"growth",      icon:"🏙️", title:"Luxury Apartments",     desc:"24-unit premium building. Corporate tenants on multi-year leases.",                    cost:95000,  cashflow:4200, price:950000,  type:"rental",      ltvMax:0.65},
+  // 🔴 Venture
+  {key:"ft_tech_b",      risk:"venture",     icon:"💻", title:"Tech Series B",          desc:"Preferred shares in a fast-growing SaaS platform. No cashflow — betting on the exit.", cost:100000, cashflow:0,    price:100000, type:"venture",     exitMult:[4,5,6], failChance:0.30},
+  {key:"ft_biotech",     risk:"venture",     icon:"🧬", title:"Biotech Startup",        desc:"Phase III drug approval pending. Huge upside if approved, write-off if not.",          cost:80000,  cashflow:0,    price:80000,  type:"venture",     exitMult:[3,4,5], failChance:0.35},
+  {key:"ft_growth_fund", risk:"venture",     icon:"📊", title:"Growth Fund LP",         desc:"LP position in a private equity fund targeting 3-5× returns. 3-year lock-up.",        cost:60000,  cashflow:0,    price:60000,  type:"venture",     exitMult:[3,4],   failChance:0.25},
+  // 💣 Speculative
+  {key:"ft_crypto",      risk:"speculative", icon:"₿",  title:"Crypto Hedge Fund",      desc:"Algorithmically managed digital assets. Can 8× or lose 60% — no middle ground.",      cost:50000,  cashflow:0,    price:50000,  type:"speculative", exitMult:[7,8,10], failMult:0.40, failChance:0.40},
+  {key:"ft_preipo",      risk:"speculative", icon:"🎯", title:"Pre-IPO Stakes",          desc:"Seed equity in 3 startups. One big hit can return the rest. Or all three fail.",      cost:150000, cashflow:0,    price:150000, type:"speculative", exitMult:[8,10,12],failMult:0.30, failChance:0.45},
+];
+
+// Freedom Track events — spectacular (w:2) / significant (w:3) / small (w:4)
+const FREEDOM_EVENTS = [
+  {id:"ipo",          type:"good",  icon:"🚀", weight:2},
+  {id:"black_swan",   type:"bad",   icon:"📉", weight:2},
+  {id:"acquisition",  type:"mixed", icon:"🤑", weight:2},
+  {id:"capital_call", type:"bad",   icon:"💸", weight:2},
+  {id:"deal_decade",  type:"good",  icon:"🏆", weight:2},
+  {id:"tax_opt",      type:"good",  icon:"📋", weight:3},
+  {id:"bull_run",     type:"good",  icon:"📈", weight:3},
+  {id:"renovation",   type:"bad",   icon:"🏗️", weight:3},
+  {id:"mentorship",   type:"good",  icon:"💼", weight:3},
+  {id:"legal",        type:"bad",   icon:"⚖️", weight:3},
+  {id:"dividend",     type:"good",  icon:"💰", weight:4},
+  {id:"refinance",    type:"good",  icon:"🔑", weight:4},
+  {id:"volatility",   type:"mixed", icon:"📊", weight:4},
+  {id:"lucky",        type:"good",  icon:"🎲", weight:4},
 ];
 // Helper: get translated dream title / desc (falls back to English data)
 function dreamTitle(d) { const s=STRINGS[LANG]; const k='dream.'+d.id+'.title'; return (s&&s[k])||d.title; }
@@ -5037,41 +5261,473 @@ function handleLayoff() {
 }
 
 function getFastTrackIncome(p) {
-  // Reward players who built real passive income in Rat Race
-  return Math.max(50000, p.passiveIncome * 12);
+  let base = Math.max(50000, p.passiveIncome * 12);
+  // charityBonus stacks up to 4 times (each charity gives +5%)
+  const charityFactor = 1 + Math.min(p.charityBonus || 0, 4) * 0.05;
+  // event income modifiers
+  const eventFactor = (p.eventModifiers || []).reduce((f, m) => m.type === 'income_boost' ? f * m.factor : f, 1);
+  return Math.floor(base * charityFactor * eventFactor);
+}
+
+function tickEventModifiers(p) {
+  if (!p.eventModifiers) return;
+  p.eventModifiers = p.eventModifiers.filter(m => {
+    m.turnsLeft--;
+    return m.turnsLeft > 0;
+  });
 }
 
 function handleFastTrack() {
   const p = currentPlayer();
   const pos = p.position % FAST_TRACK_SPACES.length;
   const space = FAST_TRACK_SPACES[pos];
+  tickEventModifiers(p);
 
   if (space.type === 'dream') {
     const dreamDef = FAST_TRACK_DREAMS[space.dreamId];
     const owner = state.players.find(pl => pl.dream && pl.dream.id === dreamDef.id);
-
     if (owner && owner !== p) {
-      // Someone else's dream — price doubles for the owner
       const oldCost = owner.dream.cost;
       owner.dream.cost = oldCost * 2;
       showNotif(t('notif.dream_doubled', p.name, dreamDef.icon, dreamTitle(dreamDef), owner.name, owner.dream.cost.toLocaleString()), "error");
       collectFastTrackIncome(p);
       return;
     }
-
-    if (owner === p) {
-      handleOwnDreamLanding(p);
-      return;
-    }
-
-    // Unclaimed space — just collect income
+    if (owner === p) { handleOwnDreamLanding(p); return; }
     collectFastTrackIncome(p);
     return;
   }
 
-  // payday or charity — collect income (no rat race charity mechanic on fast track)
+  if (space.type === 'deal_ft')  { handleFtDeal(p);     return; }
+  if (space.type === 'leverage') { handleFtLeverage(p); return; }
+  if (space.type === 'charity')  { handleFtCharity(p);  return; }
+  if (space.type === 'event')    { handleFtEvent(p);    return; }
+
+  // payday
   collectFastTrackIncome(p);
 }
+
+// ── Freedom Track: Premium Deal ──────────────────────────────────────────────
+function handleFtDeal(p) {
+  const pool = [...FREEDOM_DEALS];
+  const owned = new Set((p.assets || []).map(a => a.key).filter(Boolean));
+  const available = pool.filter(d => !owned.has(d.key));
+  if (!available.length) { collectFastTrackIncome(p); return; }
+  const card = available[Math.floor(Math.random() * available.length)];
+
+  const riskLabel = { safe: '🟢 Safe', growth: '🟡 Growth', venture: '🔴 Venture', speculative: '💣 Speculative' };
+  const riskColor = { safe: '#22c55e', growth: '#eab308', venture: '#fb923c', speculative: '#ef4444' };
+  const rc = riskColor[card.risk] || '#fff';
+  const rl = riskLabel[card.risk] || card.risk;
+
+  const canBuy = p.cash >= card.cost;
+  const income = getFastTrackIncome(p);
+
+  let leverageBtn = '';
+  if (card.ltvMax > 0 && card.price > 0) {
+    const loanAmt = Math.floor(card.price * card.ltvMax / 100) * 100;
+    const payment = Math.round(loanAmt * 0.06 / 12);
+    const netCf   = card.cashflow - payment;
+    leverageBtn = `<button class="btn btn-secondary" style="flex:1;" onclick="buyFtDealLeveraged('${card.key}')" ${canBuy?'':'disabled'}>
+      🏦 ${t('ft.leverage_btn')}<br><span style="font-size:10px;color:${netCf>=0?'var(--profit)':'var(--loss)'};">net $${netCf.toLocaleString()}/mo</span>
+    </button>`;
+  }
+
+  let ventureLine = '';
+  if (card.type === 'venture' || card.type === 'speculative') {
+    const multStr = card.exitMult.join('–') + '×';
+    ventureLine = `<div style="padding:8px 12px;border-radius:8px;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);font-size:12px;color:#fb923c;margin-bottom:10px;">
+      ${t('ft.venture_hint', multStr)}${card.failChance ? ' · ' + t('ft.fail_chance', Math.round(card.failChance*100)) : ''}
+    </div>`;
+  }
+
+  setAction(() => {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,${rc}22,${rc}44);border-bottom:2px solid ${rc}66;">
+          ${card.icon} ${t('ft.deal_header')} <span style="font-size:11px;background:${rc}33;padding:2px 8px;border-radius:20px;color:${rc};">${rl}</span>
+        </div>
+        <div style="padding:16px;">
+          <div style="font-size:18px;font-weight:900;margin-bottom:4px;">${card.title}</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">${card.desc}</div>
+          ${ventureLine}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:13px;">
+            <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;">
+              <div style="color:var(--muted);font-size:10px;">${t('ft.cost')}</div>
+              <div style="font-weight:700;color:${canBuy?'var(--profit)':'var(--loss)'};">$${card.cost.toLocaleString()}</div>
+            </div>
+            ${card.cashflow > 0 ? `<div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;">
+              <div style="color:var(--muted);font-size:10px;">${t('ft.monthly_cf')}</div>
+              <div style="font-weight:700;color:var(--profit);">+$${card.cashflow.toLocaleString()}/mo</div>
+            </div>` : `<div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;">
+              <div style="color:var(--muted);font-size:10px;">${t('ft.exit_upside')}</div>
+              <div style="font-weight:700;color:#fb923c;">${card.exitMult ? card.exitMult.join('–')+'×' : '—'}</div>
+            </div>`}
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <button class="btn btn-invest" style="flex:2;" onclick="buyFtDeal('${card.key}')" ${canBuy?'':'disabled'}>
+              ${t('ft.buy_btn')} · $${card.cost.toLocaleString()}
+            </button>
+            ${leverageBtn}
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function buyFtDeal(cardKey, costOverride) {
+  const p = currentPlayer();
+  const card = FREEDOM_DEALS.find(d => d.key === cardKey);
+  if (!card) return;
+  const cost = costOverride !== undefined ? costOverride : card.cost;
+  if (p.cash < cost) { showNotif(t('notif.no_cash'), 'error'); return; }
+  p.cash -= cost;
+  p.assets.push({ name: card.title, key: card.key, value: card.cost, cashflow: card.cashflow, type: card.type,
+    risk: card.risk, exitMult: card.exitMult, failChance: card.failChance, failMult: card.failMult, price: card.price });
+  if (card.type === 'rental') {
+    p.liabilities.push({ name: card.title, key: card.key, value: 0, payment: 0, type: 'rental' });
+  }
+  recalcPassive(p);
+  renderFS();
+  syncState();
+  showNotif(t('ft.bought', card.icon, card.title), 'success');
+  renderAction_EndTurn(t('ft.bought', card.icon, card.title));
+}
+
+function buyFtDealLeveraged(cardKey) {
+  const p = currentPlayer();
+  const card = FREEDOM_DEALS.find(d => d.key === cardKey);
+  if (!card || p.cash < card.cost) { showNotif(t('notif.no_cash'), 'error'); return; }
+  const loanAmt   = Math.floor(card.price * card.ltvMax / 100) * 100;
+  const payment   = Math.round(loanAmt * 0.06 / 12);
+  p.cash -= card.cost;
+  p.assets.push({ name: card.title, key: card.key, value: card.price, cashflow: card.cashflow, type: card.type,
+    risk: card.risk, price: card.price });
+  p.liabilities.push({ name: card.title, key: card.key, value: loanAmt, payment, type: 'loan' });
+  recalcPassive(p);
+  renderFS();
+  syncState();
+  showNotif(t('ft.bought_leveraged', card.icon, card.title, loanAmt.toLocaleString(), payment.toLocaleString()), 'success');
+  renderAction_EndTurn(t('ft.bought_leveraged', card.icon, card.title, loanAmt.toLocaleString(), payment.toLocaleString()));
+}
+
+function collectFtIncomeAndEnd() {
+  const p = currentPlayer();
+  collectFastTrackIncome(p);
+}
+
+// ── Freedom Track: Cash-Out Leverage ─────────────────────────────────────────
+function handleFtLeverage(p) {
+  const income = getFastTrackIncome(p);
+  const realty = (p.assets || []).filter(a => (a.type === 'rental' || a.type === 'business') && (a.price || 0) > 0);
+  if (!realty.length) {
+    showNotif(t('ft.no_realty'), 'info');
+    collectFastTrackIncome(p);
+    return;
+  }
+
+  const items = realty.map((a, i) => {
+    const loanMax = Math.floor((a.price || 0) * 0.65 / 100) * 100;
+    const payment = Math.round(loanMax * 0.055 / 12);
+    const netCf   = a.cashflow - payment;
+    return `<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-weight:700;">${a.name}</span>
+        <span style="color:var(--muted);font-size:12px;">val $${(a.price||0).toLocaleString()}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${t('ft.lev_offer', loanMax.toLocaleString(), payment.toLocaleString())}
+        <span style="color:${netCf>=0?'var(--profit)':'var(--loss)'};">${t('ft.lev_net', netCf.toLocaleString())}</span>
+      </div>
+      <button class="btn btn-invest" style="width:100%;font-size:13px;" onclick="executeLeverage(${p.assets.indexOf(a)}, ${loanMax}, ${payment})">${t('ft.lev_take')}</button>
+    </div>`;
+  }).join('');
+
+  setAction(() => {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#0369a1,#0ea5e9)">🏦 ${t('ft.leverage_header')}</div>
+        <div style="padding:16px;">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">${t('ft.leverage_desc')}</p>
+          ${items}
+          <button class="btn btn-secondary" style="width:100%;margin-top:4px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
+        </div>
+      </div>`;
+  });
+}
+
+function executeLeverage(assetIdx, loanAmt, payment) {
+  const p = currentPlayer();
+  const asset = p.assets[assetIdx];
+  if (!asset) return;
+  p.cash += loanAmt;
+  p.liabilities.push({ name: asset.name, key: asset.key || null, value: loanAmt, payment, type: 'loan' });
+  recalcPassive(p);
+  renderFS();
+  syncState();
+  showNotif(t('ft.lev_done', asset.name, loanAmt.toLocaleString()), 'success');
+  renderAction_EndTurn(t('ft.lev_done', asset.name, loanAmt.toLocaleString()));
+}
+
+// ── Freedom Track: Charity ───────────────────────────────────────────────────
+function handleFtCharity(p) {
+  const donateAmt = Math.floor(p.cash * 0.10 / 100) * 100;
+  const income    = getFastTrackIncome(p);
+  const newBonus  = Math.min((p.charityBonus || 0) + 1, 4);
+  const bonusPct  = newBonus * 5;
+
+  setAction(() => {
+    document.getElementById("action-area").innerHTML = `
+      <div class="ac">
+        <div class="ac-head" style="background:linear-gradient(90deg,#16a34a,#22c55e)">🤲 ${t('ft.charity_header')}</div>
+        <div style="padding:16px;text-align:center;">
+          <div style="font-size:40px;margin-bottom:12px;">🤲</div>
+          <p style="font-size:15px;font-weight:700;margin-bottom:8px;">${t('ft.charity_title')}</p>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">${t('ft.charity_desc', donateAmt.toLocaleString(), bonusPct)}</p>
+          <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;">
+            <div>🎲 ${t('ft.charity_dice')}</div>
+            <div>📈 ${t('ft.charity_passive', bonusPct)}</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-invest" style="flex:2;" onclick="doFtCharity(${donateAmt})">${t('ft.charity_donate', donateAmt.toLocaleString())}</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function doFtCharity(amount) {
+  const p = currentPlayer();
+  if (p.cash < amount) { showNotif(t('notif.no_cash'), 'error'); return; }
+  p.cash -= amount;
+  p.charityBonus = Math.min((p.charityBonus || 0) + 1, 4);
+  p.charityTurnsLeft = 3;
+  renderFS();
+  syncState();
+  showNotif(t('notif.donated', amount.toLocaleString()), 'success');
+  renderAction_EndTurn(t('ft.charity_done', amount.toLocaleString(), p.charityBonus * 5));
+}
+
+// ── Freedom Track: Events ────────────────────────────────────────────────────
+function handleFtEvent(p) {
+  const pool = [];
+  FREEDOM_EVENTS.forEach(e => { for (let i = 0; i < e.weight; i++) pool.push(e); });
+  const ev = pool[Math.floor(Math.random() * pool.length)];
+  applyFtEvent(p, ev);
+}
+
+function applyFtEvent(p, ev) {
+  const income = getFastTrackIncome(p);
+  const color  = ev.type === 'good' ? '#22c55e' : ev.type === 'bad' ? '#ef4444' : '#eab308';
+
+  const buildEventUI = (title, desc, extraBtns) => {
+    setAction(() => {
+      document.getElementById("action-area").innerHTML = `
+        <div class="ac">
+          <div class="ac-head" style="background:linear-gradient(90deg,${color}33,${color}55);border-bottom:2px solid ${color}66;">
+            ${ev.icon} ${t('ft.event_header')} <span style="font-size:11px;background:${color}33;padding:2px 8px;border-radius:20px;color:${color};">${ev.type.toUpperCase()}</span>
+          </div>
+          <div style="padding:16px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:10px;">${ev.icon}</div>
+            <div style="font-size:17px;font-weight:900;margin-bottom:8px;">${title}</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">${desc}</div>
+            ${extraBtns}
+          </div>
+        </div>`;
+    });
+  };
+
+  const endBtn = `<button class="btn btn-primary" style="width:100%;" onclick="collectFtIncomeAndEnd()">${t('ft.event_continue')} · +$${income.toLocaleString()}</button>`;
+
+  // ── Spectacular events ───────────────────────────────────────────────────
+  if (ev.id === 'ipo') {
+    const ventures = (p.assets || []).filter(a => a.type === 'venture' || a.type === 'speculative');
+    if (!ventures.length) {
+      buildEventUI(t('ft.ev.ipo.title'), t('ft.ev.ipo.no_venture'), endBtn); return;
+    }
+    const v = ventures[Math.floor(Math.random() * ventures.length)];
+    const mult = v.exitMult ? v.exitMult[Math.floor(Math.random() * v.exitMult.length)] : 5;
+    const payout = Math.floor(v.value * mult / 100) * 100;
+    const btnHtml = `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:10px;margin-bottom:12px;">
+      💰 ${v.name}: $${v.value.toLocaleString()} → <strong style="color:var(--profit);">$${payout.toLocaleString()} (${mult}×)</strong>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-invest" style="flex:2;" onclick="ftIpoSell('${v.key}',${payout})">${t('ft.ev.ipo.sell')}</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.ev.ipo.hold')}</button>
+    </div>`;
+    buildEventUI(t('ft.ev.ipo.title'), t('ft.ev.ipo.desc', v.name, mult), btnHtml);
+    return;
+  }
+
+  if (ev.id === 'black_swan') {
+    const allAssets = (p.assets || []).filter(a => a.value > 0);
+    const totalLoss = allAssets.reduce((sum, a) => sum + Math.floor(a.value * 0.20), 0);
+    allAssets.forEach(a => { a.value = Math.floor(a.value * 0.80); });
+    recalcPassive(p); renderFS();
+    buildEventUI(t('ft.ev.black_swan.title'), t('ft.ev.black_swan.desc', totalLoss.toLocaleString()), endBtn);
+    return;
+  }
+
+  if (ev.id === 'acquisition') {
+    const businesses = (p.assets || []).filter(a => (a.type === 'business' || a.type === 'rental') && a.cashflow > 0);
+    if (!businesses.length) { collectFastTrackIncome(p); return; }
+    const b = businesses.reduce((best, a) => a.cashflow > best.cashflow ? a : best, businesses[0]);
+    const offer = Math.floor((b.price || b.value) * 2.5 / 100) * 100;
+    const btnHtml = `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:10px;margin-bottom:12px;">
+      🏢 ${b.name}: offer <strong style="color:var(--profit);">$${offer.toLocaleString()}</strong> · loses $${b.cashflow.toLocaleString()}/mo cashflow
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-invest" style="flex:2;" onclick="ftSellAsset('${b.key||b.name}',${offer})">${t('ft.ev.acq.sell')}</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.ev.acq.keep')}</button>
+    </div>`;
+    buildEventUI(t('ft.ev.acq.title'), t('ft.ev.acq.desc', b.name, offer.toLocaleString()), btnHtml);
+    return;
+  }
+
+  if (ev.id === 'capital_call') {
+    const netAssets = (p.assets || []).reduce((s, a) => s + (a.value || 0), 0);
+    const call = Math.max(10000, Math.floor(netAssets * 0.06 / 1000) * 1000);
+    p.cash -= call;
+    renderFS();
+    buildEventUI(t('ft.ev.cap_call.title'), t('ft.ev.cap_call.desc', call.toLocaleString()), endBtn);
+    return;
+  }
+
+  if (ev.id === 'deal_decade') {
+    const owned = new Set((p.assets || []).map(a => a.key).filter(Boolean));
+    const avail = FREEDOM_DEALS.filter(d => !owned.has(d.key));
+    if (!avail.length) { collectFastTrackIncome(p); return; }
+    const picks = avail.sort(() => Math.random() - 0.5).slice(0, 3);
+    const riskColor = { safe:'#22c55e', growth:'#eab308', venture:'#fb923c', speculative:'#ef4444' };
+    const cards = picks.map(c => {
+      const rc = riskColor[c.risk] || '#fff';
+      const half = Math.floor(c.cost / 2 / 100) * 100;
+      const canBuy = p.cash >= half;
+      return `<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;margin-bottom:8px;border:1px solid ${rc}44;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;">${c.icon} ${c.title}</span>
+          <span style="color:${rc};font-size:11px;">${c.risk.toUpperCase()}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin:4px 0;">${c.desc}</div>
+        <button class="btn btn-invest" style="width:100%;font-size:12px;" onclick="buyFtDeal('${c.key}',${half})" ${canBuy?'':'disabled'}>
+          ${t('ft.buy_btn')} · $${half.toLocaleString()} (50% off)
+        </button>
+      </div>`;
+    }).join('');
+    const btnHtml = `${cards}<button class="btn btn-secondary" style="width:100%;margin-top:4px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')}</button>`;
+    buildEventUI(t('ft.ev.decade.title'), t('ft.ev.decade.desc'), btnHtml);
+    return;
+  }
+
+  // ── Significant events ───────────────────────────────────────────────────
+  if (ev.id === 'tax_opt') {
+    p.taxes = Math.max(0, Math.round(p.taxes * 0.85));
+    recalcPassive(p); renderFS();
+    buildEventUI(t('ft.ev.tax_opt.title'), t('ft.ev.tax_opt.desc'), endBtn);
+    return;
+  }
+
+  if (ev.id === 'bull_run') {
+    p.eventModifiers = p.eventModifiers || [];
+    p.eventModifiers.push({ type: 'income_boost', factor: 1.25, turnsLeft: 3 });
+    buildEventUI(t('ft.ev.bull_run.title'), t('ft.ev.bull_run.desc'), endBtn);
+    return;
+  }
+
+  if (ev.id === 'renovation') {
+    const props = (p.assets || []).filter(a => a.type === 'rental' && (a.price || 0) > 0);
+    if (!props.length) { collectFastTrackIncome(p); return; }
+    const largest = props.reduce((b, a) => (a.price||0) > (b.price||0) ? a : b, props[0]);
+    const cost = Math.floor((largest.price || 0) * 0.04 / 100) * 100;
+    p.cash -= cost;
+    renderFS();
+    buildEventUI(t('ft.ev.renovation.title'), t('ft.ev.renovation.desc', largest.name, cost.toLocaleString()), endBtn);
+    return;
+  }
+
+  if (ev.id === 'mentorship') {
+    p.eventModifiers = p.eventModifiers || [];
+    p.eventModifiers.push({ type: 'income_boost', factor: 1.20, turnsLeft: 3 });
+    buildEventUI(t('ft.ev.mentorship.title'), t('ft.ev.mentorship.desc'), endBtn);
+    return;
+  }
+
+  if (ev.id === 'legal') {
+    const fine = 50000;
+    p.cash -= fine;
+    renderFS();
+    buildEventUI(t('ft.ev.legal.title'), t('ft.ev.legal.desc', fine.toLocaleString()), endBtn);
+    return;
+  }
+
+  // ── Small events ─────────────────────────────────────────────────────────
+  if (ev.id === 'dividend') {
+    const bonus = p.passiveIncome * 4;
+    p.cash += bonus;
+    renderFS();
+    buildEventUI(t('ft.ev.dividend.title'), t('ft.ev.dividend.desc', bonus.toLocaleString()), endBtn);
+    return;
+  }
+
+  if (ev.id === 'refinance') {
+    const loans = (p.liabilities || []).filter(l => l.type === 'loan' && l.payment > 0);
+    if (loans.length) {
+      const biggest = loans.reduce((b, l) => l.payment > b.payment ? l : b, loans[0]);
+      biggest.payment = Math.round(biggest.payment * 0.80);
+      recalcPassive(p); renderFS();
+      buildEventUI(t('ft.ev.refinance.title'), t('ft.ev.refinance.desc', biggest.name, biggest.payment.toLocaleString()), endBtn);
+    } else {
+      collectFastTrackIncome(p);
+    }
+    return;
+  }
+
+  if (ev.id === 'volatility') {
+    const roll = Math.ceil(Math.random() * 6);
+    let result;
+    if (roll <= 2)      { const loss = p.passiveIncome * 2; p.cash -= loss; result = t('ft.ev.vol.bad', roll, loss.toLocaleString()); }
+    else if (roll <= 4) { result = t('ft.ev.vol.neutral', roll); }
+    else                { const gain = p.passiveIncome * 3; p.cash += gain; result = t('ft.ev.vol.good', roll, gain.toLocaleString()); }
+    renderFS();
+    buildEventUI(t('ft.ev.volatility.title'), result, endBtn);
+    return;
+  }
+
+  if (ev.id === 'lucky') {
+    p.charityTurnsLeft = Math.max(p.charityTurnsLeft || 0, 2);
+    buildEventUI(t('ft.ev.lucky.title'), t('ft.ev.lucky.desc'), endBtn);
+    return;
+  }
+
+  collectFastTrackIncome(p);
+}
+
+function ftIpoSell(key, payout) {
+  const p = currentPlayer();
+  const idx = p.assets.findIndex(a => a.key === key);
+  if (idx !== -1) p.assets.splice(idx, 1);
+  p.cash += payout;
+  recalcPassive(p); renderFS(); syncState();
+  renderAction_EndTurn(t('ft.ev.ipo.sold', payout.toLocaleString()));
+}
+
+function ftSellAsset(keyOrName, price) {
+  const p = currentPlayer();
+  const idx = p.assets.findIndex(a => a.key === keyOrName || a.name === keyOrName);
+  if (idx !== -1) {
+    const asset = p.assets[idx];
+    const liIdx = p.liabilities.findIndex(l => l.key === asset.key && l.type === 'rental');
+    if (liIdx !== -1) p.liabilities.splice(liIdx, 1);
+    p.assets.splice(idx, 1);
+  }
+  p.cash += price;
+  recalcPassive(p); renderFS(); syncState();
+  renderAction_EndTurn(t('ft.ev.acq.sold', price.toLocaleString()));
+}
+
 
 function collectFastTrackIncome(p) {
   const income = getFastTrackIncome(p);
@@ -5205,7 +5861,7 @@ function renderAction_EndTurn(msg) {
   syncState(); // broadcast current state to all online players
   setAction(() => {
     const p = currentPlayer();
-    const hasLiabilities = p.liabilities && p.liabilities.length > 0;
+    const hasLiabilities = p.liabilities && p.liabilities.some(l => (l.type === 'loan' || l.type === 'player_loan') && l.value > 0);
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
         <div class="ac-title" style="color:var(--accent);">${t('game.turn_complete')}</div>
@@ -5222,8 +5878,7 @@ function renderAction_EndTurn(msg) {
 
 function showPayLiabilityModal() {
   const p = currentPlayer();
-  // Subscriptions (retail) and businesses are not repayable loans
-  const payable = (p.liabilities || []).filter(l => l.type !== 'retail' && l.type !== 'business' && l.value > 0);
+  const payable = (p.liabilities || []).filter(l => (l.type === 'loan' || l.type === 'player_loan') && l.value > 0);
   if (!payable.length) { showNotif(t('notif.no_liabilities'), "info"); return; }
   let html = `<h2 style="margin-bottom:16px;">${t('pay.header')}</h2>
     <div style="background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.1)); padding:14px; border-radius:10px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
@@ -5235,7 +5890,7 @@ function showPayLiabilityModal() {
     const i = p.liabilities.indexOf(l); // real index in p.liabilities
     const canPay = p.cash >= l.value;
     html += `<button class="btn ${canPay?'btn-primary':'btn-secondary'}" onclick="payLiability(${i})" style="text-align:left; display:flex; justify-content:space-between; align-items:center;">
-      <span>${l.name}</span>
+      <span>${liabName(l)}</span>
       <span>${canPay ? `$${l.value.toLocaleString()}` : t('pay.need_more', (l.value-p.cash).toLocaleString())}</span>
     </button>`;
   });
@@ -5370,19 +6025,19 @@ function showTakeLoanThenDeal() {
 function showRequestLoanModal() {
   const p = currentPlayer();
   const others = state.players.map((pl, i) => ({pl, i})).filter(({i}) => i !== state.currentPlayerIdx);
-  if (!others.length) { showNotif(LANG==='pl'?'Brak innych graczy':'No other players', 'info'); return; }
+  if (!others.length) { showNotif(t('loan.no_players'), 'info'); return; }
 
   const opts = others.map(({pl, i}) =>
-    `<option value="${i}">${pl.name} (cash: $${pl.cash.toLocaleString()})</option>`).join('');
+    `<option value="${i}">${pl.name} (${t('loan.cash_label')}: $${pl.cash.toLocaleString()})</option>`).join('');
 
   setModal(t('loan.request_title'), `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
       <button class="info-btn" onclick="showInfo('p2ploan')">ℹ</button>
-      <p style="font-size:13px;color:var(--muted);">${LANG==='pl'?'Poproś innego gracza o pożyczkę. Ustali on oprocentowanie i może zmienić kwotę.':'Ask another player for a loan. They set the rate and can adjust the amount.'}</p>
+      <p style="font-size:13px;color:var(--muted);">${t('loan.request_info')}</p>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${t('loan.request_from')}</div>
     <select id="req-to-player" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:var(--text);margin-bottom:10px;">${opts}</select>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${t('loan.request_amount')} (${LANG==='pl'?'Twoja gotówka':'Your cash'}: $${p.cash.toLocaleString()})</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${t('loan.request_amount')} (${t('loan.your_cash')}: $${p.cash.toLocaleString()})</div>
     <input type="number" id="req-amount" min="100" step="100" placeholder="$"
       style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:var(--text);font-size:15px;margin-bottom:14px;"
       oninput="updateReqPreview()">
@@ -5397,10 +6052,8 @@ function updateReqPreview() {
   const amount = parseInt(document.getElementById('req-amount')?.value || 0, 10);
   const el = document.getElementById('req-preview');
   if (!el) return;
-  if (!amount || amount < 100) { el.textContent = LANG==='pl'?'Podaj kwotę min. $100':'Enter amount (min. $100)'; return; }
-  el.innerHTML = LANG==='pl'
-    ? `Prosisz o <strong style="color:var(--accent)">$${amount.toLocaleString()}</strong> · Oprocentowanie ustali pożyczkodawca`
-    : `Requesting <strong style="color:var(--accent)">$${amount.toLocaleString()}</strong> · Lender will set the interest rate`;
+  if (!amount || amount < 100) { el.textContent = t('loan.req_hint'); return; }
+  el.innerHTML = t('loan.req_preview', amount.toLocaleString());
 }
 
 // Step 2: Show "pass to lender" screen, then lender counter-offer
@@ -5408,29 +6061,28 @@ function submitLoanRequest() {
   const borrowerIdx = state.currentPlayerIdx;
   const toIdx = parseInt(document.getElementById('req-to-player')?.value, 10);
   const amount = parseInt(document.getElementById('req-amount')?.value || 0, 10);
-  if (!amount || amount < 100) { showNotif(LANG==='pl'?'⚠️ Podaj kwotę min. $100':'⚠️ Enter amount (min. $100)', 'error'); return; }
+  if (!amount || amount < 100) { showNotif(t('notif.min_loan'), 'error'); return; }
   const lender = state.players[toIdx];
   if (!lender) return;
   if (lender.cash < amount) {
-    showNotif(LANG==='pl'?`⚠️ ${lender.name} nie ma dość gotówki ($${lender.cash.toLocaleString()})`:
-      `⚠️ ${lender.name} doesn't have enough cash ($${lender.cash.toLocaleString()})`, 'error'); return;
+    showNotif(t('loan.lender_no_cash', lender.name, lender.cash.toLocaleString()), 'error'); return;
   }
   closeModal();
 
   // Online: send via WebSocket
   if (isOnline) {
     wsSend({ type: 'loan_request', fromIdx: borrowerIdx, toIdx, amount, playerId: myPlayerId });
-    showNotif(LANG==='pl'?`💸 Prośba wysłana do ${lender.name}`:`💸 Request sent to ${lender.name}`, 'info');
+    showNotif(t('loan.request_sent', lender.name), 'info');
     return;
   }
 
   // Offline: pass-device flow
-  setModal(LANG==='pl'?'📱 Podaj urządzenie':'📱 Pass Device', `
+  setModal(t('loan.pass_device'), `
     <div style="text-align:center;padding:20px;">
       <div style="font-size:40px;margin-bottom:16px;">📱→</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">${t('loan.pass_to_lender', lender.name)}</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">${LANG==='pl'?`${state.players[borrowerIdx].name} prosi o $${amount.toLocaleString()}`:`${state.players[borrowerIdx].name} is requesting $${amount.toLocaleString()}`}</div>
-      <button class="btn btn-primary" style="width:100%;" onclick="closeModal();showLoanCounterModal(${borrowerIdx},${toIdx},${amount})">${LANG==='pl'?`Jestem ${lender.name} — gotowy`:`I am ${lender.name} — Ready`}</button>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">${t('loan.requesting', state.players[borrowerIdx].name, amount.toLocaleString())}</div>
+      <button class="btn btn-primary" style="width:100%;" onclick="closeModal();showLoanCounterModal(${borrowerIdx},${toIdx},${amount})">${t('loan.i_am_ready', lender.name)}</button>
     </div>`);
 }
 
@@ -5441,18 +6093,18 @@ function showLoanCounterModal(borrowerIdx, lenderIdx, requestedAmount) {
   if (!borrower || !lender) return;
 
   const rateOptions = [5,8,10,12,15,20,25,30].map(r =>
-    `<option value="${r}" ${r===10?'selected':''}>${r}% ${LANG==='pl'?'rocznie':'p.a.'}</option>`).join('');
+    `<option value="${r}" ${r===10?'selected':''}>${r}% ${t('loan.per_annum')}</option>`).join('');
 
   setModal(t('loan.offer_title'), `
     <div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.15);border-radius:10px;padding:12px;margin-bottom:14px;">
-      <div style="font-size:12px;color:var(--muted);">${LANG==='pl'?'Prośba od':'Request from'} <strong style="color:var(--accent);">${borrower.name}</strong></div>
+      <div style="font-size:12px;color:var(--muted);">${t('loan.request_from_lbl')} <strong style="color:var(--accent);">${borrower.name}</strong></div>
       <div style="font-size:20px;font-weight:900;margin-top:4px;color:var(--text);">$${requestedAmount.toLocaleString()}</div>
-      <div style="font-size:11px;color:var(--muted);">${LANG==='pl'?'Twoja gotówka':'Your cash'}: <strong style="color:var(--profit)">$${lender.cash.toLocaleString()}</strong></div>
+      <div style="font-size:11px;color:var(--muted);">${t('loan.your_cash')}: <strong style="color:var(--profit)">$${lender.cash.toLocaleString()}</strong></div>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${t('loan.offer_set_rate')}</div>
     <select id="offer-rate" onchange="updateOfferPreview(${requestedAmount})"
       style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:var(--text);margin-bottom:10px;">${rateOptions}</select>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${t('loan.offer_modify')} (${LANG==='pl'?'zostaw puste aby zachować':'leave blank to keep'} $${requestedAmount.toLocaleString()})</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${t('loan.offer_modify')} (${t('loan.leave_blank')} $${requestedAmount.toLocaleString()})</div>
     <input type="number" id="offer-amount" min="100" step="100" placeholder="${requestedAmount}"
       style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(56,189,248,0.2);background:rgba(4,12,28,0.9);color:var(--text);font-size:15px;margin-bottom:8px;"
       oninput="updateOfferPreview(${requestedAmount})">
@@ -5471,9 +6123,7 @@ function updateOfferPreview(defaultAmount) {
   const el = document.getElementById('offer-preview');
   if (!el) return;
   const monthly = amount > 0 ? Math.round(amount * (rate/100) / 12) : 0;
-  el.innerHTML = LANG==='pl'
-    ? `Kwota: <strong style="color:var(--accent)">$${amount.toLocaleString()}</strong> · Rata: <strong style="color:var(--warning)">$${monthly}/mies.</strong> · Roczny koszt: $${(monthly*12).toLocaleString()}`
-    : `Amount: <strong style="color:var(--accent)">$${amount.toLocaleString()}</strong> · Monthly: <strong style="color:var(--warning)">$${monthly}/mo</strong> · Annual: $${(monthly*12).toLocaleString()}`;
+  el.innerHTML = t('loan.offer_preview', amount.toLocaleString(), monthly.toLocaleString(), (monthly*12).toLocaleString());
 }
 
 // Step 4: Lender confirms → pass back to borrower
@@ -5482,23 +6132,23 @@ function submitLoanOffer(borrowerIdx, lenderIdx, requestedAmount) {
   const finalAmount = rawAmount ? parseInt(rawAmount, 10) : requestedAmount;
   const rate = parseInt(document.getElementById('offer-rate')?.value || 10, 10);
   const lender = state.players[lenderIdx];
-  if (!finalAmount || finalAmount < 100) { showNotif(LANG==='pl'?'⚠️ Podaj kwotę':'⚠️ Enter amount', 'error'); return; }
-  if (lender.cash < finalAmount) { showNotif(LANG==='pl'?'⚠️ Za mało gotówki':'⚠️ Not enough cash', 'error'); return; }
+  if (!finalAmount || finalAmount < 100) { showNotif(t('notif.min_loan'), 'error'); return; }
+  if (lender.cash < finalAmount) { showNotif(t('notif.no_cash'), 'error'); return; }
   closeModal();
 
   if (isOnline) {
     wsSend({ type: 'loan_offer', fromIdx: lenderIdx, toIdx: borrowerIdx, amount: finalAmount, rate, playerId: myPlayerId });
-    showNotif(LANG==='pl'?'💸 Oferta wysłana':'💸 Offer sent', 'info');
+    showNotif(t('loan.offer_sent'), 'info');
     return;
   }
 
   const borrower = state.players[borrowerIdx];
-  setModal(LANG==='pl'?'📱 Oddaj urządzenie':'📱 Pass Device', `
+  setModal(t('loan.pass_device_back'), `
     <div style="text-align:center;padding:20px;">
       <div style="font-size:40px;margin-bottom:16px;">←📱</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">${t('loan.pass_to_borrower', borrower.name)}</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">${LANG==='pl'?`${lender.name} proponuje $${finalAmount.toLocaleString()} @ ${rate}%`:`${lender.name} offers $${finalAmount.toLocaleString()} @ ${rate}%`}</div>
-      <button class="btn btn-primary" style="width:100%;" onclick="closeModal();showLoanDecisionModal(${borrowerIdx},${lenderIdx},${finalAmount},${rate})">${LANG==='pl'?`Jestem ${borrower.name} — gotowy`:`I am ${borrower.name} — Ready`}</button>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">${t('loan.lender_offers', lender.name, finalAmount.toLocaleString(), rate)}</div>
+      <button class="btn btn-primary" style="width:100%;" onclick="closeModal();showLoanDecisionModal(${borrowerIdx},${lenderIdx},${finalAmount},${rate})">${t('loan.i_am_ready', borrower.name)}</button>
     </div>`);
 }
 
@@ -5519,7 +6169,7 @@ function showLoanDecisionModal(borrowerIdx, lenderIdx, amount, rate) {
         </div>
         <div style="text-align:center;">
           <div style="font-size:10px;color:var(--muted);">${t('loan.final_rate')}</div>
-          <div style="font-weight:700;color:var(--warning);">${rate}% ${LANG==='pl'?'rocznie':'p.a.'}</div>
+          <div style="font-weight:700;color:var(--warning);">${rate}% ${t('loan.per_annum')}</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:10px;color:var(--muted);">${t('loan.final_monthly')}</div>
@@ -5537,9 +6187,8 @@ function showLoanDecisionModal(borrowerIdx, lenderIdx, amount, rate) {
 function declineLoanOffer(borrowerIdx, lenderIdx) {
   closeModal();
   if (isOnline) {
-    // Notify borrower's device; borrower's WS handler sets the flag locally
     wsSend({ type: 'loan_declined', fromIdx: lenderIdx, toIdx: borrowerIdx, playerId: myPlayerId });
-    showNotif(LANG === 'pl' ? 'Prośba odrzucona' : 'Request declined', 'info');
+    showNotif(t('loan.declined'), 'info');
     return;
   }
   const borrower = state.players[borrowerIdx];
@@ -5547,7 +6196,7 @@ function declineLoanOffer(borrowerIdx, lenderIdx) {
     borrower.p2pCrisisFailed = true;
     showNotif(t('bankrupt.gameover_next_turn'), 'error');
   } else {
-    showNotif(LANG === 'pl' ? 'Prośba odrzucona' : 'Request declined', 'info');
+    showNotif(t('loan.declined'), 'info');
   }
 }
 
@@ -5559,7 +6208,7 @@ function declineLoanDecision(borrowerIdx) {
     borrower.p2pCrisisFailed = true;
     showNotif(t('bankrupt.gameover_next_turn'), 'error');
   } else {
-    showNotif(LANG === 'pl' ? 'Pożyczka odrzucona' : 'Loan declined', 'info');
+    showNotif(t('loan.loan_declined'), 'info');
   }
 }
 
@@ -5568,23 +6217,23 @@ function acceptP2PLoan(borrowerIdx, lenderIdx, amount, rate) {
   const borrower = state.players[borrowerIdx];
   const lender   = state.players[lenderIdx];
   if (!borrower || !lender) return;
-  if (lender.cash < amount) { showNotif(LANG==='pl'?'⚠️ Pożyczkodawca nie ma już tyle gotówki':'⚠️ Lender no longer has enough cash', 'error'); return; }
+  if (lender.cash < amount) { showNotif(t('loan.lender_no_longer'), 'error'); return; }
 
   const monthlyPayment = Math.round(amount * (rate/100) / 12);
   const loanId = Date.now();
 
   lender.cash -= amount;
   lender.assets.push({
-    name: LANG==='pl' ? `Pożyczka dla ${borrower.name}` : `Loan to ${borrower.name}`,
+    name: t('loan.to_player', borrower.name),
     cashflow: monthlyPayment, type: 'loan_receivable',
     toPlayerId: borrower.id || String(borrowerIdx), toPlayerName: borrower.name,
     value: amount, rate, loanId
   });
 
   borrower.cash += amount;
-  if (borrower.cash >= 0) borrower.p2pCrisisFailed = false; // P2P resolved — clear game-over flag
+  if (borrower.cash >= 0) borrower.p2pCrisisFailed = false;
   borrower.liabilities.push({
-    name: LANG==='pl' ? `Pożyczka od ${lender.name}` : `Loan from ${lender.name}`,
+    name: t('loan.from_player', lender.name),
     value: amount, payment: monthlyPayment, type: 'player_loan',
     fromPlayerId: lender.id || String(lenderIdx), fromPlayerName: lender.name,
     rate, loanId
@@ -5595,12 +6244,8 @@ function acceptP2PLoan(borrowerIdx, lenderIdx, amount, rate) {
   closeModal();
   renderGame();
   syncState();
-  showNotif(LANG==='pl'
-    ? `✅ ${borrower.name} pożyczył $${amount.toLocaleString()} od ${lender.name} @ ${rate}% (rata: $${monthlyPayment}/mies.)`
-    : `✅ ${borrower.name} borrowed $${amount.toLocaleString()} from ${lender.name} @ ${rate}% ($${monthlyPayment}/mo)`, 'success');
-  renderAction_EndTurn(LANG==='pl'
-    ? `Pożyczka $${amount.toLocaleString()} od ${lender.name} — rata: $${monthlyPayment}/mies.`
-    : `Loan $${amount.toLocaleString()} from ${lender.name} — payment: $${monthlyPayment}/mo`);
+  showNotif(t('loan.accepted_notif', borrower.name, amount.toLocaleString(), lender.name, rate, monthlyPayment.toLocaleString()), 'success');
+  renderAction_EndTurn(t('loan.accepted_action', amount.toLocaleString(), lender.name, monthlyPayment.toLocaleString()));
 }
 
 
@@ -6040,8 +6685,9 @@ function tileColor(type) {
   return {
     payday:"#22c55e", deal:"#38bdf8", splurge:"#fb3f5f",
     baby:"#f59e0b", charity:"#84cc16", layoff:"#ef4444",
-    dream:"#f59e0b", cashflow:"#22c55e", tax:"#8b5cf6",
-    travel:"#0ea5e9", business:"#14b8a6"
+    dream:"#a855f7", cashflow:"#22c55e", tax:"#8b5cf6",
+    travel:"#0ea5e9", business:"#14b8a6",
+    deal_ft:"#f59e0b", leverage:"#0ea5e9", event:"#8b5cf6"
   }[type] || "#64748b";
 }
 
@@ -6049,9 +6695,10 @@ function tileLabel(type) {
   return {
     payday:"PAY", deal:"DEAL", splurge:"SPL",
     baby:"BABY", charity:"CHAR", layoff:"LAY",
-    dream:"DREAM", cashflow:"CASH", tax:"TAX",
-    travel:"TRIP", business:"BIZ"
-  }[type] || type.toUpperCase();
+    dream:"★", cashflow:"CASH", tax:"TAX",
+    travel:"TRIP", business:"BIZ",
+    deal_ft:"INV", leverage:"BANK", event:"EVT"
+  }[type] || type.toUpperCase().slice(0,4);
 }
 
 function drawRoundedRect(ctx, x, y, w, h, r) {
@@ -6110,10 +6757,10 @@ function drawBoardTile(ctx, tile, spaceOrType, active=false) {
 
 function makeFastTrackTiles() {
   const tiles = [];
-  for (let i=0; i<10; i++) tiles.push({x:120+i*68, y:24, w:64, h:52});
-  for (let i=0; i<7;  i++) tiles.push({x:800, y:88+i*63, w:58, h:58});
-  for (let i=0; i<10; i++) tiles.push({x:732-i*68, y:534, w:64, h:52});
-  for (let i=0; i<7;  i++) tiles.push({x:42, y:466-i*63, w:58, h:58});
+  for (let i=0; i<10; i++) tiles.push({x:120+i*68, y:24,      w:64, h:52}); // top    0-9
+  for (let i=0; i<10; i++) tiles.push({x:800,       y:28+i*52, w:58, h:48}); // right 10-19
+  for (let i=0; i<10; i++) tiles.push({x:732-i*68,  y:534,     w:64, h:52}); // bottom 20-29
+  for (let i=0; i<10; i++) tiles.push({x:42,        y:490-i*52,w:58, h:48}); // left  30-39
   return tiles;
 }
 
@@ -6975,7 +7622,8 @@ function startOnlineGame() {
         {name:"Subscriptions & Retail", value:prof.retailDebt||0, payment:prof.retailPayment||0, type:"retail"}
       ],
       position: 0, visualPosition: 0, onFastTrack: false,
-      layoffTurnsLeft: 0, charityTurnsLeft: 0, passiveIncome: 0, dream: null, shorts: []
+      layoffTurnsLeft: 0, charityTurnsLeft: 0, passiveIncome: 0, dream: null, shorts: [],
+      eventModifiers: [], charityBonus: 0
     };
   });
   state.currentPlayerIdx = 0;
