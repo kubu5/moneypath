@@ -2949,6 +2949,17 @@ const STRINGS = {
     'ft.ev.vol.good':        (roll, gain) => `Rolled ${roll} — momentum surge! +$${gain}.`,
     'ft.ev.lucky.title':     '🎲 Lucky Streak',
     'ft.ev.lucky.desc':      '2× dice rolls for your next 2 turns.',
+    'ft.deal_offers':        n => `${n} investment${n===1?'':'s'} available — choose one or skip:`,
+    'ft.payday_also':        '🛍️ Browse Investment Market',
+    'ft.lev_buy_desc':       '🏦 Or finance a new acquisition:',
+    'ft.lev_buy_stats':      (down, loan, pay) => `Down: $${down} · Loan: $${loan} · $${pay}/mo · `,
+    'ft.lev_buy_btn':        'Buy with Leverage',
+    'ft.market_title':       '🛍️ Investment Market',
+    'ft.ev.distressed.title':'🏷️ Distressed Sale',
+    'ft.ev.distressed.desc': 'A motivated seller must exit fast. Pick any available deal at 35% off — or skip.',
+    'ft.ev.distressed.buy':  'Buy (−35%)',
+    'ft.ev.market_win.title':'🛒 Market Window',
+    'ft.ev.market_win.desc': 'Inside intel opens the full catalog at 15% off. Buy anything — or bank the income.',
   },
   pl: {
     'app.subtitle':          'Wolność Finansowa',
@@ -3442,6 +3453,17 @@ const STRINGS = {
     'ft.ev.vol.good':        (roll, gain) => `Rzut ${roll} — impet wzrostowy! +$${gain}.`,
     'ft.ev.lucky.title':     '🎲 Szczęśliwa Passa',
     'ft.ev.lucky.desc':      '2× kostki przez kolejne 2 tury.',
+    'ft.deal_offers':        n => `${n} ${n===1?'oferta':'oferty'} — wybierz jedną lub pomiń:`,
+    'ft.payday_also':        '🛍️ Przeglądaj rynek inwestycji',
+    'ft.lev_buy_desc':       '🏦 Lub sfinansuj nowe aktywo:',
+    'ft.lev_buy_stats':      (down, loan, pay) => `Wkład: $${down} · Kredyt: $${loan} · $${pay}/mies. · `,
+    'ft.lev_buy_btn':        'Kup z dźwignią',
+    'ft.market_title':       '🛍️ Rynek inwestycji',
+    'ft.ev.distressed.title':'🏷️ Wyprzedaż Awaryjna',
+    'ft.ev.distressed.desc': 'Motywowany sprzedawca musi szybko wyjść. Wybierz dowolny deal 35% taniej — lub pomiń.',
+    'ft.ev.distressed.buy':  'Kup (−35%)',
+    'ft.ev.market_win.title':'🛒 Okno Rynkowe',
+    'ft.ev.market_win.desc': 'Insiderska wiedza otwiera pełny katalog 15% taniej. Kup cokolwiek — lub bankuj dochód.',
   }
 };
 
@@ -3775,6 +3797,8 @@ const FREEDOM_EVENTS = [
   {id:"acquisition",  type:"mixed", icon:"🤑", weight:2},
   {id:"capital_call", type:"bad",   icon:"💸", weight:2},
   {id:"deal_decade",  type:"good",  icon:"🏆", weight:2},
+  {id:"distressed",   type:"good",  icon:"🏷️", weight:2},
+  {id:"market_window",type:"good",  icon:"🛒", weight:2},
   {id:"tax_opt",      type:"good",  icon:"📋", weight:3},
   {id:"bull_run",     type:"good",  icon:"📈", weight:3},
   {id:"renovation",   type:"bad",   icon:"🏗️", weight:3},
@@ -3783,7 +3807,7 @@ const FREEDOM_EVENTS = [
   {id:"dividend",     type:"good",  icon:"💰", weight:4},
   {id:"refinance",    type:"good",  icon:"🔑", weight:4},
   {id:"volatility",   type:"mixed", icon:"📊", weight:4},
-  {id:"lucky",        type:"good",  icon:"🎲", weight:4},
+  {id:"lucky",        type:"good",  icon:"🎲", weight:2},
 ];
 // Helper: get translated dream title / desc (falls back to English data)
 function dreamTitle(d) { const s=STRINGS[LANG]; const k='dream.'+d.id+'.title'; return (s&&s[k])||d.title; }
@@ -5317,70 +5341,55 @@ function handleFastTrack() {
 
 // ── Freedom Track: Premium Deal ──────────────────────────────────────────────
 function handleFtDeal(p) {
-  const pool = [...FREEDOM_DEALS];
   const owned = new Set((p.assets || []).map(a => a.key).filter(Boolean));
-  const available = pool.filter(d => !owned.has(d.key));
+  const available = FREEDOM_DEALS.filter(d => !owned.has(d.key));
   if (!available.length) { collectFastTrackIncome(p); return; }
-  const card = available[Math.floor(Math.random() * available.length)];
 
-  const riskLabel = { safe: '🟢 Safe', growth: '🟡 Growth', venture: '🔴 Venture', speculative: '💣 Speculative' };
-  const riskColor = { safe: '#22c55e', growth: '#eab308', venture: '#fb923c', speculative: '#ef4444' };
-  const rc = riskColor[card.risk] || '#fff';
-  const rl = riskLabel[card.risk] || card.risk;
-
-  const canBuy = p.cash >= card.cost;
+  // Show up to 3 random cards so players always have a real choice
+  const picks = available.sort(() => Math.random() - 0.5).slice(0, Math.min(3, available.length));
   const income = getFastTrackIncome(p);
+  const riskLabel = { safe:'🟢 Safe', growth:'🟡 Growth', venture:'🔴 Venture', speculative:'💣 Spec.' };
+  const riskColor = { safe:'#22c55e', growth:'#eab308', venture:'#fb923c', speculative:'#ef4444' };
 
-  let leverageBtn = '';
-  if (card.ltvMax > 0 && card.price > 0) {
-    const loanAmt = Math.floor(card.price * card.ltvMax / 100) * 100;
-    const payment = Math.round(loanAmt * 0.06 / 12);
-    const netCf   = card.cashflow - payment;
-    leverageBtn = `<button class="btn btn-secondary" style="flex:1;" onclick="buyFtDealLeveraged('${card.key}')" ${canBuy?'':'disabled'}>
-      🏦 ${t('ft.leverage_btn')}<br><span style="font-size:10px;color:${netCf>=0?'var(--profit)':'var(--loss)'};">net $${netCf.toLocaleString()}/mo</span>
-    </button>`;
-  }
-
-  let ventureLine = '';
-  if (card.type === 'venture' || card.type === 'speculative') {
-    const multStr = card.exitMult.join('–') + '×';
-    ventureLine = `<div style="padding:8px 12px;border-radius:8px;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);font-size:12px;color:#fb923c;margin-bottom:10px;">
-      ${t('ft.venture_hint', multStr)}${card.failChance ? ' · ' + t('ft.fail_chance', Math.round(card.failChance*100)) : ''}
+  const cardsHtml = picks.map(card => {
+    const rc = riskColor[card.risk] || '#fff';
+    const rl = riskLabel[card.risk] || card.risk;
+    const canBuy = p.cash >= card.cost;
+    const cfBadge = card.cashflow > 0
+      ? `<span style="color:var(--profit);font-size:11px;">+$${card.cashflow.toLocaleString()}/mo</span>`
+      : `<span style="color:#fb923c;font-size:11px;">${card.exitMult ? card.exitMult.join('–')+'×' : ''} · ${Math.round((card.failChance||0)*100)}% fail</span>`;
+    let levBtn = '';
+    if (card.ltvMax > 0 && card.price > 0) {
+      const loanAmt = Math.floor(card.price * card.ltvMax / 100) * 100;
+      const pay = Math.round(loanAmt * 0.06 / 12);
+      const net = card.cashflow - pay;
+      levBtn = `<button class="btn btn-secondary" style="flex:1;font-size:11px;padding:5px 6px;" onclick="buyFtDealLeveraged('${card.key}')" ${canBuy?'':'disabled'}>🏦 ${t('ft.leverage_btn')}<br><small style="color:${net>=0?'var(--profit)':'var(--loss)'};">net $${net.toLocaleString()}/mo</small></button>`;
+    }
+    return `<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;margin-bottom:8px;border-left:3px solid ${rc};">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+        <span style="font-weight:800;font-size:13px;">${card.icon} ${card.title}</span>
+        <span style="font-size:10px;background:${rc}22;color:${rc};padding:1px 6px;border-radius:10px;">${rl}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:5px;">${card.desc}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="color:${canBuy?'var(--profit)':'var(--loss)'};font-weight:700;">$${card.cost.toLocaleString()}</span>
+        <span style="color:var(--muted);">·</span>${cfBadge}
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-invest" style="flex:2;font-size:12px;padding:5px 8px;" onclick="buyFtDeal('${card.key}')" ${canBuy?'':'disabled'}>${t('ft.buy_btn')} · $${card.cost.toLocaleString()}</button>
+        ${levBtn}
+      </div>
     </div>`;
-  }
+  }).join('');
 
   setAction(() => {
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
-        <div class="ac-head" style="background:linear-gradient(90deg,${rc}22,${rc}44);border-bottom:2px solid ${rc}66;">
-          ${card.icon} ${t('ft.deal_header')} <span style="font-size:11px;background:${rc}33;padding:2px 8px;border-radius:20px;color:${rc};">${rl}</span>
-        </div>
-        <div style="padding:16px;">
-          <div style="font-size:18px;font-weight:900;margin-bottom:4px;">${card.title}</div>
-          <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">${card.desc}</div>
-          ${ventureLine}
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:13px;">
-            <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;">
-              <div style="color:var(--muted);font-size:10px;">${t('ft.cost')}</div>
-              <div style="font-weight:700;color:${canBuy?'var(--profit)':'var(--loss)'};">$${card.cost.toLocaleString()}</div>
-            </div>
-            ${card.cashflow > 0 ? `<div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;">
-              <div style="color:var(--muted);font-size:10px;">${t('ft.monthly_cf')}</div>
-              <div style="font-weight:700;color:var(--profit);">+$${card.cashflow.toLocaleString()}/mo</div>
-            </div>` : `<div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;">
-              <div style="color:var(--muted);font-size:10px;">${t('ft.exit_upside')}</div>
-              <div style="font-weight:700;color:#fb923c;">${card.exitMult ? card.exitMult.join('–')+'×' : '—'}</div>
-            </div>`}
-          </div>
-          <div style="display:flex;gap:8px;margin-bottom:8px;">
-            <button class="btn btn-invest" style="flex:2;" onclick="buyFtDeal('${card.key}')" ${canBuy?'':'disabled'}>
-              ${t('ft.buy_btn')} · $${card.cost.toLocaleString()}
-            </button>
-            ${leverageBtn}
-          </div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
-          </div>
+        <div class="ac-head" style="background:linear-gradient(90deg,#92400e,#d97706)">💼 ${t('ft.deal_header')}</div>
+        <div style="padding:14px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">${t('ft.deal_offers', picks.length)}</div>
+          ${cardsHtml}
+          <button class="btn btn-secondary" style="width:100%;margin-top:2px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
         </div>
       </div>`;
   });
@@ -5427,17 +5436,55 @@ function collectFtIncomeAndEnd() {
   collectFastTrackIncome(p);
 }
 
+function showFtMarketBrowse() {
+  const p = currentPlayer();
+  const owned = new Set((p.assets || []).map(a => a.key).filter(Boolean));
+  const avail = FREEDOM_DEALS.filter(d => !owned.has(d.key));
+  if (!avail.length) { showNotif(LANG==='pl'?'Masz już wszystkie dostępne inwestycje!':'You already own all available deals!', 'info'); return; }
+  const riskColor = { safe:'#22c55e', growth:'#eab308', venture:'#fb923c', speculative:'#ef4444' };
+  const riskLabel = { safe:'🟢', growth:'🟡', venture:'🔴', speculative:'💣' };
+  const cards = avail.map(c => {
+    const rc = riskColor[c.risk] || '#fff';
+    const canBuy = p.cash >= c.cost;
+    const cfLine = c.cashflow > 0
+      ? `<span style="color:var(--profit);font-size:11px;">+$${c.cashflow.toLocaleString()}/mo</span>`
+      : `<span style="color:#fb923c;font-size:11px;">${c.exitMult ? c.exitMult.join('–')+'×' : ''}</span>`;
+    let levBtn = '';
+    if (c.ltvMax > 0 && c.price > 0) {
+      const down = Math.floor(c.price*(1-c.ltvMax)/100)*100;
+      if (p.cash >= down) levBtn = `<button class="btn btn-secondary" style="flex:1;font-size:10px;padding:4px 6px;" onclick="buyFtDealLeveraged('${c.key}');closeModal()">🏦 ${t('ft.leverage_btn')}</button>`;
+    }
+    return `<div style="background:rgba(255,255,255,0.05);border-radius:9px;padding:10px;margin-bottom:7px;border-left:3px solid ${rc};">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:6px;">
+        <span style="font-weight:800;font-size:12px;">${c.icon} ${c.title} <span style="font-size:10px;">${riskLabel[c.risk]||''}</span></span>
+        ${cfLine}
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;">${c.desc}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-invest" style="flex:2;font-size:11px;padding:4px 8px;" onclick="buyFtDeal('${c.key}');closeModal()" ${canBuy?'':'disabled'}>${t('ft.buy_btn')} · $${c.cost.toLocaleString()}</button>
+        ${levBtn}
+      </div>
+    </div>`;
+  }).join('');
+  const html = `<div style="max-height:340px;overflow-y:auto;">${cards}</div>
+    <button class="btn btn-secondary" style="width:100%;margin-top:10px;" onclick="closeModal()">${t('loan.cancel')}</button>`;
+  setModal(t('ft.market_title'), html);
+}
+
 // ── Freedom Track: Cash-Out Leverage ─────────────────────────────────────────
 function handleFtLeverage(p) {
   const income = getFastTrackIncome(p);
   const realty = (p.assets || []).filter(a => (a.type === 'rental' || a.type === 'business') && (a.price || 0) > 0);
-  if (!realty.length) {
-    showNotif(t('ft.no_realty'), 'info');
+
+  const owned = new Set((p.assets || []).map(a => a.key).filter(Boolean));
+  const newDeals = FREEDOM_DEALS.filter(d => !owned.has(d.key) && d.ltvMax > 0 && (d.risk === 'safe' || d.risk === 'growth'));
+
+  if (!realty.length && !newDeals.length) {
     collectFastTrackIncome(p);
     return;
   }
 
-  const items = realty.map((a, i) => {
+  const refiItems = realty.map(a => {
     const loanMax = Math.floor((a.price || 0) * 0.65 / 100) * 100;
     const payment = Math.round(loanMax * 0.055 / 12);
     const netCf   = a.cashflow - payment;
@@ -5453,13 +5500,36 @@ function handleFtLeverage(p) {
     </div>`;
   }).join('');
 
+  // New leveraged acquisitions — pick up to 3 safe/growth deals the player doesn't own
+  const buyItems = newDeals.sort(() => Math.random() - 0.5).slice(0, 3).map(d => {
+    const down    = Math.floor(d.price * (1 - d.ltvMax) / 100) * 100;
+    const loanAmt = Math.floor(d.price * d.ltvMax / 100) * 100;
+    const payment = Math.round(loanAmt * 0.06 / 12);
+    const net     = d.cashflow - payment;
+    const canBuy  = p.cash >= down;
+    return `<div style="background:rgba(14,165,233,0.07);border-radius:10px;padding:10px;margin-bottom:8px;border:1px solid rgba(14,165,233,0.2);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-weight:700;font-size:13px;">${d.icon} ${d.title}</span>
+        <span style="font-size:11px;color:#0ea5e9;">LTV ${Math.round(d.ltvMax*100)}%</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">
+        ${t('ft.lev_buy_stats', down.toLocaleString(), loanAmt.toLocaleString(), payment.toLocaleString())}<span style="color:${net>=0?'var(--profit)':'var(--loss)'};">${t('ft.lev_net', net.toLocaleString())}</span>
+      </div>
+      <button class="btn btn-invest" style="width:100%;font-size:12px;" onclick="buyFtDealLeveraged('${d.key}')" ${canBuy?'':'disabled'}>${t('ft.lev_buy_btn')} · $${down.toLocaleString()} down</button>
+    </div>`;
+  }).join('');
+
+  const divider = realty.length && newDeals.length
+    ? `<div style="border-top:1px solid rgba(255,255,255,0.1);margin:8px 0 10px;"></div>`
+    : '';
+
   setAction(() => {
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
         <div class="ac-head" style="background:linear-gradient(90deg,#0369a1,#0ea5e9)">🏦 ${t('ft.leverage_header')}</div>
-        <div style="padding:16px;">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">${t('ft.leverage_desc')}</p>
-          ${items}
+        <div style="padding:14px;">
+          ${realty.length ? `<p style="font-size:12px;color:var(--muted);margin-bottom:10px;">${t('ft.leverage_desc')}</p>${refiItems}` : ''}
+          ${newDeals.length ? `${divider}<p style="font-size:12px;color:#0ea5e9;margin-bottom:8px;">${t('ft.lev_buy_desc')}</p>${buyItems}` : ''}
           <button class="btn btn-secondary" style="width:100%;margin-top:4px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
         </div>
       </div>`;
@@ -5710,6 +5780,71 @@ function applyFtEvent(p, ev) {
     return;
   }
 
+  // ── Purchase events ──────────────────────────────────────────────────────
+  if (ev.id === 'distressed') {
+    const owned2 = new Set((p.assets || []).map(a => a.key).filter(Boolean));
+    const avail2 = FREEDOM_DEALS.filter(d => !owned2.has(d.key));
+    if (!avail2.length) { collectFastTrackIncome(p); return; }
+    const riskColor2 = { safe:'#22c55e', growth:'#eab308', venture:'#fb923c', speculative:'#ef4444' };
+    const picks2 = avail2.sort(() => Math.random() - 0.5).slice(0, 4);
+    const cards2 = picks2.map(c => {
+      const rc = riskColor2[c.risk] || '#fff';
+      const disc = Math.floor(c.cost * 0.65 / 100) * 100;
+      const canBuy = p.cash >= disc;
+      const cfLine = c.cashflow > 0
+        ? `<span style="color:var(--profit);">+$${c.cashflow.toLocaleString()}/mo</span>`
+        : `<span style="color:#fb923c;">${c.exitMult ? c.exitMult.join('–')+'×' : ''}</span>`;
+      return `<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;margin-bottom:6px;border:1px solid ${rc}33;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-weight:700;font-size:12px;">${c.icon} ${c.title}</span>
+          ${cfLine}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:6px;">
+          <span style="text-decoration:line-through;color:var(--muted);">$${c.cost.toLocaleString()}</span>
+          <span style="color:var(--profit);font-weight:700;">→ $${disc.toLocaleString()}</span>
+        </div>
+        <button class="btn btn-invest" style="width:100%;font-size:12px;" onclick="buyFtDeal('${c.key}',${disc})" ${canBuy?'':'disabled'}>${t('ft.ev.distressed.buy')} · $${disc.toLocaleString()}</button>
+      </div>`;
+    }).join('');
+    const btnHtml2 = `${cards2}<button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>`;
+    buildEventUI(t('ft.ev.distressed.title'), t('ft.ev.distressed.desc'), btnHtml2);
+    return;
+  }
+
+  if (ev.id === 'market_window') {
+    const owned3 = new Set((p.assets || []).map(a => a.key).filter(Boolean));
+    const avail3 = FREEDOM_DEALS.filter(d => !owned3.has(d.key));
+    if (!avail3.length) { collectFastTrackIncome(p); return; }
+    const riskColor3 = { safe:'#22c55e', growth:'#eab308', venture:'#fb923c', speculative:'#ef4444' };
+    const cards3 = avail3.map(c => {
+      const rc = riskColor3[c.risk] || '#fff';
+      const disc = Math.floor(c.cost * 0.85 / 100) * 100;
+      const canBuy = p.cash >= disc;
+      const cfLine = c.cashflow > 0
+        ? `<span style="color:var(--profit);font-size:11px;">+$${c.cashflow.toLocaleString()}/mo</span>`
+        : `<span style="color:#fb923c;font-size:11px;">${c.exitMult ? c.exitMult.join('–')+'×' : ''}</span>`;
+      let levBtn = '';
+      if (c.ltvMax > 0 && c.price > 0 && p.cash >= Math.floor(c.price*(1-c.ltvMax)/100)*100) {
+        levBtn = `<button class="btn btn-secondary" style="font-size:10px;padding:3px 7px;" onclick="buyFtDealLeveraged('${c.key}')">🏦</button>`;
+      }
+      return `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:9px;margin-bottom:5px;border-left:2px solid ${rc};">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;">
+          <span style="font-weight:700;font-size:12px;">${c.icon} ${c.title}</span>${cfLine}
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button class="btn btn-invest" style="flex:1;font-size:11px;padding:3px 6px;" onclick="buyFtDeal('${c.key}',${disc})" ${canBuy?'':'disabled'}>${t('ft.buy_btn')} $${disc.toLocaleString()} (15% off)</button>
+          ${levBtn}
+        </div>
+      </div>`;
+    }).join('');
+    // Grant bonus dice turn
+    p.charityTurnsLeft = Math.max(p.charityTurnsLeft || 0, 1);
+    const btnHtml3 = `<div style="max-height:260px;overflow-y:auto;margin-bottom:8px;">${cards3}</div>
+      <button class="btn btn-secondary" style="width:100%;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>`;
+    buildEventUI(t('ft.ev.market_win.title'), t('ft.ev.market_win.desc'), btnHtml3);
+    return;
+  }
+
   collectFastTrackIncome(p);
 }
 
@@ -5870,6 +6005,17 @@ function renderAction_EndTurn(msg) {
   setAction(() => {
     const p = currentPlayer();
     const hasLiabilities = p.liabilities && p.liabilities.some(l => (l.type === 'loan' || l.type === 'player_loan') && l.value > 0);
+    // Show market browse button on FT payday fields so payday is never purely passive
+    let marketBrowseBtn = '';
+    if (p.onFastTrack) {
+      const ftPos = p.position % FAST_TRACK_SPACES.length;
+      const ftSpace = FAST_TRACK_SPACES[ftPos];
+      if (ftSpace && ftSpace.type === 'payday') {
+        const ownedKeys = new Set((p.assets||[]).map(a=>a.key).filter(Boolean));
+        const hasDeals = FREEDOM_DEALS.some(d => !ownedKeys.has(d.key));
+        if (hasDeals) marketBrowseBtn = `<button class="btn btn-secondary" style="width:100%;" onclick="showFtMarketBrowse()">${t('ft.payday_also')}</button>`;
+      }
+    }
     document.getElementById("action-area").innerHTML = `
       <div class="ac">
         <div class="ac-title" style="color:var(--accent);">${t('game.turn_complete')}</div>
@@ -5878,6 +6024,7 @@ function renderAction_EndTurn(msg) {
           ${hasLiabilities ? `<button class="btn btn-secondary" style="width:100%;" onclick="showPayLiabilityModal()">${t('game.pay_debt')}</button>` : ''}
           <button class="btn btn-secondary" style="width:100%;" onclick="showTakeLoanModal()">${t('game.take_loan')}</button>
           ${state.players.length > 1 ? `<button class="btn btn-secondary" style="width:100%;" onclick="showRequestLoanModal()">${t('loan.request_btn')}</button>` : ''}
+          ${marketBrowseBtn}
           <button class="btn btn-primary" style="width:100%; font-size:16px; padding:14px;" onclick="nextTurn()">${t('game.next_player')}</button>
         </div>
       </div>`;
