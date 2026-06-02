@@ -3530,44 +3530,45 @@ const RAT_RACE_SPACES = [
 
 const SMALL_DEAL_LIMIT = 6000;
 
+// 1 payday (pos 0 = lap start), 8 dreams every 5 steps, rest = deal_ft / event / charity / leverage
 const FAST_TRACK_SPACES = [
-  {type:"payday"},              // 0
+  {type:"payday"},              // 0  ← single PAY — lap completed
   {type:"deal_ft"},             // 1
   {type:"event"},               // 2
   {type:"charity"},             // 3
   {type:"dream", dreamId:0},    // 4
-  {type:"payday"},              // 5
-  {type:"leverage"},            // 6
-  {type:"event"},               // 7
+  {type:"deal_ft"},             // 5
+  {type:"event"},               // 6
+  {type:"leverage"},            // 7
   {type:"deal_ft"},             // 8
   {type:"dream", dreamId:1},    // 9
-  {type:"payday"},              // 10
+  {type:"charity"},             // 10
   {type:"deal_ft"},             // 11
-  {type:"charity"},             // 12
-  {type:"event"},               // 13
+  {type:"event"},               // 12
+  {type:"deal_ft"},             // 13
   {type:"dream", dreamId:2},    // 14
-  {type:"payday"},              // 15
+  {type:"leverage"},            // 15
   {type:"event"},               // 16
-  {type:"leverage"},            // 17
-  {type:"deal_ft"},             // 18
+  {type:"deal_ft"},             // 17
+  {type:"charity"},             // 18
   {type:"dream", dreamId:3},    // 19
-  {type:"payday"},              // 20
-  {type:"charity"},             // 21
-  {type:"deal_ft"},             // 22
+  {type:"event"},               // 20
+  {type:"deal_ft"},             // 21
+  {type:"leverage"},            // 22
   {type:"event"},               // 23
   {type:"dream", dreamId:4},    // 24
-  {type:"payday"},              // 25
-  {type:"deal_ft"},             // 26
-  {type:"leverage"},            // 27
-  {type:"charity"},             // 28
+  {type:"deal_ft"},             // 25
+  {type:"charity"},             // 26
+  {type:"event"},               // 27
+  {type:"deal_ft"},             // 28
   {type:"dream", dreamId:5},    // 29
-  {type:"payday"},              // 30
+  {type:"leverage"},            // 30
   {type:"event"},               // 31
-  {type:"charity"},             // 32
-  {type:"deal_ft"},             // 33
+  {type:"deal_ft"},             // 32
+  {type:"charity"},             // 33
   {type:"dream", dreamId:6},    // 34
-  {type:"payday"},              // 35
-  {type:"leverage"},            // 36
+  {type:"deal_ft"},             // 35
+  {type:"event"},               // 36
   {type:"deal_ft"},             // 37
   {type:"event"},               // 38
   {type:"dream", dreamId:7},    // 39
