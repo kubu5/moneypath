@@ -395,6 +395,18 @@ input:focus, select:focus {
 
 .die-face.rolling { animation: dice-wobble 0.16s linear infinite; }
 
+/* ===== INLINE LUCIDE ICONS ===== */
+.lic {
+  display: inline-block;
+  width: 1em; height: 1em;
+  vertical-align: -0.16em;
+  flex: none;
+  stroke-width: 2;
+}
+.emo { display: inline; }
+.emo .lic { margin: 0 0.06em; }
+.emo-dot { width: 0.68em; height: 0.68em; vertical-align: 0; stroke-width: 0; }
+
 /* ===== FINANCIAL STATEMENT ===== */
 .fs-paper {
   position: relative;
@@ -2528,6 +2540,86 @@ body { padding-top: 44px; }
 <div class="notif" id="notif"></div>
 
 <script>
+const LUCIDE = {"arrow-left": "<path d=\"m12 19-7-7 7-7\" /> <path d=\"M19 12H5\" />", "arrow-right": "<path d=\"M5 12h14\" /> <path d=\"m12 5 7 7-7 7\" />", "arrow-up-right": "<path d=\"M7 7h10v10\" /> <path d=\"M7 17 17 7\" />", "ban": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M4.929 4.929 19.07 19.071\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "battery-charging": "<path d=\"m11 7-3 5h4l-3 5\" /> <path d=\"M14.856 6H16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.935\" /> <path d=\"M22 14v-4\" /> <path d=\"M5.14 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.936\" />", "bitcoin": "<path d=\"M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727\" />", "bomb": "<circle cx=\"11\" cy=\"13\" r=\"9\" /> <path d=\"M14.35 4.65 16.3 2.7a2.41 2.41 0 0 1 3.4 0l1.6 1.6a2.4 2.4 0 0 1 0 3.4l-1.95 1.95\" /> <path d=\"m22 2-1.5 1.5\" />", "book-open": "<path d=\"M12 7v14\" /> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />", "briefcase": "<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\" />", "building": "<path d=\"M12 10h.01\" /> <path d=\"M12 14h.01\" /> <path d=\"M12 6h.01\" /> <path d=\"M16 10h.01\" /> <path d=\"M16 14h.01\" /> <path d=\"M16 6h.01\" /> <path d=\"M8 10h.01\" /> <path d=\"M8 14h.01\" /> <path d=\"M8 6h.01\" /> <path d=\"M9 22v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3\" /> <rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\" />", "building-2": "<path d=\"M10 12h4\" /> <path d=\"M10 8h4\" /> <path d=\"M14 21v-3a2 2 0 0 0-4 0v3\" /> <path d=\"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2\" /> <path d=\"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16\" />", "chart-column": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle": "<circle cx=\"12\" cy=\"12\" r=\"10\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "circle-dollar-sign": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\" /> <path d=\"M12 18V6\" />", "clipboard-list": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\" /> <path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\" /> <path d=\"M12 11h4\" /> <path d=\"M12 16h4\" /> <path d=\"M8 11h.01\" /> <path d=\"M8 16h.01\" />", "coins": "<path d=\"M13.744 17.736a6 6 0 1 1-7.48-7.48\" /> <path d=\"M15 6h1v4\" /> <path d=\"m6.134 14.768.866-.5 2 3.464\" /> <circle cx=\"16\" cy=\"8\" r=\"6\" />", "construction": "<rect x=\"2\" y=\"6\" width=\"20\" height=\"8\" rx=\"1\" /> <path d=\"M17 14v7\" /> <path d=\"M7 14v7\" /> <path d=\"M17 3v3\" /> <path d=\"M7 3v3\" /> <path d=\"M10 14 2.3 6.3\" /> <path d=\"m14 6 7.7 7.7\" /> <path d=\"m8 6 8 8\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />", "dice-1": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <path d=\"M12 12h.01\" />", "dice-2": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <path d=\"M15 9h.01\" /> <path d=\"M9 15h.01\" />", "dice-3": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <path d=\"M16 8h.01\" /> <path d=\"M12 12h.01\" /> <path d=\"M8 16h.01\" />", "dice-4": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <path d=\"M16 8h.01\" /> <path d=\"M8 8h.01\" /> <path d=\"M8 16h.01\" /> <path d=\"M16 16h.01\" />", "dice-5": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <path d=\"M16 8h.01\" /> <path d=\"M8 8h.01\" /> <path d=\"M8 16h.01\" /> <path d=\"M16 16h.01\" /> <path d=\"M12 12h.01\" />", "dice-6": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <path d=\"M16 8h.01\" /> <path d=\"M16 12h.01\" /> <path d=\"M16 16h.01\" /> <path d=\"M8 8h.01\" /> <path d=\"M8 12h.01\" /> <path d=\"M8 16h.01\" />", "dices": "<rect width=\"12\" height=\"12\" x=\"2\" y=\"10\" rx=\"2\" ry=\"2\" /> <path d=\"m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6\" /> <path d=\"M6 18h.01\" /> <path d=\"M10 14h.01\" /> <path d=\"M15 6h.01\" /> <path d=\"M18 9h.01\" />", "dna": "<path d=\"m10 16 1.5 1.5\" /> <path d=\"m14 8-1.5-1.5\" /> <path d=\"M15 2c-1.798 1.998-2.518 3.995-2.807 5.993\" /> <path d=\"m16.5 10.5 1 1\" /> <path d=\"m17 6-2.891-2.891\" /> <path d=\"M2 15c6.667-6 13.333 0 20-6\" /> <path d=\"m20 9 .891.891\" /> <path d=\"M3.109 14.109 4 15\" /> <path d=\"m6.5 12.5 1 1\" /> <path d=\"m7 18 2.891 2.891\" /> <path d=\"M9 22c1.798-1.998 2.518-3.995 2.807-5.993\" />", "flag": "<path d=\"M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528\" />", "gamepad-2": "<line x1=\"6\" x2=\"10\" y1=\"11\" y2=\"11\" /> <line x1=\"8\" x2=\"8\" y1=\"9\" y2=\"13\" /> <line x1=\"15\" x2=\"15.01\" y1=\"12\" y2=\"12\" /> <line x1=\"18\" x2=\"18.01\" y1=\"10\" y2=\"10\" /> <path d=\"M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z\" />", "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\" /> <path d=\"M2 12h20\" />", "hand-heart": "<path d=\"M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16\" /> <path d=\"m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95\" /> <path d=\"m2 15 6 6\" /> <path d=\"m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91\" />", "handshake": "<path d=\"m11 17 2 2a1 1 0 1 0 3-3\" /> <path d=\"m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4\" /> <path d=\"m21 3 1 11h-2\" /> <path d=\"M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3\" /> <path d=\"M3 4h8\" />", "heart": "<path d=\"M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5\" />", "hotel": "<path d=\"M10 22v-6.57\" /> <path d=\"M12 11h.01\" /> <path d=\"M12 7h.01\" /> <path d=\"M14 15.43V22\" /> <path d=\"M15 16a5 5 0 0 0-6 0\" /> <path d=\"M16 11h.01\" /> <path d=\"M16 7h.01\" /> <path d=\"M8 11h.01\" /> <path d=\"M8 7h.01\" /> <rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\" />", "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "info": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 16v-4\" /> <path d=\"M12 8h.01\" />", "key": "<path d=\"m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4\" /> <path d=\"m21 2-9.6 9.6\" /> <circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\" />", "landmark": "<path d=\"M10 18v-7\" /> <path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\" /> <path d=\"M14 18v-7\" /> <path d=\"M18 18v-7\" /> <path d=\"M3 22h18\" /> <path d=\"M6 18v-7\" />", "laptop": "<path d=\"M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z\" /> <path d=\"M20.054 15.987H3.946\" />", "layers": "<path d=\"M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z\" /> <path d=\"M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12\" /> <path d=\"M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17\" />", "library": "<path d=\"m16 6 4 14\" /> <path d=\"M12 6v14\" /> <path d=\"M8 8v12\" /> <path d=\"M4 4v16\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />", "lock-open": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />", "message-circle": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" />", "moon": "<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />", "palette": "<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\" /> <circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "party-popper": "<path d=\"M5.8 11.3 2 22l10.7-3.79\" /> <path d=\"M4 3h.01\" /> <path d=\"M22 8h.01\" /> <path d=\"M15 2h.01\" /> <path d=\"M22 20h.01\" /> <path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /> <path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /> <path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /> <path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />", "refresh-cw": "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\" /> <path d=\"M21 3v5h-5\" /> <path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\" /> <path d=\"M8 16H3v5\" />", "rocket": "<path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" /> <path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09\" /> <path d=\"M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z\" /> <path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05\" />", "sandwich": "<path d=\"m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777\" /> <path d=\"M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25\" /> <path d=\"M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9\" /> <path d=\"m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2\" /> <rect width=\"20\" height=\"4\" x=\"2\" y=\"11\" rx=\"1\" />", "satellite-dish": "<path d=\"M4 10a7.31 7.31 0 0 0 10 10Z\" /> <path d=\"m9 15 3-3\" /> <path d=\"M17 13a6 6 0 0 0-6-6\" /> <path d=\"M21 13A10 10 0 0 0 11 3\" />", "scale": "<path d=\"M12 3v18\" /> <path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\" /> <path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M7 21h10\" />", "settings": "<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "shopping-bag": "<path d=\"M16 10a4 4 0 0 1-8 0\" /> <path d=\"M3.103 6.034h17.794\" /> <path d=\"M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z\" />", "shopping-cart": "<circle cx=\"8\" cy=\"21\" r=\"1\" /> <circle cx=\"19\" cy=\"21\" r=\"1\" /> <path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" />", "skull": "<path d=\"m12.5 17-.5-1-.5 1h1z\" /> <path d=\"M15 22a1 1 0 0 0 1-1v-1a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20v1a1 1 0 0 0 1 1z\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"12\" r=\"1\" />", "smartphone": "<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />", "sparkles": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\" /> <path d=\"M20 2v4\" /> <path d=\"M22 4h-4\" /> <circle cx=\"4\" cy=\"20\" r=\"2\" />", "sprout": "<path d=\"M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3\" /> <path d=\"M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4\" /> <path d=\"M5 21h14\" />", "square-parking": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M9 17V7h4a3 3 0 0 1 0 6H9\" />", "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />", "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "target": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"6\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />", "tent-tree": "<circle cx=\"4\" cy=\"4\" r=\"2\" /> <path d=\"m14 5 3-3 3 3\" /> <path d=\"m14 10 3-3 3 3\" /> <path d=\"M17 14V2\" /> <path d=\"M17 14H7l-5 8h20Z\" /> <path d=\"M8 14v8\" /> <path d=\"m9 14 5 8\" />", "trending-down": "<path d=\"M16 17h6v-6\" /> <path d=\"m22 17-8.5-8.5-5 5L2 7\" />", "trending-up": "<path d=\"M16 7h6v6\" /> <path d=\"m22 7-8.5 8.5-5-5L2 17\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "trophy": "<path d=\"M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978\" /> <path d=\"M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978\" /> <path d=\"M18 9h1.5a1 1 0 0 0 0-5H18\" /> <path d=\"M4 22h16\" /> <path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\" /> <path d=\"M6 9H4.5a1 1 0 0 1 0-5H6\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <path d=\"M16 3.128a4 4 0 0 1 0 7.744\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" />", "utensils": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "zap": "<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />"};
+const EMOJI_MAP = {"⚠": ["triangle-alert", null], "→": ["arrow-right", null], "←": ["arrow-left", null], "↗": ["arrow-up-right", null], "💸": ["banknote", null], "📉": ["trending-down", null], "📈": ["trending-up", null], "💰": ["coins", null], "💵": ["banknote", null], "🏦": ["landmark", null], "⚡": ["zap", null], "💥": ["zap", null], "🔒": ["lock", null], "🔓": ["lock-open", null], "🔄": ["refresh-cw", null], "ℹ": ["info", null], "🎲": ["dices", null], "🚀": ["rocket", null], "🚫": ["ban", null], "⛔": ["ban", null], "📊": ["chart-column", null], "🏆": ["trophy", null], "✅": ["circle-check", null], "✓": ["check", null], "✕": ["x", null], "📱": ["smartphone", null], "💼": ["briefcase", null], "💬": ["message-circle", null], "👥": ["users", null], "⚙": ["settings", null], "💀": ["skull", null], "🤲": ["hand-heart", null], "🏗": ["construction", null], "🛍": ["shopping-bag", null], "🛒": ["shopping-cart", null], "🌙": ["moon", null], "☀": ["sun", null], "📖": ["book-open", null], "📚": ["library", null], "🎮": ["gamepad-2", null], "🤑": ["circle-dollar-sign", null], "📋": ["clipboard-list", null], "⚖": ["scale", null], "🔑": ["key", null], "🏷": ["tag", null], "💣": ["bomb", null], "🎯": ["target", null], "💻": ["laptop", null], "💳": ["credit-card", null], "🎉": ["party-popper", null], "⭐": ["star", null], "★": ["star", null], "🌟": ["sparkles", null], "✨": ["sparkles", null], "🤝": ["handshake", null], "🏢": ["building-2", null], "🏠": ["house", null], "🏡": ["house", null], "🃏": ["layers", null], "❤": ["heart", null], "💡": ["lightbulb", null], "📡": ["satellite-dish", null], "🌐": ["globe", null], "🌍": ["globe", null], "🎨": ["palette", null], "🌱": ["sprout", null], "🏕": ["tent-tree", null], "🍽": ["utensils", null], "🅿": ["square-parking", null], "🔋": ["battery-charging", null], "🏛": ["landmark", null], "🍔": ["sandwich", null], "🏨": ["hotel", null], "🏙": ["building", null], "🧬": ["dna", null], "₿": ["bitcoin", null], "🏳": ["flag", null], "🟢": ["circle", "#22c55e"], "🟡": ["circle", "#eab308"], "🔴": ["circle", "#ef4444"], "⚀": ["dice-1", null], "⚁": ["dice-2", null], "⚂": ["dice-3", null], "⚃": ["dice-4", null], "⚄": ["dice-5", null], "⚅": ["dice-6", null]};
+
+// ==================== ICONS (Lucide SVG, ISC) ====================
+function IC(name, opts){
+  opts = opts || {};
+  var inner = LUCIDE[name];
+  if(!inner) return '';
+  var size = opts.size || '1em';
+  var stroke = opts.color || 'currentColor';
+  var fill = opts.fill || 'none';
+  var sw = opts.sw || 2;
+  var cls = opts.cls ? ' ' + opts.cls : '';
+  return '<svg class="lic'+cls+'" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+inner+'</svg>';
+}
+var _EMOJI_KEYS = Object.keys(EMOJI_MAP).sort(function(a,b){ return b.length - a.length; });
+function _reEsc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, function(c){ return '\\' + c; }); }
+var EMOJI_RE_G = new RegExp('(' + _EMOJI_KEYS.map(_reEsc).join('|') + ')\uFE0F?', 'g');
+var EMOJI_RE_T = new RegExp('(' + _EMOJI_KEYS.map(_reEsc).join('|') + ')');
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function emojify(str){
+  return String(str).replace(EMOJI_RE_G, function(m){
+    var key = m.replace(/️/g, '');
+    var e = EMOJI_MAP[key];
+    if(!e) return m;
+    var name = e[0], color = e[1];
+    if(color) return IC(name, {color:color, fill:color, cls:'emo-dot'});
+    return IC(name, {cls:'emo-ic'});
+  });
+}
+function emojifyElement(root){
+  if(!root || typeof document === 'undefined') return;
+  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(n){
+      var v = n.nodeValue;
+      if(!v || !EMOJI_RE_T.test(v)) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode;
+      while(p && p !== root){
+        var tg = (p.nodeName || '').toLowerCase();
+        if(tg==='svg'||tg==='script'||tg==='style'||tg==='textarea'||tg==='input') return NodeFilter.FILTER_REJECT;
+        p = p.parentNode;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  var targets = [], n;
+  while(n = walker.nextNode()) targets.push(n);
+  for(var i=0;i<targets.length;i++){
+    var node = targets[i];
+    var span = document.createElement('span');
+    span.className = 'emo';
+    span.innerHTML = emojify(escapeHtml(node.nodeValue));
+    node.parentNode.replaceChild(span, node);
+  }
+}
+function emojifyUI(){
+  try {
+    ['action-area','fs-display','modal-overlay','notif','turn-banner'].forEach(function(id){
+      emojifyElement(document.getElementById(id));
+    });
+    var scr = document.querySelector('.screen.active');
+    if(scr) emojifyElement(scr);
+  } catch(e){}
+}
+// Canvas icon image cache (board dream tiles)
+var _iconImgCache = {};
+function iconImage(name, color, px){
+  var key = name + '|' + color + '|' + px;
+  if(key in _iconImgCache) return _iconImgCache[key];
+  var inner = LUCIDE[name];
+  if(!inner){ _iconImgCache[key] = null; return null; }
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="'+px+'" height="'+px+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>';
+  var img = new Image();
+  img.onload = function(){ try { if(typeof drawBoard==='function') drawBoard(); } catch(e){} };
+  img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  _iconImgCache[key] = img;
+  return img;
+}
+function emojiIconName(em){ var e = EMOJI_MAP[(em||'').replace(/️/g,'')]; return e ? e[0] : null; }
+
 // ==================== LANGUAGE / i18n ====================
 let LANG = localStorage.getItem('mp_lang') || 'en';
 
@@ -3607,6 +3699,8 @@ function applyLang() {
   // Refresh action area text for online waiting bar
   const wb = document.getElementById('online-waiting-bar');
   if (wb && !wb.style.display?.includes('none')) wb.textContent = t('game.waiting_bar');
+  // Convert any emoji (re-introduced by data-i18n text) into SVG icons
+  emojifyElement(document.body);
 }
 
 // ==================== GAME DATA ====================
@@ -6825,6 +6919,7 @@ function renderGame() {
   updateTurnBanner();
   if (!isAnimatingTurn) drawBoard(); // skip redraw during dice/move animation
   updateOnlineWaiting();
+  emojifyElement(document.querySelector('.screen.active') || document.body);
 }
 
 function updateTurnBanner() {
@@ -6996,6 +7091,7 @@ function renderFS() {
         </div>
       </div>
     </div>`;
+  emojifyElement(document.getElementById("fs-display"));
   updateCashBar();
 }
 
@@ -7102,6 +7198,7 @@ function renderFreedomFS(p, helpers) {
 
       ${dreamHtml}
     </div>`;
+  emojifyElement(document.getElementById("fs-display"));
 }
 
 // ==================== BOARD DRAWING ====================
@@ -7221,13 +7318,23 @@ function drawBoardTile(ctx, tile, spaceOrType, active=false) {
       borderColor: active ? '#ffffff' : (owner ? owner.color : null),
       shadowBlur: 7, shadowOffsetY: 4
     });
-    ctx.fillStyle = 'rgba(255,255,255,0.96)';
-    ctx.font = `${Math.min(tile.w, tile.h) * 0.46}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(dream.icon, tile.x + tile.w/2, tile.y + tile.h/2 - 5);
+    const cxp = tile.x + tile.w/2, cyp = tile.y + tile.h/2 - 5;
+    const isz = Math.round(Math.min(tile.w, tile.h) * 0.5);
+    const inm = emojiIconName(dream.icon);
+    const img = inm ? iconImage(inm, '#ffffff', 48) : null;
+    if (img && img.complete && img.naturalWidth) {
+      ctx.drawImage(img, cxp - isz/2, cyp - isz/2, isz, isz);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.96)';
+      ctx.font = `${Math.round(Math.min(tile.w, tile.h)*0.46)}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(dream.icon, cxp, cyp);
+    }
     ctx.font = "bold 8px Nunito, Arial";
     ctx.fillStyle = "rgba(255,255,255,0.82)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillText(dreamTitle(dream).slice(0,7), tile.x + tile.w/2, tile.y + tile.h - 9);
   } else {
     glassPanel(ctx, tile.x, tile.y, tile.w, tile.h, 9, base, {
@@ -7590,6 +7697,7 @@ function setModal(title, html) {
   document.getElementById("modal-head-txt").textContent = title;
   document.getElementById("modal-content").innerHTML = html;
   document.getElementById("modal-overlay").classList.add("active");
+  emojifyElement(document.getElementById("modal-overlay"));
 }
 
 function closeModal() {
@@ -7689,6 +7797,7 @@ function showInfo(topic) {
 function showNotif(msg, type="") {
   const n = document.getElementById("notif");
   n.textContent = msg;
+  emojifyElement(n);
   n.style.borderLeftColor = type==="success" ? "#22c55e" : type==="error" ? "#fb3f5f" : "var(--accent)";
   n.style.display = "block";
   setTimeout(()=>n.style.display="none", 3000);
@@ -7982,6 +8091,7 @@ let _rerenderAction  = null;   // stores the last action render fn for language 
 function setAction(fn) {
   _rerenderAction = fn;
   fn();
+  emojifyElement(document.getElementById("action-area"));
 }
 
 function openMobilePanel(side) {
