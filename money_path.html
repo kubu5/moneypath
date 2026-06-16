@@ -480,6 +480,81 @@ input:focus, select:focus {
   transition: width 0.6s ease;
 }
 
+/* ===== FREEDOM TRACK FINANCIAL STATEMENT ===== */
+.fs-ft-annual {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  text-align: center;
+  background: linear-gradient(145deg, rgba(34,197,94,0.16), rgba(132,204,22,0.08));
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 12px;
+}
+.fs-ft-annual-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); margin-bottom: 4px;
+}
+.fs-ft-annual-value {
+  font-size: 28px; font-weight: 900; color: var(--profit);
+  font-variant-numeric: tabular-nums;
+}
+.fs-ft-annual-note { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+.fs-ft-annual-breakdown {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px;
+  margin-top: 10px; padding-top: 10px; font-size: 12px;
+  border-top: 1px dashed rgba(125,211,252,0.18);
+}
+.fs-ft-holding {
+  padding: 9px 12px; margin-bottom: 7px;
+  background: rgba(56,189,248,0.06);
+  border: 1px solid rgba(125,211,252,0.14);
+  border-left: 3px solid var(--profit);
+  border-radius: 9px;
+}
+.fs-ft-holding.fs-ft-exit { border-left-color: #fb923c; background: rgba(251,146,60,0.07); }
+.fs-ft-holding-main {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.fs-ft-holding-name { font-weight: 800; font-size: 13px; }
+.fs-ft-holding-cf { font-weight: 800; font-size: 13px; color: var(--profit); white-space: nowrap; }
+.fs-ft-holding-cf small { font-weight: 600; opacity: 0.7; font-size: 10px; }
+.fs-ft-holding-exit { font-weight: 800; font-size: 12px; color: #fb923c; white-space: nowrap; }
+.fs-ft-holding-sub {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 3px; font-size: 11px; color: var(--muted);
+}
+.fs-ft-sell {
+  padding: 2px 8px; font-size: 10px; font-weight: 700; cursor: pointer;
+  background: var(--loss); color: #fff; border: none; border-radius: 5px;
+}
+.fs-ft-subtitle {
+  margin: 12px 0 7px; font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px; color: #fb923c;
+}
+.fs-ft-empty {
+  padding: 18px 12px; text-align: center; font-size: 12px; color: var(--muted);
+  background: rgba(125,211,252,0.04); border: 1px dashed rgba(125,211,252,0.18);
+  border-radius: 9px;
+}
+.fs-ft-total {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 12px 0; padding: 11px 14px; font-weight: 800; font-size: 14px;
+  background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 10px;
+}
+.fs-ft-dream {
+  margin-top: 6px; padding: 12px 14px;
+  background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.28);
+  border-radius: 11px;
+}
+.fs-ft-dream-bar {
+  height: 10px; border-radius: 999px; overflow: hidden;
+  background: rgba(4,12,28,0.6); border: 1px solid rgba(124,58,237,0.3);
+}
+.fs-ft-dream-bar > div {
+  height: 100%; background: linear-gradient(90deg,#7c3aed,#a78bfa);
+  border-radius: 999px; transition: width 0.5s;
+}
+
 /* ===== STOCK CARD ===== */
 .stock-card {
   padding: 20px;
@@ -2592,6 +2667,19 @@ const STRINGS = {
     'fs.curr_value':         'Curr. Value',
     'fs.col_cost':           'Cost',
     'fs.col_debt':           'Debt',
+    // Freedom Track FS
+    'fs.ft_annual':          'Annual Payday Income',
+    'fs.ft_annual_note':     'Collected each time you reach a Payday field',
+    'fs.ft_monthly_passive': 'Monthly passive income',
+    'fs.ft_portfolio':       'Investment Portfolio',
+    'fs.ft_per_mo':          '/mo',
+    'fs.ft_speculative':     'Exit-Only Holdings (no cashflow)',
+    'fs.ft_exit':            mult => `exit ${mult}`,
+    'fs.ft_no_holdings':     'No investments yet — land on an Investment field to buy.',
+    'fs.ft_bonus':           pct => `Charity income bonus: +${pct}%`,
+    'fs.ft_boost':           'Active income boost',
+    'fs.ft_total_passive':   'Total monthly passive',
+    'fs.ft_debt':            'Debt',
     // Deal modal
     'deal.title':            'Deal Opportunity',
     'deal.choose':           name => `${name}, choose your deal`,
@@ -2767,7 +2855,7 @@ const STRINGS = {
     'freedom.need_cash':     n => `Need $${n} more cash`,
     'freedom.need_passive':  (pi,exp) => `Passive income $${pi}/mo must reach expenses $${exp}/mo`,
     'freedom.payday_pct':    (pct,laps) => `${pct}% · ~${laps} paydays left`,
-    'freedom.not_ready':     (icon,title,missing,income) => `${icon} Landed on your dream! Not ready yet:<br><span style="color:var(--loss);font-size:13px;">${missing}</span>+$${income} collected`,
+    'freedom.not_ready':     (icon,title,missing) => `${icon} Landed on your dream! Not ready yet:<br><span style="color:var(--loss);font-size:13px;">${missing}</span>`,
     // Dream selection
     'dream.selection_hd':    (n,total) => `Dream Selection ${n}/${total}`,
     'dream.waiting_msg':     name => `Waiting for ${name}`,
@@ -2897,6 +2985,7 @@ const STRINGS = {
     'ft.charity_done':       (amount, pct) => `Donated $${amount}. Income bonus now +${pct}%.`,
     'ft.event_header':       '⚡ EVENT',
     'ft.event_continue':     'Continue',
+    'ft.turn_done':          'Action complete. Income is paid only when you reach a Payday field.',
     'ft.cost':               'Down Payment',
     'ft.monthly_cf':         'Monthly Cashflow',
     'ft.exit_upside':        'Exit Upside',
@@ -3096,6 +3185,19 @@ const STRINGS = {
     'fs.curr_value':         'Wartość',
     'fs.col_cost':           'Koszt',
     'fs.col_debt':           'Dług',
+    // Freedom Track FS
+    'fs.ft_annual':          'Roczny dochód z wypłat',
+    'fs.ft_annual_note':     'Pobierany gdy dotrzesz do pola Wypłata',
+    'fs.ft_monthly_passive': 'Miesięczny dochód pasywny',
+    'fs.ft_portfolio':       'Portfolio inwestycyjne',
+    'fs.ft_per_mo':          '/mies.',
+    'fs.ft_speculative':     'Aktywa na wyjście (bez cashflow)',
+    'fs.ft_exit':            mult => `wyjście ${mult}`,
+    'fs.ft_no_holdings':     'Brak inwestycji — stań na polu Inwestycja, aby kupić.',
+    'fs.ft_bonus':           pct => `Bonus z dobroczynności: +${pct}%`,
+    'fs.ft_boost':           'Aktywny bonus dochodu',
+    'fs.ft_total_passive':   'Łączny miesięczny pasywny',
+    'fs.ft_debt':            'Dług',
     // Deal modal
     'deal.title':            'Okazja Inwestycyjna',
     'deal.choose':           name => `${name}, wybierz swoją okazję`,
@@ -3271,7 +3373,7 @@ const STRINGS = {
     'freedom.need_cash':     n => `Potrzebujesz jeszcze $${n} gotówki`,
     'freedom.need_passive':  (pi,exp) => `Dochód pasywny $${pi}/mies. musi osiągnąć wydatki $${exp}/mies.`,
     'freedom.payday_pct':    (pct,laps) => `${pct}% · ~${laps} wypłat zostało`,
-    'freedom.not_ready':     (icon,title,missing,income) => `${icon} Wylądowałeś na marzeniu! Jeszcze nie gotowy:<br><span style="color:var(--loss);font-size:13px;">${missing}</span>+$${income} zebrano`,
+    'freedom.not_ready':     (icon,title,missing) => `${icon} Wylądowałeś na marzeniu! Jeszcze nie gotowy:<br><span style="color:var(--loss);font-size:13px;">${missing}</span>`,
     // Dream selection
     'dream.selection_hd':    (n,total) => `Wybór marzenia ${n}/${total}`,
     'dream.waiting_msg':     name => `Oczekiwanie na ${name}`,
@@ -3401,6 +3503,7 @@ const STRINGS = {
     'ft.charity_done':       (amount, pct) => `Przekazano $${amount}. Bonus dochodowy teraz +${pct}%.`,
     'ft.event_header':       '⚡ ZDARZENIE',
     'ft.event_continue':     'Kontynuuj',
+    'ft.turn_done':          'Akcja zakończona. Dochód otrzymujesz tylko na polu Wypłata.',
     'ft.cost':               'Wkład własny',
     'ft.monthly_cf':         'Cashflow miesięcznie',
     'ft.exit_upside':        'Potencjał wyjścia',
@@ -3530,9 +3633,9 @@ const RAT_RACE_SPACES = [
 
 const SMALL_DEAL_LIMIT = 6000;
 
-// 1 payday (pos 0 = lap start), 8 dreams every 5 steps, rest = deal_ft / event / charity / leverage
+// 4 paydays (pos 0,10,20,30 — collected on pass/land), 8 dreams every 5 steps, rest = deal_ft / event / charity / leverage
 const FAST_TRACK_SPACES = [
-  {type:"payday"},              // 0  ← single PAY — lap completed
+  {type:"payday"},              // 0  ← PAY
   {type:"deal_ft"},             // 1
   {type:"event"},               // 2
   {type:"charity"},             // 3
@@ -3542,7 +3645,7 @@ const FAST_TRACK_SPACES = [
   {type:"leverage"},            // 7
   {type:"deal_ft"},             // 8
   {type:"dream", dreamId:1},    // 9
-  {type:"charity"},             // 10
+  {type:"payday"},              // 10 ← PAY
   {type:"deal_ft"},             // 11
   {type:"event"},               // 12
   {type:"deal_ft"},             // 13
@@ -3552,7 +3655,7 @@ const FAST_TRACK_SPACES = [
   {type:"deal_ft"},             // 17
   {type:"charity"},             // 18
   {type:"dream", dreamId:3},    // 19
-  {type:"event"},               // 20
+  {type:"payday"},              // 20 ← PAY
   {type:"deal_ft"},             // 21
   {type:"leverage"},            // 22
   {type:"event"},               // 23
@@ -3562,7 +3665,7 @@ const FAST_TRACK_SPACES = [
   {type:"event"},               // 27
   {type:"deal_ft"},             // 28
   {type:"dream", dreamId:5},    // 29
-  {type:"leverage"},            // 30
+  {type:"payday"},              // 30 ← PAY
   {type:"event"},               // 31
   {type:"deal_ft"},             // 32
   {type:"charity"},             // 33
@@ -4132,6 +4235,7 @@ function animatePlayerMove(p, spaces) {
       const to = (current+1) % trackLength;
       const nowTime = () => (window.performance && window.performance.now) ? window.performance.now() : Date.now();
       if (!p.onFastTrack && RAT_RACE_SPACES[to].type === 'payday') handlePayday();
+      if (p.onFastTrack && FAST_TRACK_SPACES[to].type === 'payday') collectFtPassIncome(p);
       const nextFrame = window.requestAnimationFrame || (cb => setTimeout(()=>cb(nowTime()), 16));
       const startedAt = nowTime();
       const duration = 145;
@@ -5310,6 +5414,44 @@ function tickEventModifiers(p) {
   });
 }
 
+// Dream-progress bar (shown on every Fast Track end-turn when player has a dream)
+function ftProgressBar(p) {
+  const dream = p.dream;
+  if (!dream) return '';
+  const income = getFastTrackIncome(p);
+  const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
+  const remaining = Math.max(0, dream.cost - p.cash);
+  const lapsEst = (remaining > 0 && income > 0) ? Math.ceil(remaining / income) : 0;
+  return `
+    <div style="margin:14px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;">
+        <span>${dream.icon} ${dreamTitle(dream)}</span>
+        <span>${t('freedom.payday_pct', progress, lapsEst)}</span>
+      </div>
+      <div style="height:10px;background:rgba(4,12,28,0.8);border-radius:999px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);">
+        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:width 0.5s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--muted);">
+        <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
+      </div>
+    </div>`;
+}
+
+// Income is paid ONLY when passing/landing on a PAY field (called per-step during movement).
+function collectFtPassIncome(p) {
+  const income = getFastTrackIncome(p);
+  p.cash += income;
+  p._lastFtIncome = income;
+  showNotif(t('notif.ft_payday', income.toLocaleString()), 'success');
+}
+
+// End a Fast Track turn WITHOUT paying income (deal / event / charity / leverage / dream).
+function endFtTurnNoIncome(msg) {
+  const p = currentPlayer();
+  renderFS();
+  renderAction_EndTurn((msg || t('ft.turn_done')) + ftProgressBar(p));
+}
+
 function handleFastTrack() {
   const p = currentPlayer();
   const pos = p.position % FAST_TRACK_SPACES.length;
@@ -5320,14 +5462,13 @@ function handleFastTrack() {
     const dreamDef = FAST_TRACK_DREAMS[space.dreamId];
     const owner = state.players.find(pl => pl.dream && pl.dream.id === dreamDef.id);
     if (owner && owner !== p) {
-      const oldCost = owner.dream.cost;
-      owner.dream.cost = oldCost * 2;
+      owner.dream.cost = owner.dream.cost * 2;
       showNotif(t('notif.dream_doubled', p.name, dreamDef.icon, dreamTitle(dreamDef), owner.name, owner.dream.cost.toLocaleString()), "error");
-      collectFastTrackIncome(p);
+      endFtTurnNoIncome();
       return;
     }
     if (owner === p) { handleOwnDreamLanding(p); return; }
-    collectFastTrackIncome(p);
+    endFtTurnNoIncome();
     return;
   }
 
@@ -5336,15 +5477,18 @@ function handleFastTrack() {
   if (space.type === 'charity')  { handleFtCharity(p);  return; }
   if (space.type === 'event')    { handleFtEvent(p);    return; }
 
-  // payday
-  collectFastTrackIncome(p);
+  // payday — income was already added while moving onto this tile (collectFtPassIncome)
+  const got = p._lastFtIncome || getFastTrackIncome(p);
+  endFtTurnNoIncome(t('notif.ft_payday', got.toLocaleString()));
 }
 
 // ── Freedom Track: Premium Deal ──────────────────────────────────────────────
 function handleFtDeal(p) {
   const owned = new Set((p.assets || []).map(a => a.key).filter(Boolean));
-  const available = FREEDOM_DEALS.filter(d => !owned.has(d.key));
-  if (!available.length) { collectFastTrackIncome(p); return; }
+  // Investment fields offer ONLY passive-income deals (cashflow > 0).
+  // Venture/speculative (exit-only) deals appear via events instead.
+  const available = FREEDOM_DEALS.filter(d => !owned.has(d.key) && (d.cashflow || 0) > 0);
+  if (!available.length) { endFtTurnNoIncome(); return; }
 
   // Show up to 3 random cards so players always have a real choice
   const picks = available.sort(() => Math.random() - 0.5).slice(0, Math.min(3, available.length));
@@ -5390,7 +5534,7 @@ function handleFtDeal(p) {
         <div style="padding:14px;">
           <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">${t('ft.deal_offers', picks.length)}</div>
           ${cardsHtml}
-          <button class="btn btn-secondary" style="width:100%;margin-top:2px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
+          <button class="btn btn-secondary" style="width:100%;margin-top:2px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')}</button>
         </div>
       </div>`;
   });
@@ -5432,9 +5576,9 @@ function buyFtDealLeveraged(cardKey) {
   renderAction_EndTurn(t('ft.bought_leveraged', card.icon, card.title, loanAmt.toLocaleString(), payment.toLocaleString()));
 }
 
+// "Skip"/"Continue" on action fields — ends the turn WITHOUT paying income.
 function collectFtIncomeAndEnd() {
-  const p = currentPlayer();
-  collectFastTrackIncome(p);
+  endFtTurnNoIncome();
 }
 
 function showFtMarketBrowse() {
@@ -5531,7 +5675,7 @@ function handleFtLeverage(p) {
         <div style="padding:14px;">
           ${realty.length ? `<p style="font-size:12px;color:var(--muted);margin-bottom:10px;">${t('ft.leverage_desc')}</p>${refiItems}` : ''}
           ${newDeals.length ? `${divider}<p style="font-size:12px;color:#0ea5e9;margin-bottom:8px;">${t('ft.lev_buy_desc')}</p>${buyItems}` : ''}
-          <button class="btn btn-secondary" style="width:100%;margin-top:4px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
+          <button class="btn btn-secondary" style="width:100%;margin-top:4px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')}</button>
         </div>
       </div>`;
   });
@@ -5571,7 +5715,7 @@ function handleFtCharity(p) {
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-invest" style="flex:2;" onclick="doFtCharity(${donateAmt})">${t('ft.charity_donate', donateAmt.toLocaleString())}</button>
-            <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')}</button>
           </div>
         </div>
       </div>`;
@@ -5619,7 +5763,7 @@ function applyFtEvent(p, ev) {
     });
   };
 
-  const endBtn = `<button class="btn btn-primary" style="width:100%;" onclick="collectFtIncomeAndEnd()">${t('ft.event_continue')} · +$${income.toLocaleString()}</button>`;
+  const endBtn = `<button class="btn btn-primary" style="width:100%;" onclick="collectFtIncomeAndEnd()">${t('ft.event_continue')}</button>`;
 
   // ── Spectacular events ───────────────────────────────────────────────────
   if (ev.id === 'ipo') {
@@ -5807,7 +5951,7 @@ function applyFtEvent(p, ev) {
         <button class="btn btn-invest" style="width:100%;font-size:12px;" onclick="buyFtDeal('${c.key}',${disc})" ${canBuy?'':'disabled'}>${t('ft.ev.distressed.buy')} · $${disc.toLocaleString()}</button>
       </div>`;
     }).join('');
-    const btnHtml2 = `${cards2}<button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>`;
+    const btnHtml2 = `${cards2}<button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')}</button>`;
     buildEventUI(t('ft.ev.distressed.title'), t('ft.ev.distressed.desc'), btnHtml2);
     return;
   }
@@ -5841,7 +5985,7 @@ function applyFtEvent(p, ev) {
     // Grant bonus dice turn
     p.charityTurnsLeft = Math.max(p.charityTurnsLeft || 0, 1);
     const btnHtml3 = `<div style="max-height:260px;overflow-y:auto;margin-bottom:8px;">${cards3}</div>
-      <button class="btn btn-secondary" style="width:100%;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')} · +$${income.toLocaleString()}</button>`;
+      <button class="btn btn-secondary" style="width:100%;" onclick="collectFtIncomeAndEnd()">${t('ft.skip_btn')}</button>`;
     buildEventUI(t('ft.ev.market_win.title'), t('ft.ev.market_win.desc'), btnHtml3);
     return;
   }
@@ -5873,32 +6017,9 @@ function ftSellAsset(keyOrName, price) {
 }
 
 
+// Legacy callers (no-asset / nothing-to-do branches) — end turn without income.
 function collectFastTrackIncome(p) {
-  const income = getFastTrackIncome(p);
-  p.cash += income;
-  renderFS();
-  const dream = p.dream;
-  if (!dream) {
-    renderAction_EndTurn(t('notif.ft_payday', income.toLocaleString()));
-    return;
-  }
-  const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
-  const remaining = Math.max(0, dream.cost - p.cash);
-  const lapsEst = remaining > 0 ? Math.ceil(remaining / income) : 0;
-  const progressBar = `
-    <div style="margin:14px 0;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;">
-        <span>${dream.icon} ${dreamTitle(dream)}</span>
-        <span>${t('freedom.payday_pct', progress, lapsEst)}</span>
-      </div>
-      <div style="height:10px;background:rgba(4,12,28,0.8);border-radius:999px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);">
-        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:width 0.5s;"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--muted);">
-        <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
-      </div>
-    </div>`;
-  renderAction_EndTurn(t('notif.ft_income', income.toLocaleString()) + progressBar);
+  endFtTurnNoIncome();
 }
 
 function handleOwnDreamLanding(p) {
@@ -5931,27 +6052,12 @@ function handleOwnDreamLanding(p) {
     return;
   }
 
-  // Not ready yet — show what's missing and collect income anyway
-  const income = getFastTrackIncome(p);
-  p.cash += income;
+  // Not ready yet — show what's missing (no income here; income only on PAY fields)
   renderFS();
-
   let missing = [];
   if (!canAfford) missing.push(t('freedom.need_cash', (dream.cost - p.cash).toLocaleString()));
   if (!isFinanciallyFree) missing.push(t('freedom.need_passive', p.passiveIncome.toLocaleString(), totalExpenses(p).toLocaleString()));
-
-  const progress = Math.min(100, Math.round((p.cash / dream.cost) * 100));
-  const progressBar = `
-    <div style="margin:14px 0;">
-      <div style="height:10px;background:rgba(4,12,28,0.8);border-radius:999px;overflow:hidden;border:1px solid rgba(124,58,237,0.3);">
-        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--muted);">
-        <span>$${p.cash.toLocaleString()}</span><span>$${dream.cost.toLocaleString()}</span>
-      </div>
-    </div>`;
-
-  renderAction_EndTurn(t('freedom.not_ready', dream.icon, dreamTitle(dream), missing.join(' · '), income.toLocaleString()) + progressBar);
+  renderAction_EndTurn(t('freedom.not_ready', dream.icon, dreamTitle(dream), missing.join(' · ')) + ftProgressBar(p));
 }
 
 function buyDream() {
@@ -6830,6 +6936,13 @@ function renderFS() {
       }).join("")
     : '';
 
+  // ── Freedom Track players get a portfolio-focused statement ──────────────
+  if (p.onFastTrack) {
+    renderFreedomFS(p, { row, money });
+    updateCashBar();
+    return;
+  }
+
   document.getElementById("fs-display").innerHTML = `
     <div class="fs-paper">
       <div style="background:linear-gradient(135deg,rgba(14,165,233,0.25),rgba(6,182,212,0.15)); padding:16px; border-radius:12px; margin-bottom:16px; text-align:center; border:1px solid rgba(56,189,248,0.2);">
@@ -6884,6 +6997,111 @@ function renderFS() {
       </div>
     </div>`;
   updateCashBar();
+}
+
+// ── Freedom Track financial statement: annual income + investment portfolio ──
+function renderFreedomFS(p, helpers) {
+  const { row, money } = helpers;
+  const annual = getFastTrackIncome(p);
+  const monthlyPassive = p.passiveIncome;
+  const charityPct = Math.min(p.charityBonus || 0, 4) * 5;
+  const hasBoost = (p.eventModifiers || []).some(m => m.type === 'income_boost');
+
+  // Passive-income holdings (rental/business/fund/cd + stocks/loans that pay cashflow)
+  const incomeAssets = p.assets.filter(a =>
+    a.type !== 'loan_receivable' && (a.cashflow || 0) > 0);
+  const loanRecv = p.assets.filter(a => a.type === 'loan_receivable');
+  const exitAssets = p.assets.filter(a =>
+    (a.type === 'venture' || a.type === 'speculative') && (a.cashflow || 0) === 0);
+
+  const dealLiabByKey = {};
+  p.liabilities.filter(l => l.payment > 0 || l.value > 0).forEach(l => {
+    if (l.key) dealLiabByKey[l.key] = l;
+  });
+
+  const holdingRow = (a) => {
+    const debt = a.key && dealLiabByKey[a.key] ? dealLiabByKey[a.key].value : 0;
+    return `
+      <div class="fs-ft-holding">
+        <div class="fs-ft-holding-main">
+          <span class="fs-ft-holding-name">${a.name}</span>
+          <span class="fs-ft-holding-cf">+${money(a.cashflow)}<small>${t('fs.ft_per_mo')}</small></span>
+        </div>
+        <div class="fs-ft-holding-sub">
+          <span>${t('fs.col_cost')}: ${money(a.value)}</span>
+          ${debt > 0 ? `<span style="color:var(--loss);">${t('fs.ft_debt')}: ${money(debt)}</span>` : ''}
+        </div>
+      </div>`;
+  };
+
+  const loanRow = (a) => `
+    <div class="fs-ft-holding">
+      <div class="fs-ft-holding-main">
+        <span class="fs-ft-holding-name">${LANG==='pl'?'Pożyczka dla':'Loan to'} ${a.toPlayerName}</span>
+        <span class="fs-ft-holding-cf">+${money(a.cashflow)}<small>${t('fs.ft_per_mo')}</small></span>
+      </div>
+      <div class="fs-ft-holding-sub">
+        <span>${money(a.value)}</span>
+        <button onclick="confirmSellLoanReceivable('${a.loanId}')" class="fs-ft-sell">${t('loan.sell_btn')}</button>
+      </div>
+    </div>`;
+
+  const exitRow = (a) => `
+    <div class="fs-ft-holding fs-ft-exit">
+      <div class="fs-ft-holding-main">
+        <span class="fs-ft-holding-name">${a.name}</span>
+        <span class="fs-ft-holding-exit">${a.exitMult ? t('fs.ft_exit', a.exitMult.join('–')+'×') : '—'}</span>
+      </div>
+      <div class="fs-ft-holding-sub"><span>${money(a.value)}</span></div>
+    </div>`;
+
+  const portfolioHtml = (incomeAssets.length || loanRecv.length || exitAssets.length)
+    ? `${incomeAssets.map(holdingRow).join('')}${loanRecv.map(loanRow).join('')}` +
+      (exitAssets.length
+        ? `<div class="fs-ft-subtitle">${t('fs.ft_speculative')}</div>${exitAssets.map(exitRow).join('')}`
+        : '')
+    : `<div class="fs-ft-empty">${t('fs.ft_no_holdings')}</div>`;
+
+  const dreamHtml = p.dream ? `
+    <div class="fs-ft-dream">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;">
+        <span>${p.dream.icon} ${dreamTitle(p.dream)}</span>
+        <span>${Math.min(100, Math.round((p.cash/p.dream.cost)*100))}%</span>
+      </div>
+      <div class="fs-ft-dream-bar"><div style="width:${Math.min(100, Math.round((p.cash/p.dream.cost)*100))}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;color:var(--muted);">
+        <span>${money(p.cash)}</span><span>${money(p.dream.cost)}</span>
+      </div>
+    </div>` : '';
+
+  document.getElementById("fs-display").innerHTML = `
+    <div class="fs-paper">
+      <div style="background:linear-gradient(135deg,rgba(124,58,237,0.22),rgba(168,85,247,0.12)); padding:16px; border-radius:12px; margin-bottom:14px; text-align:center; border:1px solid rgba(168,85,247,0.28);">
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px;">${t('fs.current_cash')}</div>
+        <div style="font-size:30px; font-weight:900; color:${p.cash>=0?'var(--profit)':'var(--loss)'};">${money(p.cash)}</div>
+      </div>
+
+      <div class="fs-ft-annual">
+        <div class="fs-ft-annual-label">${t('fs.ft_annual')}</div>
+        <div class="fs-ft-annual-value">${money(annual)}</div>
+        <div class="fs-ft-annual-note">${t('fs.ft_annual_note')}</div>
+        <div class="fs-ft-annual-breakdown">
+          <span>${t('fs.ft_monthly_passive')}: <strong style="color:var(--profit);">${money(monthlyPassive)}${t('fs.ft_per_mo')}</strong></span>
+          ${charityPct>0 ? `<span style="color:#84cc16;">${t('fs.ft_bonus', charityPct)}</span>` : ''}
+          ${hasBoost ? `<span style="color:#a78bfa;">⚡ ${t('fs.ft_boost')}</span>` : ''}
+        </div>
+      </div>
+
+      <div class="fs-section-title">${t('fs.ft_portfolio')}</div>
+      ${portfolioHtml}
+
+      <div class="fs-ft-total">
+        <span>${t('fs.ft_total_passive')}</span>
+        <span style="color:var(--profit);font-weight:900;">${money(monthlyPassive)}${t('fs.ft_per_mo')}</span>
+      </div>
+
+      ${dreamHtml}
+    </div>`;
 }
 
 // ==================== BOARD DRAWING ====================
