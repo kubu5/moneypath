@@ -364,7 +364,7 @@ input:focus, select:focus {
   border-radius: 16px;
   background: #02060f;
   box-shadow: 0 0 60px rgba(0,212,255,0.1), 0 24px 64px rgba(0,0,0,0.6);
-  image-rendering: crisp-edges;
+  image-rendering: auto;
   width: auto;
   height: min(580px, calc(100vh - 214px));
   max-width: min(900px, 100%);
@@ -7139,43 +7139,110 @@ function drawRoundedRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+// ── Color helpers (for glass shading) ───────────────────────────────────────
+function _hexToRgb(hex) {
+  hex = (hex || '#64748b').replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const n = parseInt(hex, 16);
+  return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+}
+// amt in [-1,1]: positive lightens toward white, negative darkens toward black
+function shade(hex, amt) {
+  const {r,g,b} = _hexToRgb(hex);
+  const f = c => amt < 0 ? Math.round(c*(1+amt)) : Math.round(c + (255-c)*amt);
+  return `rgb(${f(r)},${f(g)},${f(b)})`;
+}
+function rgba(hex, a) {
+  const {r,g,b} = _hexToRgb(hex);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── Reusable frosted-glass rounded panel ────────────────────────────────────
+function glassPanel(ctx, x, y, w, h, r, baseHex, opts={}) {
+  const { shadow=true, highlight=true, border=true, borderColor=null, glow=false } = opts;
+  if (shadow) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = opts.shadowBlur || 10;
+    ctx.shadowOffsetY = opts.shadowOffsetY || 5;
+    drawRoundedRect(ctx, x, y, w, h, r);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fill();
+    ctx.restore();
+  }
+  // body gradient
+  drawRoundedRect(ctx, x, y, w, h, r);
+  const g = ctx.createLinearGradient(x, y, x, y+h);
+  g.addColorStop(0, shade(baseHex, 0.30));
+  g.addColorStop(0.52, baseHex);
+  g.addColorStop(1, shade(baseHex, -0.24));
+  ctx.fillStyle = g;
+  ctx.fill();
+  // glossy top highlight
+  if (highlight) {
+    ctx.save();
+    ctx.clip();
+    const gl = ctx.createLinearGradient(x, y, x, y + h*0.6);
+    gl.addColorStop(0, 'rgba(255,255,255,0.34)');
+    gl.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gl;
+    ctx.fillRect(x, y, w, h*0.6);
+    ctx.restore();
+  }
+  if (glow) {
+    ctx.save();
+    drawRoundedRect(ctx, x, y, w, h, r);
+    ctx.shadowColor = 'rgba(255,255,255,0.85)';
+    ctx.shadowBlur = 16;
+    ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (border) {
+    drawRoundedRect(ctx, x, y, w, h, r);
+    ctx.strokeStyle = borderColor || 'rgba(255,255,255,0.28)';
+    ctx.lineWidth = borderColor ? 2.5 : 1.2;
+    ctx.stroke();
+  }
+}
+
 function drawBoardTile(ctx, tile, spaceOrType, active=false) {
   const space = typeof spaceOrType === 'string' ? {type: spaceOrType} : spaceOrType;
   const type = space.type;
-  drawRoundedRect(ctx, tile.x, tile.y, tile.w, tile.h, 8);
-  ctx.fillStyle = tileColor(type);
-  ctx.fill();
+  const base = tileColor(type);
 
   if (type === 'dream' && space.dreamId !== undefined) {
     const dream = FAST_TRACK_DREAMS[space.dreamId];
     const owner = state.players.find(pl => pl.dream && pl.dream.id === dream.id);
-    // Highlight in owner's color if owner exists on Fast Track
-    if (owner) {
-      ctx.strokeStyle = active ? "#ffffff" : owner.color;
-      ctx.lineWidth = active ? 5 : 3;
-    } else {
-      ctx.strokeStyle = active ? "#ffffff" : "rgba(21,15,31,0.75)";
-      ctx.lineWidth = active ? 5 : 3;
-    }
-    ctx.stroke();
-    // Draw icon
-    ctx.font = `${Math.min(tile.w, tile.h) * 0.45}px Arial`;
+    glassPanel(ctx, tile.x, tile.y, tile.w, tile.h, 9, base, {
+      glow: active,
+      border: true,
+      borderColor: active ? '#ffffff' : (owner ? owner.color : null),
+      shadowBlur: 7, shadowOffsetY: 4
+    });
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
+    ctx.font = `${Math.min(tile.w, tile.h) * 0.46}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(dream.icon, tile.x + tile.w/2, tile.y + tile.h/2 - 4);
-    // Draw tiny dream number
-    ctx.font = "bold 8px Arial";
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
-    ctx.fillText(dreamTitle(dream).slice(0,6), tile.x + tile.w/2, tile.y + tile.h - 9);
+    ctx.fillText(dream.icon, tile.x + tile.w/2, tile.y + tile.h/2 - 5);
+    ctx.font = "bold 8px Nunito, Arial";
+    ctx.fillStyle = "rgba(255,255,255,0.82)";
+    ctx.fillText(dreamTitle(dream).slice(0,7), tile.x + tile.w/2, tile.y + tile.h - 9);
   } else {
-    ctx.strokeStyle = active ? "#ffffff" : "rgba(21,15,31,0.75)";
-    ctx.lineWidth = active ? 5 : 3;
-    ctx.stroke();
-    ctx.fillStyle = "rgba(255,255,255,0.88)";
-    ctx.font = "bold 11px Arial";
+    glassPanel(ctx, tile.x, tile.y, tile.w, tile.h, 9, base, {
+      glow: active,
+      borderColor: active ? '#ffffff' : null,
+      shadowBlur: 7, shadowOffsetY: 4
+    });
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.font = "800 11px Nunito, Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 2;
     ctx.fillText(tileLabel(type), tile.x + tile.w/2, tile.y + tile.h/2);
+    ctx.shadowBlur = 0;
   }
 }
 
@@ -7188,82 +7255,199 @@ function makeFastTrackTiles() {
   return tiles;
 }
 
-function drawCardDeck(ctx, x, y, w, h, label, color) {
-  drawRoundedRect(ctx, x+8, y+8, w, h, 6);
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.fill();
-  drawRoundedRect(ctx, x, y, w, h, 6);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.4)";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "bold 14px Arial";
+function drawCardDeck(ctx, x, y, w, h, label, baseHex) {
+  // stacked-cards depth
+  glassPanel(ctx, x+6, y+7, w, h, 9, shade(baseHex,-0.15), { shadow:false, highlight:false, border:true });
+  glassPanel(ctx, x+3, y+3.5, w, h, 9, shade(baseHex,-0.05), { shadow:false, highlight:false, border:true });
+  glassPanel(ctx, x, y, w, h, 9, baseHex, { shadowBlur:12, shadowOffsetY:7 });
+  ctx.fillStyle = "rgba(255,255,255,0.96)";
+  ctx.font = "800 14px Nunito, Arial";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = 3;
   ctx.fillText(label, x+w/2, y+h/2);
+  ctx.shadowBlur = 0;
 }
 
 function drawRatRaceRing(ctx, activePositions) {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const cx=450, cy=318, outerR=196, innerR=114;
-  const step = (Math.PI*2) / RAT_RACE_SPACES.length;
+  const n = RAT_RACE_SPACES.length;
+  const step = (Math.PI*2) / n;
+
+  // Soft drop shadow beneath the whole ring (glass floating layer)
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = 26;
+  ctx.shadowOffsetY = 10;
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,0.30)';
+  ctx.fill();
+  ctx.restore();
+
+  // 1) Wedge FILLS only (no per-wedge arc strokes → no faceting/stairstepping)
   RAT_RACE_SPACES.forEach((space, i) => {
     const start = -Math.PI/2 + i*step;
-    const end = start + step - 0.012;
+    const end = start + step;
     ctx.beginPath();
     ctx.arc(cx, cy, outerR, start, end);
     ctx.arc(cx, cy, innerR, end, start, true);
     ctx.closePath();
-    ctx.fillStyle = tileColor(space.type);
-    ctx.fill();
-    ctx.strokeStyle = activePositions.includes(i) ? "#ffffff" : "rgba(18,12,26,0.72)";
-    ctx.lineWidth = activePositions.includes(i) ? 5 : 3;
-    ctx.stroke();
     const mid = start + step/2;
+    const base = tileColor(space.type);
+    const g = ctx.createLinearGradient(
+      cx+Math.cos(mid)*innerR, cy+Math.sin(mid)*innerR,
+      cx+Math.cos(mid)*outerR, cy+Math.sin(mid)*outerR);
+    g.addColorStop(0, shade(base, 0.26));
+    g.addColorStop(1, shade(base, -0.20));
+    ctx.fillStyle = g;
+    ctx.fill();
+    if (activePositions.includes(i)) {
+      ctx.fillStyle = 'rgba(255,255,255,0.26)';
+      ctx.fill();
+    }
+  });
+
+  // 2) Glossy highlight on the outer half of the ring (light from top)
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI*2);
+  ctx.arc(cx, cy, innerR, 0, Math.PI*2, true);
+  ctx.clip('evenodd');
+  const sheen = ctx.createLinearGradient(cx, cy-outerR, cx, cy);
+  sheen.addColorStop(0, 'rgba(255,255,255,0.22)');
+  sheen.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = sheen;
+  ctx.fillRect(cx-outerR, cy-outerR, outerR*2, outerR);
+  ctx.restore();
+
+  // 3) Thin radial dividers
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.lineWidth = 1;
+  for (let i=0; i<n; i++) {
+    const a = -Math.PI/2 + i*step;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*innerR, cy+Math.sin(a)*innerR);
+    ctx.lineTo(cx+Math.cos(a)*outerR, cy+Math.sin(a)*outerR);
+    ctx.stroke();
+  }
+
+  // 4) Labels
+  RAT_RACE_SPACES.forEach((space, i) => {
+    const mid = -Math.PI/2 + i*step + step/2;
     const labelR = (outerR+innerR)/2;
     ctx.save();
     ctx.translate(cx+Math.cos(mid)*labelR, cy+Math.sin(mid)*labelR);
     ctx.rotate(mid+Math.PI/2);
-    ctx.fillStyle = "rgba(255,255,255,0.88)";
-    ctx.font = "bold 10px Arial";
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.font = "800 10px Nunito, Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 2;
     ctx.fillText(tileLabel(space.type), 0, 0);
     ctx.restore();
   });
+
+  // 5) Continuous smooth circles for outer + inner edges (perfectly round)
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.34)';
+  ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, innerR, 0, Math.PI*2); ctx.stroke();
+  // subtle dark seat under inner edge for depth
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath(); ctx.arc(cx, cy, innerR-1.5, 0, Math.PI*2); ctx.stroke();
+
+  // 6) Frosted-glass center disc
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 18;
   ctx.beginPath();
   ctx.arc(cx, cy, innerR-8, 0, Math.PI*2);
-  ctx.fillStyle = isDark ? "#0a0d14" : "#fdf5ff";
+  const disc = ctx.createRadialGradient(cx, cy-30, 10, cx, cy, innerR);
+  if (isDark) {
+    disc.addColorStop(0, 'rgba(22,40,70,0.96)');
+    disc.addColorStop(1, 'rgba(6,14,30,0.98)');
+  } else {
+    disc.addColorStop(0, 'rgba(255,252,255,0.98)');
+    disc.addColorStop(1, 'rgba(243,232,255,0.96)');
+  }
+  ctx.fillStyle = disc;
   ctx.fill();
+  ctx.restore();
+  // disc rim
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR-8, 0, Math.PI*2);
+  ctx.strokeStyle = isDark ? 'rgba(125,211,252,0.30)' : 'rgba(176,145,210,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  // top sheen on disc
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR-8, 0, Math.PI*2);
+  ctx.clip();
+  const dsheen = ctx.createLinearGradient(cx, cy-(innerR-8), cx, cy);
+  dsheen.addColorStop(0, 'rgba(255,255,255,0.18)');
+  dsheen.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = dsheen;
+  ctx.fillRect(cx-innerR, cy-innerR, innerR*2, innerR);
+  ctx.restore();
+
+  // 7) Wordmark + label
   ctx.save();
   ctx.translate(cx, cy-18);
-  ctx.rotate(-0.08);
+  ctx.rotate(-0.06);
   ctx.fillStyle = isDark ? "#f5a623" : "#FF8C42";
   ctx.strokeStyle = isDark ? "rgba(90,45,14,0.8)" : "rgba(176,145,210,0.5)";
   ctx.lineWidth = 5;
-  ctx.font = "900 50px Arial";
+  ctx.font = "900 44px 'Baloo 2', Nunito, Arial";
   ctx.textAlign = "center";
+  ctx.lineJoin = "round";
   ctx.strokeText("MoneyPath", 0, 0);
   ctx.fillText("MoneyPath", 0, 0);
   ctx.restore();
   ctx.fillStyle = isDark ? "#d1e8f7" : "#9570b8";
-  ctx.font = "bold 14px Arial";
+  ctx.font = "800 14px Nunito, Arial";
   ctx.textAlign = "center";
-  ctx.fillText(t('game.daily_grind_lbl'), cx, cy+40);
+  ctx.fillText(t('game.daily_grind_lbl'), cx, cy+38);
 }
 
 function drawPlayerToken(ctx, x, y, color, label) {
+  // drop shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 3;
   ctx.beginPath();
-  ctx.fillStyle = color;
   ctx.arc(x, y, 12, 0, Math.PI*2);
+  ctx.fillStyle = color;
   ctx.fill();
+  ctx.restore();
+  // glossy body
+  const g = ctx.createRadialGradient(x-4, y-5, 1, x, y, 13);
+  g.addColorStop(0, shade(color, 0.45));
+  g.addColorStop(0.55, color);
+  g.addColorStop(1, shade(color, -0.25));
+  ctx.beginPath();
+  ctx.arc(x, y, 12, 0, Math.PI*2);
+  ctx.fillStyle = g;
+  ctx.fill();
+  // white rim
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2.5;
   ctx.stroke();
+  // specular highlight
+  ctx.beginPath();
+  ctx.arc(x-3.5, y-4, 3.5, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fill();
+  // label
   ctx.fillStyle = "#07101c";
-  ctx.font = "bold 10px Arial";
+  ctx.font = "800 10px Nunito, Arial";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(label, x, y+1);
@@ -7296,53 +7480,97 @@ function getRatRacePoint(position, playerIndex) {
 function drawBoard() {
   const canvas = document.getElementById("boardCanvas");
   const ctx = canvas.getContext("2d");
-  const w=canvas.width, h=canvas.height;
+  const W = 900, H = 620;                 // logical drawing space
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  // High-DPI backing store → smooth curves when CSS-downscaled (kills stairstepping)
+  const bw = Math.round(W*dpr), bh = Math.round(H*dpr);
+  if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.lineJoin = 'round';
+
   const fastTiles = makeFastTrackTiles();
   const ratPositions = state.players.filter(p=>!p.onFastTrack).map(p=>p.position);
-  ctx.clearRect(0,0,w,h);
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-  // Board background
-  const bg = ctx.createLinearGradient(0,0,w,h);
+  // ── Layer 0: ambient background with radial vignette ──────────────────────
+  const bg = ctx.createLinearGradient(0,0,W,H);
   if (isDark) {
-    bg.addColorStop(0,"#0a1628");
-    bg.addColorStop(0.5,"#112238");
-    bg.addColorStop(1,"#080f1e");
+    bg.addColorStop(0,"#0a1628"); bg.addColorStop(0.5,"#0d1d33"); bg.addColorStop(1,"#060d1c");
   } else {
-    bg.addColorStop(0,"#fdf5ff");
-    bg.addColorStop(0.5,"#fff8f7");
-    bg.addColorStop(1,"#f3e8ff");
+    bg.addColorStop(0,"#fdf5ff"); bg.addColorStop(0.5,"#fff8f7"); bg.addColorStop(1,"#f1e6ff");
   }
   ctx.fillStyle = bg;
-  ctx.fillRect(0,0,w,h);
+  ctx.fillRect(0,0,W,H);
+  const vig = ctx.createRadialGradient(W/2, H*0.42, 80, W/2, H/2, W*0.62);
+  vig.addColorStop(0, isDark ? 'rgba(56,189,248,0.10)' : 'rgba(149,112,184,0.10)');
+  vig.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0,0,W,H);
 
-  // Subtle grid lines
-  ctx.strokeStyle = isDark ? "rgba(56,189,248,0.04)" : "rgba(176,145,210,0.08)";
+  // faint grid
+  ctx.strokeStyle = isDark ? "rgba(56,189,248,0.04)" : "rgba(176,145,210,0.07)";
   ctx.lineWidth = 1;
-  for (let i=0; i<w; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
-  for (let j=0; j<h; j+=40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(w,j); ctx.stroke(); }
+  for (let i=40; i<W; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
+  for (let j=40; j<H; j+=40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
 
-  drawRoundedRect(ctx, 28, 18, 844, 580, 24);
-  ctx.fillStyle = isDark ? "rgba(4,12,28,0.7)" : "rgba(255,255,255,0.70)";
+  // ── Layer 1: outer frosted-glass board frame ──────────────────────────────
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 30;
+  ctx.shadowOffsetY = 12;
+  drawRoundedRect(ctx, 22, 14, 856, 590, 26);
+  const frame = ctx.createLinearGradient(0, 14, 0, 604);
+  if (isDark) {
+    frame.addColorStop(0, 'rgba(20,40,70,0.55)');
+    frame.addColorStop(1, 'rgba(4,12,28,0.65)');
+  } else {
+    frame.addColorStop(0, 'rgba(255,255,255,0.78)');
+    frame.addColorStop(1, 'rgba(243,232,255,0.62)');
+  }
+  ctx.fillStyle = frame;
   ctx.fill();
-  ctx.strokeStyle = isDark ? "rgba(56,189,248,0.18)" : "rgba(176,145,210,0.35)";
-  ctx.lineWidth = 2;
+  ctx.restore();
+  // frame top inset highlight + border
+  ctx.save();
+  drawRoundedRect(ctx, 22, 14, 856, 590, 26);
+  ctx.clip();
+  const inset = ctx.createLinearGradient(0, 14, 0, 120);
+  inset.addColorStop(0, 'rgba(255,255,255,0.22)');
+  inset.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = inset;
+  ctx.fillRect(22, 14, 856, 110);
+  ctx.restore();
+  drawRoundedRect(ctx, 22, 14, 856, 590, 26);
+  ctx.strokeStyle = isDark ? "rgba(125,211,252,0.22)" : "rgba(176,145,210,0.42)";
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
+  // ── Layer 2: translucent perimeter "lane" outline behind the freedom track ─
+  drawRoundedRect(ctx, 30, 28, 840, 562, 18);
+  ctx.strokeStyle = isDark ? 'rgba(56,189,248,0.10)' : 'rgba(149,112,184,0.12)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // ── Layer 3: freedom-track glass tiles ────────────────────────────────────
   fastTiles.forEach((tile, i) => {
     const active = state.players.some(p=>p.onFastTrack && p.position===i);
     drawBoardTile(ctx, tile, FAST_TRACK_SPACES[i % FAST_TRACK_SPACES.length], active);
   });
 
-  drawCardDeck(ctx, 116, 166, 118, 70, t('deal.small'), "rgba(56,189,248,0.85)");
-  drawCardDeck(ctx, 116, 342, 118, 70, t('deal.big'),   "rgba(34,197,94,0.85)");
-  drawCardDeck(ctx, 668, 342, 104, 70, t('splurge.hd'), "rgba(251,63,95,0.82)");
+  // ── Layer 4: card decks ───────────────────────────────────────────────────
+  drawCardDeck(ctx, 116, 166, 118, 70, t('deal.small'), "#38bdf8");
+  drawCardDeck(ctx, 116, 342, 118, 70, t('deal.big'),   "#22c55e");
+  drawCardDeck(ctx, 668, 342, 104, 70, t('splurge.hd'), "#fb3f5f");
 
-  ctx.fillStyle = isDark ? "rgba(56,189,248,0.6)" : "rgba(149,112,184,0.8)";
-  ctx.font = "bold 11px Arial";
+  ctx.fillStyle = isDark ? "rgba(125,211,252,0.7)" : "rgba(149,112,184,0.85)";
+  ctx.font = "800 11px Nunito, Arial";
   ctx.textAlign = "center";
   ctx.fillText(t('game.freedom_lbl'), 450, 92);
 
+  // ── Layer 5: rat-race ring (inner) ────────────────────────────────────────
   drawRatRaceRing(ctx, ratPositions);
 
   state.players.forEach((p, i) => {
