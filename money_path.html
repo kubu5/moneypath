@@ -405,15 +405,15 @@ input:focus, select:focus {
 #tutorial-card {
   position: fixed; z-index: 361;
   width: min(360px, calc(100vw - 28px));
-  background: linear-gradient(160deg, rgba(16,32,58,0.98), rgba(8,18,38,0.99));
-  color: #eaf4ff;
-  border: 1px solid rgba(125,211,252,0.3);
+  background: linear-gradient(160deg, rgba(255,255,255,0.99), rgba(243,232,255,0.98));
+  color: #2d2d2d;
+  border: 1px solid rgba(176,145,210,0.4);
   border-radius: 16px;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.5);
   padding: 16px 16px 14px;
   animation: tut-pop 0.22s cubic-bezier(.2,.9,.3,1.2);
 }
-:root #tutorial-card { background: linear-gradient(160deg, rgba(255,255,255,0.99), rgba(243,232,255,0.98)); color: #2d2d2d; border-color: rgba(176,145,210,0.4); }
+[data-theme="dark"] #tutorial-card { background: linear-gradient(160deg, rgba(16,32,58,0.98), rgba(8,18,38,0.99)); color: #eaf4ff; border-color: rgba(125,211,252,0.3); box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08); }
 #tutorial-card.tut-center { left: 50%; top: 50%; transform: translate(-50%,-50%); }
 .tut-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
 .tut-badge {
@@ -423,8 +423,8 @@ input:focus, select:focus {
   color: #fff; font-size: 18px;
 }
 .tut-title { font-size: 16px; font-weight: 900; line-height: 1.15; }
-.tut-body { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-bottom: 14px; }
-:root #tutorial-card .tut-body { color: #5a5a6a; }
+.tut-body { font-size: 13.5px; line-height: 1.5; color: #5a5a6a; margin-bottom: 14px; }
+[data-theme="dark"] #tutorial-card .tut-body { color: #b6cee6; }
 .tut-foot { display: flex; align-items: center; gap: 8px; }
 .tut-dots { display: flex; gap: 5px; margin-right: auto; }
 .tut-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(125,211,252,0.25); }
@@ -434,7 +434,8 @@ input:focus, select:focus {
   padding: 9px 16px; border-radius: 9px; font-family: inherit;
 }
 .tut-btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
-.tut-btn-ghost { background: rgba(125,211,252,0.12); color: var(--text); }
+.tut-btn-ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.tut-btn-ghost:hover { background: rgba(149,112,184,0.12); }
 .tut-x { position: absolute; top: 10px; right: 12px; cursor: pointer; opacity: 0.5; width: 18px; height: 18px; }
 .tut-x:hover { opacity: 1; }
 .tut-arrow { position: fixed; z-index: 361; width: 0; height: 0; }
@@ -7962,7 +7963,7 @@ function tutPosition(card, targetSel){
   if (arrow) {
     var a = document.createElement('div'); a.id = 'tutorial-arrow';
     var ax = Math.min(Math.max(left + 16, arrow.x), left + cw - 16);
-    var col = (document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.getAttribute('data-theme'))
+    var col = document.documentElement.getAttribute('data-theme') === 'dark'
       ? 'rgba(16,32,58,0.99)' : 'rgba(255,255,255,0.99)';
     if (arrow.dir === 'up') {
       a.style.cssText = 'border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:10px solid '+col+';left:'+(ax-9)+'px;top:'+(arrow.y-9)+'px;';
