@@ -395,6 +395,54 @@ input:focus, select:focus {
 
 .die-face.rolling { animation: dice-wobble 0.16s linear infinite; }
 
+/* ===== TUTORIAL ===== */
+#tutorial-backdrop {
+  position: fixed; inset: 0; z-index: 360;
+  background: rgba(2,6,15,0.55);
+  backdrop-filter: blur(2px);
+  animation: tut-fade 0.2s ease;
+}
+#tutorial-card {
+  position: fixed; z-index: 361;
+  width: min(360px, calc(100vw - 28px));
+  background: linear-gradient(160deg, rgba(16,32,58,0.98), rgba(8,18,38,0.99));
+  color: #eaf4ff;
+  border: 1px solid rgba(125,211,252,0.3);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
+  padding: 16px 16px 14px;
+  animation: tut-pop 0.22s cubic-bezier(.2,.9,.3,1.2);
+}
+:root #tutorial-card { background: linear-gradient(160deg, rgba(255,255,255,0.99), rgba(243,232,255,0.98)); color: #2d2d2d; border-color: rgba(176,145,210,0.4); }
+#tutorial-card.tut-center { left: 50%; top: 50%; transform: translate(-50%,-50%); }
+.tut-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.tut-badge {
+  width: 34px; height: 34px; flex: none; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-size: 18px;
+}
+.tut-title { font-size: 16px; font-weight: 900; line-height: 1.15; }
+.tut-body { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-bottom: 14px; }
+:root #tutorial-card .tut-body { color: #5a5a6a; }
+.tut-foot { display: flex; align-items: center; gap: 8px; }
+.tut-dots { display: flex; gap: 5px; margin-right: auto; }
+.tut-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(125,211,252,0.25); }
+.tut-dot.on { background: var(--accent); }
+.tut-btn {
+  border: none; cursor: pointer; font-weight: 800; font-size: 13px;
+  padding: 9px 16px; border-radius: 9px; font-family: inherit;
+}
+.tut-btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+.tut-btn-ghost { background: rgba(125,211,252,0.12); color: var(--text); }
+.tut-x { position: absolute; top: 10px; right: 12px; cursor: pointer; opacity: 0.5; width: 18px; height: 18px; }
+.tut-x:hover { opacity: 1; }
+.tut-arrow { position: fixed; z-index: 361; width: 0; height: 0; }
+@keyframes tut-pop { from { opacity: 0; transform: scale(0.9) translateY(8px); } }
+#tutorial-card.tut-center { animation: tut-pop-center 0.22s cubic-bezier(.2,.9,.3,1.2); }
+@keyframes tut-pop-center { from { opacity: 0; transform: translate(-50%,-46%) scale(0.92); } }
+@keyframes tut-fade { from { opacity: 0; } }
+
 /* ===== INLINE LUCIDE ICONS ===== */
 .lic {
   display: inline-block;
@@ -4290,6 +4338,7 @@ function beginTurn() {
         </div>
       </div>`;
   });
+  tutShow('welcome');
 }
 
 function formatDice(values, rolling=false) {
@@ -4387,6 +4436,7 @@ async function rollDice() {
       handleRatRaceSpace(space);
     } else {
       renderAction_EndTurn(t('space.payday'));
+      tutShow('payday');
     }
   }
   drawBoard();
@@ -4429,6 +4479,7 @@ function handleDealChoice() {
       </div>
     </div>
   `);
+  tutShow('deal');
 }
 
 function drawSmallDeal() {
@@ -4457,6 +4508,9 @@ function drawBigDeal() {
 function showDealCard() {
   const card = state.currentCard;
   if (card.isStockMarket) { showStockDealCard(card); return; }
+
+  if (card.downpayment > SMALL_DEAL_LIMIT) tutShow('big_deal');
+  else if ((card.cashflow || 0) > 0) tutShow('small_passive');
 
   updateCashBar();
   setAction(() => {
@@ -4627,6 +4681,7 @@ function updateStockBuyCost(symbol) {
 }
 
 function showStockDealCard(card) {
+  tutShow('stock');
   const stock = STOCK_MARKET_DEALS.find(s=>s.symbol===card.symbol);
   const trendBadge = getTrendLabel(card.symbol);
 
@@ -5443,6 +5498,7 @@ function handlePayday() {
 }
 
 function handleBaby() {
+  tutShow('baby');
   const p = currentPlayer();
   p.children = (p.children || 0) + 1;
   renderGame();
@@ -5454,6 +5510,7 @@ function handleBaby() {
 }
 
 function handleCharity() {
+  tutShow('charity');
   const _cost = Math.max(100, Math.round(monthlyCashflow(currentPlayer()) * 0.1));
   setAction(() => {
     const canDonate = currentPlayer().cash >= _cost;
@@ -5482,6 +5539,7 @@ function donateToCharity(cost) {
 }
 
 function handleLayoff() {
+  tutShow('layoff');
   const p = currentPlayer();
   // Just set the flag — the expense penalty is applied at the START of the next turn
   p.layoffTurnsLeft = 1;
@@ -5553,6 +5611,7 @@ function handleFastTrack() {
   tickEventModifiers(p);
 
   if (space.type === 'dream') {
+    tutShow('ft_dream');
     const dreamDef = FAST_TRACK_DREAMS[space.dreamId];
     const owner = state.players.find(pl => pl.dream && pl.dream.id === dreamDef.id);
     if (owner && owner !== p) {
@@ -5566,12 +5625,13 @@ function handleFastTrack() {
     return;
   }
 
-  if (space.type === 'deal_ft')  { handleFtDeal(p);     return; }
-  if (space.type === 'leverage') { handleFtLeverage(p); return; }
-  if (space.type === 'charity')  { handleFtCharity(p);  return; }
-  if (space.type === 'event')    { handleFtEvent(p);    return; }
+  if (space.type === 'deal_ft')  { tutShow('ft_invest');   handleFtDeal(p);     return; }
+  if (space.type === 'leverage') { tutShow('ft_leverage'); handleFtLeverage(p); return; }
+  if (space.type === 'charity')  { tutShow('ft_charity');  handleFtCharity(p);  return; }
+  if (space.type === 'event')    { tutShow('ft_event');    handleFtEvent(p);    return; }
 
   // payday — income was already added while moving onto this tile (collectFtPassIncome)
+  tutShow('ft_payday');
   const got = p._lastFtIncome || getFastTrackIncome(p);
   endFtTurnNoIncome(t('notif.ft_payday', got.toLocaleString()));
 }
@@ -6173,6 +6233,7 @@ function showWin(p, details) {
 }
 
 function drawSplurge() {
+  tutShow('splurge');
   // Weighted random: small=5 (~47%), medium=3 (~42%), large=1 (~11%)
   const totalW = SPLURGES.reduce((s, c) => s + (c.weight || 1), 0);
   let r = Math.random() * totalW;
@@ -6909,6 +6970,7 @@ function checkFastTrack(p) {
     p.position = 0;
     p.visualPosition = 0;
     showNotif(t('notif.freedom', p.name), "success");
+    tutShow('fasttrack');
   }
 }
 
@@ -7731,6 +7793,188 @@ const INFO_TOPICS = {
     pl: { title: '🏠 Czym jest Deal?', body: `<b>Deale</b> to okazje inwestycyjne generujące miesięczny dochód pasywny.<br><br><b>Małe deale</b>: Akcje, małe nieruchomości, fundusze — niższy koszt, niższy dochód.<br><b>Duże deale</b>: Nieruchomości, biznesy — wyższy koszt, wyższy dochód.<br><br>Każdy deal pokazuje: <b>Wkład własny</b> (potrzebna gotówka), <b>Miesięczny CF</b> (generowany dochód pasywny).<br><br>Najlepsze deale mają wysoki cashflow względem kosztu. Licz <b>ROI</b> = CF / koszt × 12.` }
   }
 };
+
+// ==================== TUTORIAL ====================
+var TUT = { enabled: localStorage.getItem('mp_tut_off') !== '1', seen: {}, key: null, page: 0 };
+function _tl(en, pl){ return LANG === 'pl' ? pl : en; }
+
+// Each card: {icon, center?, pages:[{t:[en,pl], b:[en,pl], target?}]}  — max 3 sentences/page
+var TUT_CARDS = {
+  welcome: { icon:'sparkles', center:true, pages:[
+    { t:['Welcome to MoneyPath!','Witaj w MoneyPath!'],
+      b:['Roll the dice, collect Paydays and invest in deals to grow passive income. When passive income covers your expenses, you escape the Daily Grind and reach the Freedom Track.','Rzucaj kostką, zbieraj Wypłaty i inwestuj w okazje, by zwiększać dochód pasywny. Gdy dochód pasywny pokryje wydatki, uciekasz z Kieratu na Ścieżkę Wolności.'] }
+  ]},
+  payday: { icon:'coins', pages:[
+    { t:['Payday!','Wypłata!'],
+      b:['You collected salary plus passive income, minus expenses. Grow your passive income so every Payday gets bigger.','Otrzymujesz wynagrodzenie plus dochód pasywny, minus wydatki. Zwiększaj dochód pasywny, by każda Wypłata rosła.'] }
+  ]},
+  deal: { icon:'layers', pages:[
+    { t:['Investment Deals','Okazje inwestycyjne'],
+      b:['On a Deal field you choose a Small or Big deal. Small deals are cheaper (stocks, small rentals); Big deals cost more but pay more.','Na polu Okazja wybierasz Mały lub Duży deal. Małe są tańsze (akcje, małe wynajmy); Duże kosztują więcej, ale dają więcej.'], target:'#modal-content' },
+    { t:['Cashflow is king','Liczy się cashflow'],
+      b:['Each deal shows a Down Payment and Monthly Cashflow. The higher the cashflow per dollar invested, the faster you reach freedom.','Każdy deal pokazuje Wkład własny i Miesięczny cashflow. Im wyższy cashflow na zainwestowanego dolara, tym szybciej do wolności.'], target:'#modal-content' }
+  ]},
+  stock: { icon:'trending-up', pages:[
+    { t:['Stocks','Akcje'],
+      b:['Stocks pay no monthly cashflow — you profit by buying low and selling high. Watch the trend badge and the price range before buying.','Akcje nie dają miesięcznego cashflow — zarabiasz kupując tanio i sprzedając drogo. Sprawdź trend i zakres ceny przed zakupem.'], target:'#action-area' }
+  ]},
+  small_passive: { icon:'house', pages:[
+    { t:['Passive-income deal','Deal z dochodem pasywnym'],
+      b:['This investment pays you every month. Buying it raises your passive income — your ticket out of the Daily Grind.','Ta inwestycja płaci co miesiąc. Zakup zwiększa Twój dochód pasywny — przepustkę z Kieratu.'], target:'#action-area' }
+  ]},
+  big_deal: { icon:'building-2', pages:[
+    { t:['Big Deal','Duży Deal'],
+      b:['Big deals need a larger down payment but generate far more monthly cashflow. Short on cash? Take a loan — but mind the interest.','Duże deale wymagają większego wkładu, ale dają znacznie wyższy cashflow. Brakuje gotówki? Weź pożyczkę — ale uważaj na odsetki.'], target:'#action-area' }
+  ]},
+  splurge: { icon:'shopping-bag', pages:[
+    { t:['Splurge','Wydatek'],
+      b:['An unexpected expense drains your cash. Keep a buffer so a surprise bill never pushes you into the red.','Niespodziewany wydatek uszczupla gotówkę. Trzymaj zapas, by niespodzianka nie wepchnęła Cię na minus.'], target:'#action-area' }
+  ]},
+  baby: { icon:'heart', pages:[
+    { t:['A new baby!','Dziecko!'],
+      b:['Children add to your monthly expenses. More expenses means you need more passive income to reach freedom.','Dzieci zwiększają miesięczne wydatki. Więcej wydatków to większa potrzeba dochodu pasywnego.'], target:'#action-area' }
+  ]},
+  charity: { icon:'hand-heart', pages:[
+    { t:['Charity','Dobroczynność'],
+      b:['Donate a little to roll two dice for the next few turns — moving faster lets you reach more opportunities.','Przekaż drobną kwotę, by przez kilka tur rzucać dwiema kostkami — szybszy ruch to więcej okazji.'], target:'#action-area' }
+  ]},
+  layoff: { icon:'triangle-alert', pages:[
+    { t:['Laid off','Zwolnienie'],
+      b:['You lose your salary next turn, but expenses still apply. Passive income keeps flowing — another reason to build it.','Tracisz wynagrodzenie w następnej turze, ale wydatki zostają. Dochód pasywny wciąż płynie — kolejny powód, by go budować.'], target:'#action-area' }
+  ]},
+  fasttrack: { icon:'rocket', center:true, pages:[
+    { t:["You're free!",'Jesteś wolny!'],
+      b:['Your passive income beat your expenses — welcome to the Freedom Track! Now build large investments and chase the dream that wins the game.','Twój dochód pasywny przebił wydatki — witaj na Ścieżce Wolności! Buduj duże inwestycje i goń marzenie, które wygrywa grę.'] }
+  ]},
+  ft_payday: { icon:'coins', pages:[
+    { t:['Freedom Payday','Wypłata Wolności'],
+      b:['On the Freedom Track you only earn on Payday fields — a whole year of passive income at once. There are four per lap.','Na Ścieżce Wolności zarabiasz tylko na polach Wypłata — od razu cały rok dochodu pasywnego. Są cztery na okrążenie.'] }
+  ]},
+  ft_invest: { icon:'briefcase', pages:[
+    { t:['Premium Investments','Inwestycje Premium'],
+      b:['Choose one large cashflow deal — or skip. Only passive-income investments appear here; each one raises your yearly Payday.','Wybierz jeden duży deal z cashflow — lub pomiń. Pojawiają się tu tylko inwestycje z dochodem pasywnym; każda zwiększa roczną Wypłatę.'], target:'#action-area' }
+  ]},
+  ft_leverage: { icon:'landmark', pages:[
+    { t:['Leverage','Dźwignia'],
+      b:['The bank lends against your assets, or finances a new one. Used wisely, leverage multiplies returns — but it adds debt.','Bank pożycza pod zastaw aktywów lub finansuje nowe. Mądrze użyta dźwignia zwielokrotnia zyski — ale zwiększa dług.'], target:'#action-area' }
+  ]},
+  ft_event: { icon:'zap', pages:[
+    { t:['Events','Zdarzenia'],
+      b:['Random events can boost or hit your wealth — an IPO, a market window, or a black swan. Staying diversified protects you.','Losowe zdarzenia mogą podbić lub uderzyć w majątek — IPO, okno rynkowe lub czarny łabędź. Dywersyfikacja chroni.'], target:'#action-area' }
+  ]},
+  ft_charity: { icon:'hand-heart', pages:[
+    { t:['Giving back','Dziel się'],
+      b:['Donate to permanently boost your income and roll two dice. On the Freedom Track, generosity compounds.','Przekaż datek, by trwale zwiększyć dochód i rzucać dwiema kostkami. Na Ścieżce Wolności hojność się kumuluje.'], target:'#action-area' }
+  ]},
+  ft_dream: { icon:'star', pages:[
+    { t:['Your Dream','Twoje Marzenie'],
+      b:['Land here with enough cash and passive income above expenses to buy your dream — and win the game!','Stań tu z wystarczającą gotówką i dochodem pasywnym powyżej wydatków, by kupić marzenie — i wygrać grę!'], target:'#action-area' }
+  ]}
+};
+
+function tutShow(key){
+  if (!TUT.enabled || TUT.seen[key]) return;
+  if (isOnline && !isMyTurn()) return;       // only teach the active local player
+  if (!TUT_CARDS[key]) return;
+  TUT.seen[key] = true;
+  TUT.key = key; TUT.page = 0;
+  setTimeout(tutRender, 80);                  // let the underlying UI render first
+}
+function tutCloseUI(){
+  ['tutorial-card','tutorial-backdrop','tutorial-arrow'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.remove();
+  });
+}
+function tutClose(){ tutCloseUI(); TUT.key = null; }
+function tutSkipAll(){ TUT.enabled = false; localStorage.setItem('mp_tut_off','1'); tutClose(); }
+function tutNext(){
+  var c = TUT_CARDS[TUT.key]; if (!c) return tutClose();
+  if (TUT.page < c.pages.length - 1) { TUT.page++; tutRender(); } else tutClose();
+}
+function tutPrev(){ if (TUT.page > 0) { TUT.page--; tutRender(); } }
+
+function tutRender(){
+  tutCloseUI();
+  var c = TUT_CARDS[TUT.key]; if (!c) return;
+  var pg = c.pages[TUT.page];
+  var isWelcome = (TUT.key === 'welcome');
+  var last = TUT.page === c.pages.length - 1;
+
+  if (c.center) {
+    var bd = document.createElement('div'); bd.id = 'tutorial-backdrop'; document.body.appendChild(bd);
+  }
+  var card = document.createElement('div');
+  card.id = 'tutorial-card';
+  if (c.center) card.classList.add('tut-center');
+
+  var dots = c.pages.length > 1
+    ? '<div class="tut-dots">' + c.pages.map(function(_,i){ return '<span class="tut-dot'+(i===TUT.page?' on':'')+'"></span>'; }).join('') + '</div>'
+    : '<span class="tut-dots"></span>';
+
+  var buttons;
+  if (isWelcome) {
+    buttons = '<button class="tut-btn tut-btn-ghost" onclick="tutSkipAll()">'+_tl('Skip tutorial','Pomiń samouczek')+'</button>'
+            + '<button class="tut-btn tut-btn-primary" onclick="tutNext()">'+_tl("Let's go",'Zaczynamy')+'</button>';
+  } else {
+    var back = TUT.page > 0 ? '<button class="tut-btn tut-btn-ghost" onclick="tutPrev()">'+IC('arrow-left')+'</button>' : '';
+    buttons = back + '<button class="tut-btn tut-btn-primary" onclick="tutNext()">'+(last?_tl('Got it','Rozumiem'):_tl('Next','Dalej'))+'</button>';
+  }
+
+  card.innerHTML =
+    (isWelcome ? '' : '<span class="tut-x" onclick="tutClose()">'+IC('x')+'</span>')
+    + '<div class="tut-head"><div class="tut-badge">'+IC(c.icon)+'</div><div class="tut-title">'+_tl(pg.t[0],pg.t[1])+'</div></div>'
+    + '<div class="tut-body">'+_tl(pg.b[0],pg.b[1])+'</div>'
+    + '<div class="tut-foot">'+dots+buttons+'</div>';
+  document.body.appendChild(card);
+
+  if (!c.center) tutPosition(card, pg.target);
+}
+
+// Anchor the coach card to a target element with a small arrow; clamp to viewport.
+function tutPosition(card, targetSel){
+  var vw = window.innerWidth, vh = window.innerHeight;
+  var r = card.getBoundingClientRect();
+  var cw = r.width, ch = r.height;
+  var tgt = targetSel && document.querySelector(targetSel);
+  var tr = null;
+  if (tgt) {
+    var rr = tgt.getBoundingClientRect();
+    if (rr.width > 0 && rr.height > 0 && rr.bottom > 0 && rr.top < vh) tr = rr;  // visible in viewport
+  }
+  var pad = 12, left, top, arrow = null;
+
+  if (tr && tr.width > 0 && tr.height > 0) {
+    left = Math.min(Math.max(pad, tr.left + tr.width/2 - cw/2), vw - cw - pad);
+    if (tr.bottom + ch + 16 < vh) {            // place BELOW target → arrow up
+      top = tr.bottom + 12; arrow = { dir:'up', x: tr.left + tr.width/2, y: top - 1 };
+    } else if (tr.top - ch - 16 > 0) {         // place ABOVE → arrow down
+      top = tr.top - ch - 12; arrow = { dir:'down', x: tr.left + tr.width/2, y: top + ch + 1 };
+    } else {                                   // beside/centered fallback
+      top = Math.min(Math.max(pad, tr.top), vh - ch - pad);
+    }
+  } else {
+    left = (vw - cw) / 2;
+    top = vh - ch - 90;                        // bottom-anchored coach card
+  }
+  card.style.left = Math.round(left) + 'px';
+  card.style.top = Math.round(Math.max(pad, top)) + 'px';
+
+  if (arrow) {
+    var a = document.createElement('div'); a.id = 'tutorial-arrow';
+    var ax = Math.min(Math.max(left + 16, arrow.x), left + cw - 16);
+    var col = (document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.getAttribute('data-theme'))
+      ? 'rgba(16,32,58,0.99)' : 'rgba(255,255,255,0.99)';
+    if (arrow.dir === 'up') {
+      a.style.cssText = 'border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:10px solid '+col+';left:'+(ax-9)+'px;top:'+(arrow.y-9)+'px;';
+    } else {
+      a.style.cssText = 'border-left:9px solid transparent;border-right:9px solid transparent;border-top:10px solid '+col+';left:'+(ax-9)+'px;top:'+(arrow.y-1)+'px;';
+    }
+    document.body.appendChild(a);
+  }
+}
+
+// Reset tutorial (e.g., from a new game) — call to re-enable teaching this session.
+function tutResetSeen(){ TUT.seen = {}; }
 
 // ==================== CHAT ====================
 let _chatOpen = false;
